@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acceso - TecniRed</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: radial-gradient(circle at top left, #0f2a4d, #0b1629 70%);
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* CONTENEDOR CENTRADO REAL */
+      .wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      /* TARJETA */
+      .card {
+        width: 420px;
+        padding: 45px;
+        border-radius: 18px;
+        background: #111c2f;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        transition: all 0.5s ease;
+        position: absolute;
+      }
+
+      .card.hidden {
+        opacity: 0;
+        transform: scale(0.95);
+        pointer-events: none;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: white;
+        font-weight: 600;
+      }
+
+      .input-group {
+        margin-bottom: 18px;
+      }
+
+      label {
+        font-size: 13px;
+        color: #8faed6;
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      input {
+        width: 100%;
+        padding: 13px;
+        border-radius: 10px;
+        border: 1px solid #1e2b45;
+        background: #0f1b2e;
+        color: white;
+        transition: 0.3s;
+      }
+
+      input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        outline: none;
+      }
+
+      button {
+        width: 100%;
+        padding: 13px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #2b6be6, #4a8df5);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 10px;
+      }
+
+      button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(43, 107, 230, 0.4);
+      }
+
+      .toggle {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+        color: #9fb5d6;
+      }
+
+      .toggle span {
+        color: #4a8df5;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      /* NIEVE */
+      .snowflake {
+        position: fixed;
+        top: -10px;
+        color: white;
+        font-size: 10px;
+        opacity: 0.8;
+        animation: fall linear infinite;
+        z-index: 1;
+      }
+
+      @keyframes fall {
+        to {
+          transform: translateY(110vh);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <!-- LOGIN -->
+      <div class="card" id="loginForm">
+        <h2>Bienvenido</h2>
+
+        <div class="input-group">
+          <label>Correo electrónico</label>
+          <input id="login-email" type="email" />
+        </div>
+
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input id="login-pass" type="password" />
+        </div>
+
+        <button onclick="login()">Iniciar Sesión</button>
+
+        <p class="toggle">
+          ¿No tienes cuenta?
+          <span onclick="mostrarRegistro()">Crear cuenta</span>
+        </p>
+      </div>
+
+      <!-- REGISTRO -->
+      <div class="card hidden" id="registerForm">
+        <h2>Crear Cuenta</h2>
+
+        <div class="input-group">
+          <label>Nombre completo</label>
+          <input id="nombre" type="text" />
+        </div>
+
+        <div class="input-group">
+          <label>Correo electrónico</label>
+          <input id="email" type="email" />
+        </div>
+        <div class="input-group">
+          <label>Número de teléfono</label>
+          <input id="telefono" type="text" />
+        </div>
+
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input id="password" type="password" />
+        </div>
+
+        <button onclick="register()">Registrar</button>
+        <p id="mensaje"></p>
+        <p class="toggle">
+          ¿Ya tienes cuenta? <span onclick="mostrarLogin()">Inicia sesión</span>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      /* =========================
+   EFECTO PARTÍCULAS RED
+========================= */
+
+      const canvas = document.createElement("canvas");
+      document.body.appendChild(canvas);
+      canvas.style.position = "fixed";
+      canvas.style.top = 0;
+      canvas.style.left = 0;
+      canvas.style.zIndex = 0;
+      canvas.style.pointerEvents = "none";
+
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particlesArray = [];
+      const mouse = { x: null, y: null };
+
+      window.addEventListener("mousemove", function (event) {
+        mouse.x = event.x;
+        mouse.y = event.y;
+      });
+
+      window.addEventListener("resize", function () {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = 2;
+          this.speedX = (Math.random() - 0.5) * 0.5;
+          this.speedY = (Math.random() - 0.5) * 0.5;
+        }
+
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+
+          if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+          if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+
+        draw() {
+          ctx.fillStyle = "rgba(74,141,245,0.8)";
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function initParticles() {
+        particlesArray = [];
+        for (let i = 0; i < 90; i++) {
+          particlesArray.push(new Particle());
+        }
+      }
+
+      function connectParticles() {
+        for (let a = 0; a < particlesArray.length; a++) {
+          for (let b = a; b < particlesArray.length; b++) {
+            let dx = particlesArray[a].x - particlesArray[b].x;
+            let dy = particlesArray[a].y - particlesArray[b].y;
+            let distance = dx * dx + dy * dy;
+
+            if (distance < 10000) {
+              ctx.strokeStyle = "rgba(74,141,245,0.15)";
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+              ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+              ctx.stroke();
+            }
+          }
+
+          // conexión con mouse
+          if (mouse.x && mouse.y) {
+            let dx = particlesArray[a].x - mouse.x;
+            let dy = particlesArray[a].y - mouse.y;
+            let distance = dx * dx + dy * dy;
+
+            if (distance < 15000) {
+              ctx.strokeStyle = "rgba(255,255,255,0.3)";
+              ctx.beginPath();
+              ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+              ctx.lineTo(mouse.x, mouse.y);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particlesArray.forEach((particle) => {
+          particle.update();
+          particle.draw();
+        });
+        connectParticles();
+        requestAnimationFrame(animateParticles);
+      }
+
+      initParticles();
+      animateParticles();
+
+      /* =========================
+   EFECTO RIPPLE EN BOTONES
+========================= */
+
+      document.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", function (e) {
+          const circle = document.createElement("span");
+          circle.style.position = "absolute";
+          circle.style.width = circle.style.height = "100px";
+          circle.style.background = "rgba(255,255,255,0.3)";
+          circle.style.borderRadius = "50%";
+          circle.style.left = e.offsetX - 50 + "px";
+          circle.style.top = e.offsetY - 50 + "px";
+          circle.style.animation = "ripple 0.6s linear";
+          circle.style.pointerEvents = "none";
+          this.appendChild(circle);
+          setTimeout(() => circle.remove(), 600);
+        });
+      });
+
+      /* =========================
+   TRANSICIÓN FORMULARIOS
+========================= */
+
+      function mostrarRegistro() {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("registerForm").classList.remove("hidden");
+      }
+
+      function mostrarLogin() {
+        document.getElementById("registerForm").classList.add("hidden");
+        document.getElementById("loginForm").classList.remove("hidden");
+      }
+
+      /* =========================
+   TU LÓGICA ORIGINAL
+========================= */
+
+      function login() {
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-pass").value;
+
+        fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            alert(data.message);
+            if (data.status === "ok") {
+              localStorage.setItem("usuario", JSON.stringify(data.user));
+              if (data.user.rol === "admin") {
+                window.location.href = "/admin.html";
+              } else {
+                window.location.href = "/user_cliente.html";
+              }
+            }
+          });
+      }
+
+      function register() {
+        const nombre = document.getElementById("nombre").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const telefono = document.getElementById("telefono").value;
+        const mensaje = document.getElementById("mensaje");
+
+        fetch("http://localhost:3000/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre, email, password, telefono }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            mensaje.style.marginTop = "20px";
+            mensaje.style.textAlign = "center";
+            mensaje.style.fontWeight = "600";
+
+            if (data.status === "ok") {
+              mensaje.style.color = "#4ade80"; // verde bonito
+              mensaje.textContent = data.message;
+
+              // ⏳ Después de 1.5 segundos cambia al login
+              setTimeout(() => {
+                mostrarLogin();
+                mensaje.textContent = "";
+              }, 1500);
+            } else {
+              mensaje.style.color = "#f87171"; // rojo bonito
+              mensaje.textContent = data.message;
+            }
+          });
+      }
+    </script>
+  </body>
+</html>

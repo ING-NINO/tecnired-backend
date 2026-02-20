@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TECNIRED - Soporte Técnico Inteligente</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary: #1e90ff;
+        --secondary: #00c6ff;
+        --dark: #0f172a;
+        --light: #f1f5f9;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: var(--dark);
+        color: var(--light);
+        overflow-x: hidden;
+      }
+      /* NAVBAR */
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        padding: 18px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(10px);
+        z-index: 999;
+        transition: 0.3s;
+      }
+
+      .navbar.scroll {
+        background: rgba(10, 15, 30, 0.95);
+      }
+
+      .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 40px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: white;
+        font-weight: 500;
+      }
+      .logo {
+        width: 45px;
+        height: auto;
+      }
+
+      /* HERO */
+      .hero {
+        position: relative;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        padding-top: 100px;
+        overflow: hidden;
+      }
+
+      /* HERO */
+      .hero {
+        position: relative;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        padding-top: 100px;
+        overflow: hidden;
+      }
+
+      /* FONDO ANIMADO */
+      #bg-animation {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+      }
+
+      /* OVERLAY */
+      .overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, 0.85),
+          rgba(0, 102, 255, 0.4)
+        );
+      }
+
+      /* CONTENIDO HERO */
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 80px;
+        gap: 50px;
+      }
+
+      .overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, 0.85),
+          rgba(0, 102, 255, 0.5)
+        );
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 80px;
+        gap: 50px;
+      }
+      .hero-text .btn-primary {
+        align-self: flex-start; /* evita que se haga ancho completo */
+      }
+      .hero-text {
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .hero-text h1 {
+        font-size: 48px;
+        margin-bottom: 0;
+      }
+
+      .hero-image img {
+        width: 500px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        animation: float 4s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      /* BOTONES */
+      .btn-primary,
+      .btn-login,
+      .btn-plan {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 12px 28px;
+        border-radius: 30px;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+        display: inline-block;
+        box-shadow: 0 8px 20px rgba(0, 102, 255, 0.4);
+      }
+
+      .btn-primary:hover,
+      .btn-login:hover,
+      .btn-plan:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 102, 255, 0.6);
+      }
+
+      /* DOTS */
+      .dots {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+      }
+
+      .dots span {
+        width: 10px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      .dots span.active {
+        background: #00c6ff;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 900px) {
+        .hero-content {
+          flex-direction: column;
+          text-align: center;
+          padding: 0 20px;
+        }
+
+        .nav-links {
+          display: none;
+        }
+      }
+      section {
+        padding: 100px 60px;
+        text-align: center;
+      }
+
+      h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+      }
+
+      p {
+        opacity: 0.9;
+        line-height: 1.6;
+      }
+
+      /* BOTONES */
+      .btn-primary,
+      .btn-plan,
+      .btn-login {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 12px 28px;
+        border-radius: 30px;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+        display: inline-block;
+        box-shadow: 0 8px 20px rgba(0, 102, 255, 0.4);
+      }
+
+      .btn-primary:hover,
+      .btn-plan:hover,
+      .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 102, 255, 0.6);
+      }
+
+      /* SERVICIOS */
+      .cards {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 50px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 30px;
+        width: 300px;
+        transition: 0.4s;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* PLANES */
+      .planes-container {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 50px;
+      }
+
+      .plan-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 40px;
+        width: 300px;
+        transition: 0.4s;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .plan-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .destacado {
+        transform: scale(1.05);
+        border: 2px solid var(--primary);
+        box-shadow: 0 20px 50px rgba(0, 102, 255, 0.5);
+      }
+
+      .badge {
+        background: var(--primary);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+
+      /* TESTIMONIOS */
+      .testimonios-container {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 50px;
+      }
+
+      .testimonio {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        border-radius: 20px;
+        width: 320px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .stars {
+        color: #ffc107;
+        margin-bottom: 10px;
+      }
+
+      /* CTA */
+      .cta {
+        background: linear-gradient(135deg, #0a0f1e, #001f4d);
+        padding: 120px 40px;
+      }
+
+      /* CONTACTO */
+      .formulario {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 60px;
+        border-radius: 30px;
+        max-width: 600px;
+        margin: auto;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 12px;
+        border: none;
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: 2px solid var(--primary);
+      }
+
+      footer {
+        padding: 30px;
+        text-align: center;
+        background: #0a0f1e;
+        margin-top: 50px;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 900px) {
+        .cards,
+        .planes-container,
+        .testimonios-container {
+          flex-direction: column;
+          align-items: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="hero">
+      <canvas id="bg-animation"></canvas>
+
+      <div class="overlay"></div>
+
+      <nav class="navbar">
+        <div style="display: flex; align-items: center">
+          <img src="./img/TecniredLogo.png" class="logo" />
+          <span class="brand">TECNIRED</span>
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#planes">Planes</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+          <li><a href="Sobre_Nosotros.html">Nosotros</a></li>
+        </ul>
+
+        <a href="login.html" class="btn-login">INGRESA YA</a>
+      </nav>
+
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 id="typing-text"></h1>
+          <p class="hero-description">
+            Soporte tecnológico inteligente, rápido y confiable para hogares y
+            empresas.
+          </p>
+          <a class="btn-primary">Comenzar</a>
+        </div>
+        <div class="hero-image">
+          <img src="./img/TecniredLogo.png" alt="Panel de Soporte" />
+        </div>
+      </div>
+    </header>
+
+    <!-- SERVICIOS -->
+    <section id="servicios">
+      <h2>Soluciones Tecnológicas que Impulsan tu Productividad</h2>
+      <p>
+        En TECNIRED no solo reparamos equipos, optimizamos tu entorno digital
+        para que trabajes sin interrupciones.
+      </p>
+
+      <div class="cards">
+        <div class="card">
+          <i class="fa-solid fa-screwdriver-wrench icon"></i>
+          <h3>Mantenimiento Preventivo</h3>
+          <p>
+            Prolongamos la vida útil de tus equipos con limpieza interna,
+            optimización de sistema y mejora de rendimiento.
+          </p>
+        </div>
+
+        <div class="card">
+          <i class="fa-solid fa-headset icon"></i>
+          <h3>Soporte Remoto 24/7</h3>
+          <p>
+            Atención inmediata sin importar tu ubicación. Diagnóstico rápido y
+            solución eficiente.
+          </p>
+        </div>
+
+        <div class="card">
+          <i class="fa-solid fa-shield-halved icon"></i>
+          <h3>Seguridad Digital</h3>
+          <p>
+            Protección contra virus, malware y ataques informáticos. Tus datos
+            siempre seguros.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLANES -->
+    <section id="planes">
+      <h2>Planes Diseñados para Cada Necesidad</h2>
+      <p>Elige el plan que mejor se adapte a tu hogar o negocio.</p>
+
+      <div class="planes-container">
+        <div class="plan-card">
+          <h3>Básico</h3>
+          <p>$30.000 / mes</p>
+          <p>
+            ✔ Soporte remoto básico<br />✔ 1 equipo<br />✔ Diagnóstico mensual
+          </p>
+          <br />
+          <a href="#" class="btn-plan">Elegir Plan</a>
+        </div>
+
+        <div class="plan-card destacado">
+          <span class="badge">Más elegido</span>
+          <h3>Estándar</h3>
+          <p>$60.000 / mes</p>
+          <p>
+            ✔ Soporte ilimitado<br />✔ Hasta 3 equipos<br />✔ Seguridad
+            antivirus<br />✔ Optimización mensual
+          </p>
+          <br />
+          <a href="#" class="btn-plan">Elegir Plan</a>
+        </div>
+
+        <div class="plan-card">
+          <h3>Premium</h3>
+          <p>$100.000 / mes</p>
+          <p>
+            ✔ Soporte prioritario<br />✔ Equipos ilimitados<br />✔ Seguridad
+            avanzada<br />✔ Monitoreo constante
+          </p>
+          <br />
+          <a href="#" class="btn-plan">Elegir Plan</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIOS -->
+    <section>
+      <h2>Clientes que Confían en Nosotros</h2>
+
+      <div class="testimonios-container">
+        <div class="testimonio">
+          <div class="stars">★★★★★</div>
+          <p>
+            "Desde que contraté TECNIRED, mi negocio dejó de tener problemas
+            técnicos. Servicio rápido y profesional."
+          </p>
+          <strong>- Empresario Local</strong>
+        </div>
+
+        <div class="testimonio">
+          <div class="stars">★★★★★</div>
+          <p>
+            "El soporte remoto fue inmediato. En menos de 20 minutos mi problema
+            estaba solucionado."
+          </p>
+          <strong>- Estudiante Universitario</strong>
+        </div>
+
+        <div class="testimonio">
+          <div class="stars">★★★★★</div>
+          <p>
+            "Excelente atención y precios accesibles. Totalmente recomendados."
+          </p>
+          <strong>- Hogar en Boyacá</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+      <h2>¿Listo para Optimizar tu Tecnología?</h2>
+      <p>
+        No esperes a que los problemas aparezcan. Da el siguiente paso hacia un
+        soporte profesional y confiable.
+      </p>
+      <br />
+      <a href="#contacto" class="btn-primary">Quiero Asesoría Ahora</a>
+    </section>
+
+    <!-- CONTACTO -->
+    <section id="contacto">
+      <h2>Contáctanos</h2>
+
+      <div class="formulario">
+        <form>
+          <input type="text" placeholder="Tu nombre" required />
+          <input type="email" placeholder="Tu correo" required />
+          <textarea placeholder="Cuéntanos tu problema"></textarea>
+          <button class="btn-primary" type="submit">Enviar Mensaje</button>
+        </form>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 TECNIRED - Innovación y Soporte Tecnológico</p>
+    </footer>
+    <script>
+      // ===== NAVBAR SCROLL =====
+      const nav = document.querySelector(".navbar");
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 50) {
+          nav.classList.add("scroll");
+        } else {
+          nav.classList.remove("scroll");
+        }
+      });
+
+      // ===== PARTICULAS ANIMADAS =====
+      const canvas = document.getElementById("bg-animation");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+
+      for (let i = 0; i < 80; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2,
+          speedX: Math.random() * 1 - 0.5,
+          speedY: Math.random() * 1 - 0.5,
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00c6ff";
+
+        particles.forEach((p) => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          if (p.x > canvas.width) p.x = 0;
+          if (p.x < 0) p.x = canvas.width;
+          if (p.y > canvas.height) p.y = 0;
+          if (p.y < 0) p.y = canvas.height;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      // ===== EFECTO ESCRITURA =====
+      const text = "Soporte Tecnológico de Confianza";
+      const typingElement = document.querySelector(".hero-text h1");
+
+      let index = 0;
+
+      function typeEffect() {
+        if (index < text.length) {
+          typingElement.innerHTML += text.charAt(index);
+          index++;
+          setTimeout(typeEffect, 50);
+        }
+      }
+
+      typingElement.innerHTML = "";
+      typeEffect();
+    </script>
+  </body>
+</html>

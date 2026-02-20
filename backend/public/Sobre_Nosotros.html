@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sobre Nosotros | TECNIRED</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary: #4a8df5;
+        --secondary: #00c6ff;
+        --dark: #0b1629;
+        --light: #cbd5e1;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: var(--dark);
+        color: white;
+        overflow-x: hidden;
+      }
+
+      /* ===== PARTICULAS ===== */
+      #particles-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(135deg, #0b1629, #0f1e35);
+      }
+
+      /* ===== NAVBAR ===== */
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 8%;
+        background: rgba(11, 22, 41, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(0, 198, 255, 0.15);
+        z-index: 1000;
+      }
+
+      .logo-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-nav img {
+        width: 45px;
+      }
+
+      .logo-nav span {
+        font-weight: 700;
+        font-size: 20px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 25px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: var(--light);
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: var(--secondary);
+      }
+
+      /* ===== HERO ===== */
+      .hero {
+        padding: 130px 8% 60px 8%;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: 42px;
+        margin-bottom: 20px;
+        background: linear-gradient(90deg, #4a8df5, #00c6ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero p {
+        max-width: 700px;
+        margin: auto;
+        color: var(--light);
+      }
+
+      /* ===== BRAND ===== */
+      .brand-section {
+        padding: 70px 8%;
+      }
+
+      .brand-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 60px;
+        flex-wrap: wrap;
+      }
+
+      .brand-logo img {
+        width: 220px;
+        transition: 0.4s;
+      }
+
+      .brand-logo img:hover {
+        transform: scale(1.08);
+      }
+
+      .brand-text {
+        max-width: 500px;
+      }
+
+      .brand-text h2 {
+        font-size: 30px;
+        margin-bottom: 15px;
+        color: var(--secondary);
+      }
+
+      /* ===== SECTIONS ===== */
+      .section {
+        padding: 70px 8%;
+        text-align: center;
+      }
+
+      .section-title {
+        font-size: 30px;
+        margin-bottom: 30px;
+        color: var(--secondary);
+      }
+
+      .card {
+        max-width: 800px;
+        margin: auto;
+        padding: 35px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 198, 255, 0.25);
+        color: var(--light);
+        line-height: 1.8;
+        transition: 0.4s;
+      }
+
+      .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 30px rgba(0, 198, 255, 0.2);
+      }
+
+      /* ===== METRICS ===== */
+      .metrics {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        flex-wrap: wrap;
+      }
+
+      .metric {
+        text-align: center;
+      }
+
+      .metric i {
+        font-size: 28px;
+        color: var(--secondary);
+        margin-bottom: 10px;
+      }
+
+      .metric h2 {
+        font-size: 38px;
+        color: var(--secondary);
+      }
+
+      /* ===== TEAM ===== */
+      .team {
+        display: flex;
+        justify-content: center;
+        gap: 35px;
+        flex-wrap: wrap;
+      }
+
+      .member {
+        width: 260px;
+        padding: 25px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 198, 255, 0.25);
+        transition: 0.4s;
+      }
+
+      .member:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .member img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+        object-fit: contain;
+        background-color: #0b1629; /* Para que no se vea vacío */
+      }
+
+      .member i {
+        font-size: 20px;
+        color: var(--secondary);
+        margin-top: 10px;
+      }
+
+      /* ===== FOOTER ===== */
+      footer {
+        text-align: center;
+        padding: 25px;
+        background: #08101f;
+        color: #94a3b8;
+      }
+
+      /* ===== ANIMACION SCROLL ===== */
+      .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: 1s;
+      }
+
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="particles-bg"></canvas>
+
+    <nav class="navbar">
+      <div class="logo-nav">
+        <img src="/img/TecniredLogo.png" alt="Logo TECNIRED" />
+        <span>TECNIRED</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="Principal.html">Inicio</a></li>
+        <li><a href="#mision">Misión</a></li>
+        <li><a href="#vision">Visión</a></li>
+        <li><a href="#equipo">Equipo</a></li>
+      </ul>
+    </nav>
+
+    <section class="hero">
+      <h1>Impulsando la Transformación Digital</h1>
+      <p>
+        En TECNIRED brindamos soluciones profesionales en soporte técnico, redes
+        y hardware con atención digital y presencial.
+      </p>
+    </section>
+
+    <section class="brand-section reveal">
+      <div class="brand-container">
+        <div class="brand-logo">
+          <img src="/img/68b4c743-d527-4819-8e0e-73543dc4f57e.jpg" alt="Logo" />
+        </div>
+        <div class="brand-text">
+          <h2><i class="fas fa-building"></i> Identidad TECNIRED</h2>
+          <p>
+            Empresa tecnológica orientada a soporte técnico, mantenimiento
+            preventivo, administración de redes y soluciones digitales
+            eficientes.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="mision">
+      <h3 class="section-title">Nuestra Misión</h3>
+      <div class="card">
+        <i
+          class="fas fa-bullseye"
+          style="font-size: 30px; color: #00c6ff; margin-bottom: 15px"
+        ></i>
+        <p>
+          Brindar soluciones tecnológicas integrales mediante atención digital y
+          presencial, optimizando la infraestructura tecnológica de nuestros
+          clientes.
+        </p>
+      </div>
+    </section>
+
+    <section class="section reveal" id="vision">
+      <h3 class="section-title">Nuestra Visión</h3>
+      <div class="card">
+        <i
+          class="fas fa-eye"
+          style="font-size: 30px; color: #00c6ff; margin-bottom: 15px"
+        ></i>
+        <p>
+          Ser una empresa líder en soluciones TIC reconocida por excelencia
+          técnica, innovación constante y compromiso digital.
+        </p>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <h3 class="section-title">Nuestro Impacto</h3>
+      <div class="metrics">
+        <div class="metric">
+          <i class="fas fa-users"></i>
+          <h2 id="counter1">0</h2>
+          <p>Clientes Atendidos</p>
+        </div>
+        <div class="metric">
+          <i class="fas fa-laptop-medical"></i>
+          <h2 id="counter2">0</h2>
+          <p>Equipos Reparados</p>
+        </div>
+        <div class="metric">
+          <i class="fas fa-network-wired"></i>
+          <h2 id="counter3">0</h2>
+          <p>Redes Instaladas</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="equipo">
+      <h3 class="section-title">Nuestro Equipo</h3>
+      <div class="team">
+        <div class="member">
+          <img src="/img/WhatsApp Image 2026-02-12 at 5.40.51 PM.jpeg" alt="" />
+          <h4>Juan Camilo Sánchez Rojas</h4>
+          <p>Tecnólogo TIC - Desarrollo y Soporte Técnico</p>
+          <i class="fas fa-code"></i>
+        </div>
+
+        <div class="member">
+          <img src="/img/julieth.jpg" alt="" />
+          <h4>Julieth Monroy</h4>
+          <p>Aprendiz SENA - Soporte y Mantenimiento</p>
+          <i class="fas fa-tools"></i>
+        </div>
+
+        <div class="member">
+          <img src="./img/Fabiola.jpeg" alt="" />
+          <h4>Fabiola Triana</h4>
+          <p>Aprendiz SENA - Redes y Seguridad</p>
+          <i class="fas fa-shield-halved"></i>
+        </div>
+      </div>
+    </section>
+
+    <footer>© 2025 TECNIRED | Innovación y Soporte Tecnológico</footer>
+
+    <script>
+      const reveals = document.querySelectorAll(".reveal");
+      window.addEventListener("scroll", () => {
+        reveals.forEach((el) => {
+          if (el.getBoundingClientRect().top < window.innerHeight - 100) {
+            el.classList.add("active");
+          }
+        });
+      });
+
+      function animateCounter(id, target) {
+        let count = 0;
+        const element = document.getElementById(id);
+        const interval = setInterval(() => {
+          count++;
+          element.textContent = count;
+          if (count >= target) clearInterval(interval);
+        }, 20);
+      }
+      animateCounter("counter1", 120);
+      animateCounter("counter2", 350);
+      animateCounter("counter3", 80);
+
+      /* PARTICULAS */
+      const canvas = document.getElementById("particles-bg");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        init();
+      });
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2 + 1;
+          this.speedX = (Math.random() - 0.5) * 0.5;
+          this.speedY = (Math.random() - 0.5) * 0.5;
+        }
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+          if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+          this.draw();
+        }
+        draw() {
+          ctx.fillStyle = "rgba(0,198,255,0.7)";
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function init() {
+        particles = [];
+        let number = (canvas.width * canvas.height) / 15000;
+        for (let i = 0; i < number; i++) {
+          particles.push(new Particle());
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p) => p.update());
+        requestAnimationFrame(animate);
+      }
+
+      init();
+      animate();
+    </script>
+  </body>
+</html>

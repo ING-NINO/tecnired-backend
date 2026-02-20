@@ -1,0 +1,18 @@
+{
+  "name": "tecnired-backend",
+  "version": "1.0.0",
+  "description": "Backend TecniRed",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Juan Camilo Sanchez Rojas",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "mysql2": "^3.15.3",
+    "nodemailer": "^6.10.1"
+  }
+}

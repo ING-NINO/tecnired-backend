@@ -298,3 +298,27 @@ app.get("/admin/tickets", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
+
+// ===== GUARDAR MENSAJE =====
+
+app.post("/mensajes", (req, res) => {
+  const { ticket_id, remitente, mensaje } = req.body;
+
+  const sql =
+    "INSERT INTO mensajes (ticket_id, remitente, mensaje) VALUES (?, ?, ?)";
+
+  db.query(sql, [ticket_id, remitente, mensaje], (err) => {
+    if (err) return res.json({ status: "fail" });
+    res.json({ status: "ok" });
+  });
+});
+app.get("/mensajes/:ticket_id", (req, res) => {
+  const { ticket_id } = req.params;
+
+  const sql = "SELECT * FROM mensajes WHERE ticket_id = ? ORDER BY fecha ASC";
+
+  db.query(sql, [ticket_id], (err, rows) => {
+    if (err) return res.json([]);
+    res.json(rows);
+  });
+});

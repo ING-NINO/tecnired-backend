@@ -6,7 +6,7 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // ===== CONFIGURACIÓN CORREO =====
 const transporter = nodemailer.createTransport({
@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 
 // ===== RUTA PRINCIPAL =====
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/user_cliente.html"));
+  res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
 // ===== REGISTRO =====

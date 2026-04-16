@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chat Cliente | TecniRed</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial;
+        background: #0b1629;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      header {
+        padding: 15px;
+        background: #111c2f;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      #mensajes {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .msg {
+        max-width: 60%;
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .cliente {
+        background: #4a8df5;
+        align-self: flex-end;
+      }
+
+      .asesor {
+        background: #1e2b45;
+        align-self: flex-start;
+      }
+
+      footer {
+        display: flex;
+        padding: 10px;
+        background: #111c2f;
+      }
+
+      input {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+      }
+
+      button {
+        margin-left: 10px;
+        padding: 10px 15px;
+        background: #4a8df5;
+        border: none;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <span id="usuario"></span>
+      <button onclick="volver()">⬅ Volver</button>
+    </header>
+
+    <div id="mensajes"></div>
+
+    <footer>
+      <input id="mensajeInput" placeholder="Escribe mensaje..." />
+      <button onclick="enviarMensaje()">Enviar</button>
+    </footer>
+
+    <script>
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!usuario) window.location.href = "/";
+
+      document.getElementById("usuario").textContent = usuario.nombre;
+
+      // 🔥 OBTENER ID DEL TICKET
+      const params = new URLSearchParams(window.location.search);
+      const ticketId = params.get("ticket");
+
+      let ultimoScroll = true;
+
+      // ===== CARGAR MENSAJES =====
+      async function cargarMensajes() {
+        const res = await fetch(`/chat/${ticketId}`);
+        const data = await res.json();
+
+        const contenedor = document.getElementById("mensajes");
+        contenedor.innerHTML = "";
+
+        data.forEach((m) => {
+          const div = document.createElement("div");
+          div.classList.add("msg");
+
+          if (m.remitente === usuario.nombre) {
+            div.classList.add("cliente");
+          } else {
+            div.classList.add("asesor");
+          }
+
+          div.textContent = m.mensaje;
+          contenedor.appendChild(div);
+        });
+
+        contenedor.scrollTop = contenedor.scrollHeight;
+      }
+
+      // ===== ENVIAR =====
+      async function enviarMensaje() {
+        const input = document.getElementById("mensajeInput");
+
+        if (!input.value) return;
+
+        await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ticket_id: ticketId,
+            remitente: usuario.nombre,
+            mensaje: input.value,
+          }),
+        });
+
+        input.value = "";
+        cargarMensajes();
+      }
+
+      // ===== VOLVER =====
+      function volver() {
+        window.location.href = "/user_cliente.html";
+      }
+
+      // ===== AUTO REFRESH =====
+      setInterval(cargarMensajes, 2000);
+
+      // INICIO
+      cargarMensajes();
+    </script>
+  </body>
+</html>

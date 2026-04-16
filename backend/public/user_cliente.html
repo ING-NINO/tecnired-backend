@@ -288,14 +288,18 @@
       <h2 class="reveal">Mis Tickets</h2>
       <table class="reveal">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Categoría</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-            <th>Fecha</th>
-          </tr>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Categoría</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Chat</th>
+            </tr>
+          </thead>
         </thead>
+
         <tbody id="tablaTickets"></tbody>
       </table>
     </div>
@@ -379,14 +383,17 @@
           tickets.forEach((t, i) => {
             const fila = document.createElement("tr");
             fila.innerHTML = `
-          <td>${t.id}</td>
-          <td>${t.categoria}</td>
-          <td>${t.descripcion}</td>
-          <td class="status ${t.estado?.toLowerCase() || ""}">
-            ${t.estado || "Nuevo"}
-          </td>
-          <td>${t.fecha ? new Date(t.fecha).toLocaleString("es-CO") : ""}</td>
-        `;
+  <td>${t.id}</td>
+  <td>${t.categoria}</td>
+  <td>${t.descripcion}</td>
+  <td class="status ${t.estado?.toLowerCase() || ""}">
+    ${t.estado || "Nuevo"}
+  </td>
+  <td>${t.fecha ? new Date(t.fecha).toLocaleString("es-CO") : ""}</td>
+  <td>
+    <button onclick="abrirChat(${t.id})">💬</button>
+  </td>
+`;
             fila.style.opacity = 0;
             tbody.appendChild(fila);
             setTimeout(() => (fila.style.opacity = 1), 50 * i);
@@ -457,6 +464,10 @@
       function cerrarSesion() {
         localStorage.removeItem("usuario");
         window.location.href = "/";
+      }
+
+      function abrirChat(id) {
+        window.location.href = `/chat_cliente.html?ticket=${id}`;
       }
     </script>
   </body>

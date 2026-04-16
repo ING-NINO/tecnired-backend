@@ -377,7 +377,45 @@
         max-width: 600px;
         margin: auto;
       }
+      /* ===== ICONOS NAV ===== */
+      .nav-links i {
+        margin-right: 6px;
+      }
 
+      /* ===== MENU RESPONSIVE ===== */
+      @media (max-width: 900px) {
+        .navbar {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 15px 20px;
+        }
+
+        .nav-links {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          background: #0f172a;
+          margin-top: 10px;
+          padding: 15px;
+          border-radius: 10px;
+          gap: 15px;
+        }
+
+        .nav-links li {
+          width: 100%;
+        }
+
+        .nav-links a {
+          display: block;
+          width: 100%;
+        }
+
+        .btn-login {
+          width: 100%;
+          text-align: center;
+          margin-top: 10px;
+        }
+      }
       input,
       textarea {
         width: 100%;
@@ -430,6 +468,11 @@
           <li><a href="#planes">Planes</a></li>
           <li><a href="#contacto">Contacto</a></li>
           <li><a href="Sobre_Nosotros.html">Nosotros</a></li>
+          <li>
+            <a href="herramientas.html"
+              ></i> Herramientas</a
+            >
+          </li>
         </ul>
 
         <a href="login.html" class="btn-login">INGRESA YA</a>

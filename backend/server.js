@@ -299,26 +299,54 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
 
-// ===== GUARDAR MENSAJE =====
+// ===== TICKETS PARA ASESOR SEGÚN NIVEL =====
+app.get("/tickets/asesor/:email", (req, res) => {
+  const { email } = req.params;
 
-app.post("/mensajes", (req, res) => {
-  const { ticket_id, remitente, mensaje } = req.body;
+  const sqlUser = "SELECT rol FROM usuarios WHERE email = ?";
 
-  const sql =
-    "INSERT INTO mensajes (ticket_id, remitente, mensaje) VALUES (?, ?, ?)";
+  db.query(sqlUser, [email], (err, user) => {
+    if (err || user.length === 0) return res.json([]);
 
-  db.query(sql, [ticket_id, remitente, mensaje], (err) => {
-    if (err) return res.json({ status: "fail" });
-    res.json({ status: "ok" });
+    const rol = user[0].rol;
+
+    // ejemplo: asesor1 → nivel 1
+    const nivel = rol.replace("asesor", "");
+
+    const sql = `
+      SELECT * FROM tickets
+      WHERE escala = ?
+      ORDER BY fecha DESC
+    `;
+
+    db.query(sql, [nivel], (err, rows) => {
+      if (err) {
+        console.log("❌ Error asesor tickets:", err);
+        return res.json([]);
+      }
+      res.json(rows);
+    });
   });
 });
-app.get("/mensajes/:ticket_id", (req, res) => {
-  const { ticket_id } = req.params;
+// OBTENER MENSAJES
+app.get("/chat/:ticket", (req, res) => {
+  db.query(
+    "SELECT * FROM mensajes WHERE ticket_id = ? ORDER BY fecha ASC",
+    [req.params.ticket],
+    (err, rows) => {
+      if (err) return res.json([]);
+      res.json(rows);
+    },
+  );
+});
 
-  const sql = "SELECT * FROM mensajes WHERE ticket_id = ? ORDER BY fecha ASC";
+// ENVIAR MENSAJE
+app.post("/chat", (req, res) => {
+  const { ticket_id, remitente, mensaje } = req.body;
 
-  db.query(sql, [ticket_id], (err, rows) => {
-    if (err) return res.json([]);
-    res.json(rows);
-  });
+  db.query(
+    "INSERT INTO mensajes (ticket_id, remitente, mensaje) VALUES (?,?,?)",
+    [ticket_id, remitente, mensaje],
+    () => res.json({ ok: true }),
+  );
 });

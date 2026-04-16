@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Descargas TecniRed</title>
+
+    <style>
+      /* GLOBAL */
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial;
+        background: #0f172a;
+        color: white;
+        overflow-x: hidden;
+      }
+
+      /* FONDO */
+      body::before {
+        content: "";
+        position: fixed;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, #3b82f6 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: move 40s linear infinite;
+        opacity: 0.15;
+        pointer-events: none; /* 🔥 evita bloquear clicks */
+        z-index: 0;
+      }
+
+      @keyframes move {
+        from {
+          transform: translate(0, 0);
+        }
+        to {
+          transform: translate(-200px, -200px);
+        }
+      }
+
+      /* NAVBAR */
+      .navbar {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        background: rgba(30, 41, 59, 0.9);
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        z-index: 100;
+      }
+
+      .logo {
+        font-weight: bold;
+        color: #3b82f6;
+        font-size: 18px;
+      }
+
+      /* MENU */
+      .nav-links {
+        display: flex;
+        gap: 15px;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        padding: 8px;
+        border-radius: 6px;
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        background: #3b82f6;
+      }
+
+      /* BOTON MENU */
+      .menu-btn {
+        display: none;
+        font-size: 22px;
+        cursor: pointer;
+      }
+      .navbar,
+      .hero,
+      .grid,
+      .footer {
+        position: relative;
+        z-index: 1;
+      }
+      /* HERO */
+      .hero {
+        text-align: center;
+        padding: 30px 20px;
+      }
+
+      .hero h1 {
+        margin-bottom: 10px;
+      }
+
+      .hero p {
+        color: #94a3b8;
+      }
+
+      /* BUSCADOR */
+      .search input {
+        width: 90%;
+        max-width: 400px;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        margin-top: 10px;
+      }
+
+      /* GRID */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 20px;
+      }
+
+      /* CARD */
+      .card {
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        transition: 0.3s;
+        position: relative;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+      }
+
+      .icon {
+        font-size: 35px;
+        margin-bottom: 10px;
+      }
+
+      button {
+        background: #3b82f6;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background: #2563eb;
+      }
+
+      /* TAG */
+      .tag {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #22c55e;
+        padding: 3px 7px;
+        border-radius: 5px;
+        font-size: 11px;
+      }
+
+      /* FOOTER */
+      .footer {
+        text-align: center;
+        padding: 20px;
+        background: #1e293b;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          position: absolute;
+          top: 60px;
+          right: 10px;
+          width: 200px;
+          background: rgba(30, 41, 59, 0.95);
+          padding: 10px;
+          border-radius: 10px;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-links a {
+          display: block;
+          width: 100%;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .menu-btn {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="navbar">
+      <div class="logo">🛠️ TecniRed</div>
+
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+      <nav class="nav-links" id="menu">
+        <a href="index.html">Inicio</a>
+      </nav>
+    </header>
+
+    <div class="hero">
+      <h1>Centro de Descargas</h1>
+      <p>Herramientas profesionales para soporte técnico</p>
+
+      <div class="search">
+        <input
+          type="text"
+          id="search"
+          placeholder="Buscar herramienta..."
+          onkeyup="filter()"
+        />
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="tag">Popular</div>
+        <div class="icon">🖥️</div>
+        <h3>AnyDesk</h3>
+        <p>Acceso remoto rápido</p>
+        <button onclick="openLink('https://anydesk.com')">Descargar</button>
+      </div>
+
+      <div class="card">
+        <div class="icon">🔗</div>
+        <h3>TeamViewer</h3>
+        <p>Control remoto seguro</p>
+        <button onclick="openLink('https://teamviewer.com')">Descargar</button>
+      </div>
+
+      <div class="card">
+        <div class="tag">Libre</div>
+        <div class="icon">🧩</div>
+        <h3>RustDesk</h3>
+        <p>Open source</p>
+        <button onclick="openLink('https://rustdesk.com')">Descargar</button>
+      </div>
+
+      <div class="card">
+        <div class="icon">🌐</div>
+        <h3>Wireshark</h3>
+        <p>Análisis de red</p>
+        <button onclick="openLink('https://wireshark.org')">Descargar</button>
+      </div>
+
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <h3>CPU-Z</h3>
+        <p>Información del sistema</p>
+        <button onclick="openLink('https://cpuid.com')">Descargar</button>
+      </div>
+
+      <div class="card">
+        <div class="icon">💾</div>
+        <h3>CrystalDiskInfo</h3>
+        <p>Estado del disco</p>
+        <button onclick="openLink('https://crystalmark.info')">
+          Descargar
+        </button>
+      </div>
+    </div>
+
+    <div class="footer">© 2026 TecniRed | Plataforma de soporte técnico</div>
+
+    <script>
+      function openLink(url) {
+        window.open(url, "_blank");
+      }
+
+      function filter() {
+        const input = document.getElementById("search").value.toLowerCase();
+        const cards = document.querySelectorAll(".card");
+
+        cards.forEach((card) => {
+          const title = card.querySelector("h3").innerText.toLowerCase();
+          const desc = card.querySelector("p").innerText.toLowerCase();
+
+          if (title.includes(input) || desc.includes(input)) {
+            card.style.display = "";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      }
+
+      function toggleMenu() {
+        document.getElementById("menu").classList.toggle("active");
+      }
+    </script>
+  </body>
+</html>

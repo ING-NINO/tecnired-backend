@@ -2,75 +2,99 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Chat Soporte - TecniRed</title>
+    <title>Chat - TecniRed</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <style>
       body {
-        font-family: Arial;
+        margin: 0;
+        font-family: "Segoe UI";
         background: #0f172a;
         color: white;
-        margin: 0;
       }
 
-      .header {
-        background: #1e293b;
-        padding: 15px;
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-      }
-
+      /* CONTENEDOR */
       .chat-container {
-        max-width: 600px;
-        margin: 20px auto;
-        background: #1e293b;
+        display: flex;
+        height: 100vh;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: 300px;
+        background: #020617;
+        padding: 20px;
+        border-right: 1px solid #1e293b;
+      }
+
+      .sidebar h2 {
+        margin-bottom: 20px;
+      }
+
+      .ticket {
+        padding: 10px;
         border-radius: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background: #0f172a;
+      }
+
+      .ticket:hover {
+        background: #1e293b;
+      }
+
+      /* CHAT */
+      .chat {
+        flex: 1;
         display: flex;
         flex-direction: column;
-        height: 80vh;
       }
 
       .messages {
         flex: 1;
-        padding: 15px;
+        padding: 20px;
         overflow-y: auto;
       }
 
-      .message {
-        margin: 10px 0;
+      .msg {
+        margin-bottom: 10px;
         padding: 10px;
         border-radius: 10px;
-        max-width: 70%;
+        max-width: 60%;
       }
 
-      .user {
-        background: #3b82f6;
-        align-self: flex-end;
+      .cliente {
+        background: #2563eb;
+        margin-left: auto;
       }
 
-      .bot {
+      .asesor {
         background: #334155;
-        align-self: flex-start;
       }
 
-      .input-area {
+      .input-box {
         display: flex;
-        border-top: 1px solid #334155;
+        padding: 10px;
+        border-top: 1px solid #1e293b;
       }
 
       input {
         flex: 1;
         padding: 10px;
         border: none;
-        outline: none;
-        background: #0f172a;
-        color: white;
+        border-radius: 10px;
       }
 
       button {
-        background: #3b82f6;
+        margin-left: 10px;
+        padding: 10px;
         border: none;
-        padding: 10px 20px;
+        border-radius: 10px;
+        background: #3b82f6;
         color: white;
         cursor: pointer;
       }
@@ -78,51 +102,97 @@
   </head>
 
   <body>
-    <div class="header">💬 Soporte TecniRed</div>
-
     <div class="chat-container">
-      <div class="messages" id="messages"></div>
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <h2>📂 Tickets</h2>
+        <div id="tickets"></div>
+      </div>
 
-      <div class="input-area">
-        <input type="text" id="msg" placeholder="Escribe tu mensaje..." />
-        <button onclick="sendMessage()">Enviar</button>
+      <!-- CHAT -->
+      <div class="chat">
+        <div class="messages" id="chat"></div>
+
+        <div class="input-box">
+          <input id="mensaje" placeholder="Escribe mensaje..." />
+          <button onclick="enviar()">Enviar</button>
+        </div>
       </div>
     </div>
 
     <script>
-      const API = "https://tecnired-backend.onrender.com";
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      let ticketActual = null;
 
-      function addMessage(text, type) {
-        const div = document.createElement("div");
-        div.classList.add("message", type);
-        div.innerText = text;
-        document.getElementById("messages").appendChild(div);
-      }
+      /* ===== CARGAR TICKETS ===== */
+      function cargarTickets() {
+        fetch(`/tickets/asesor/${usuario.email}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const cont = document.getElementById("tickets");
+            cont.innerHTML = "";
 
-      async function sendMessage() {
-        const input = document.getElementById("msg");
-        const text = input.value;
-
-        if (!text) return;
-
-        addMessage(text, "user");
-
-        input.value = "";
-
-        try {
-          const res = await fetch(API + "/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mensaje: text }),
+            data.forEach((t) => {
+              const div = document.createElement("div");
+              div.className = "ticket";
+              div.innerHTML = `#${t.id} - ${t.categoria}`;
+              div.onclick = () => abrirChat(t.id);
+              cont.appendChild(div);
+            });
           });
-
-          const data = await res.json();
-
-          addMessage(data.respuesta || "Sin respuesta", "bot");
-        } catch (error) {
-          addMessage("Error conectando con el servidor", "bot");
-        }
       }
+
+      /* ===== ABRIR CHAT ===== */
+      function abrirChat(id) {
+        ticketActual = id;
+        cargarMensajes();
+      }
+
+      /* ===== CARGAR MENSAJES ===== */
+      function cargarMensajes() {
+        if (!ticketActual) return;
+
+        fetch(`/chat/${ticketActual}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const chat = document.getElementById("chat");
+            chat.innerHTML = "";
+
+            data.forEach((m) => {
+              const div = document.createElement("div");
+              div.className =
+                "msg " + (m.remitente === usuario.email ? "cliente" : "asesor");
+
+              div.textContent = m.mensaje;
+              chat.appendChild(div);
+            });
+
+            chat.scrollTop = chat.scrollHeight;
+          });
+      }
+
+      /* ===== ENVIAR MENSAJE ===== */
+      function enviar() {
+        const texto = document.getElementById("mensaje").value;
+
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ticket_id: ticketActual,
+            remitente: usuario.email,
+            mensaje: texto,
+          }),
+        }).then(() => {
+          document.getElementById("mensaje").value = "";
+          cargarMensajes();
+        });
+      }
+
+      /* ===== AUTO REFRESH ===== */
+      setInterval(cargarMensajes, 2000);
+
+      cargarTickets();
     </script>
   </body>
 </html>

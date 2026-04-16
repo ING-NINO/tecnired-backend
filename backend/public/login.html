@@ -347,11 +347,14 @@
         })
           .then((res) => res.json())
           .then((data) => {
+            console.log("USUARIO:", data.user);
             alert(data.message);
             if (data.status === "ok") {
               localStorage.setItem("usuario", JSON.stringify(data.user));
               if (data.user.rol === "admin") {
                 window.location.href = "/admin.html";
+              } else if (data.user.rol.startsWith("asesor")) {
+                window.location.href = "/user_asesor.html";
               } else {
                 window.location.href = "/user_cliente.html";
               }

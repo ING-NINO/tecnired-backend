@@ -144,7 +144,7 @@
 
       const params = new URLSearchParams(window.location.search);
       const ticketId = params.get("ticket");
-
+      let ultimoMensajeId = 0;
       // ===== CARGAR MENSAJES =====
       async function cargarMensajes() {
         const res = await fetch(`/chat/${ticketId}`);

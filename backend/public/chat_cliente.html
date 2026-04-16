@@ -151,14 +151,14 @@
         const data = await res.json();
 
         const contenedor = document.getElementById("mensajes");
-        contenedor.innerHTML = "";
 
         data.forEach((m) => {
-          const div = document.createElement("div");
+          // 🚫 Evitar duplicados
+          if (m.id <= ultimoMensajeId) return;
 
+          const div = document.createElement("div");
           div.classList.add("mensaje");
 
-          // Diferenciar cliente vs asesor
           if (m.remitente === usuario.email) {
             div.classList.add("cliente");
           } else {
@@ -168,11 +168,12 @@
           div.textContent = m.mensaje;
 
           contenedor.appendChild(div);
+
+          ultimoMensajeId = m.id;
         });
 
         contenedor.scrollTop = contenedor.scrollHeight;
       }
-
       // ===== ENVIAR MENSAJE =====
       async function enviarMensaje() {
         const input = document.getElementById("mensajeInput");
@@ -208,7 +209,7 @@
       }
 
       // ===== AUTO REFRESH =====
-      setInterval(cargarMensajes, 2000);
+      setInterval(cargarMensajes, 1000);
 
       cargarMensajes();
     </script>

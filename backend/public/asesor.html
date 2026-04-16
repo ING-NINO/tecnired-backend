@@ -4,26 +4,29 @@
     <meta charset="UTF-8" />
     <title>Panel Asesor - TecniRed</title>
 
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
-
     <style>
       body {
         margin: 0;
-        font-family: Poppins;
-        background: #0f172a;
+        font-family: "Segoe UI", sans-serif;
+        background: #0b1629;
         color: white;
       }
 
+      /* NAV */
       .nav {
-        background: #111c2f;
-        padding: 15px;
+        background: rgba(11, 22, 41, 0.9);
+        backdrop-filter: blur(10px);
+        padding: 15px 25px;
         display: flex;
         justify-content: space-between;
+        align-items: center;
       }
 
+      .nav span {
+        color: #00c6ff;
+      }
+
+      /* CONTENEDOR */
       .container {
         display: flex;
         height: 90vh;
@@ -32,18 +35,24 @@
       /* LISTA TICKETS */
       .tickets {
         width: 30%;
-        background: #1e293b;
-        overflow: auto;
+        background: #111c2f;
+        overflow-y: auto;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .ticket {
         padding: 15px;
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         cursor: pointer;
+        transition: 0.3s;
       }
 
       .ticket:hover {
-        background: #334155;
+        background: rgba(0, 198, 255, 0.2);
+      }
+
+      .ticket.active {
+        background: rgba(0, 198, 255, 0.3);
       }
 
       /* CHAT */
@@ -53,41 +62,82 @@
         flex-direction: column;
       }
 
+      /* MENSAJES */
       .messages {
         flex: 1;
         padding: 20px;
-        overflow: auto;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
+      /* BURBUJAS */
       .msg {
-        margin: 10px 0;
+        max-width: 60%;
+        padding: 12px 16px;
+        border-radius: 15px;
+        font-size: 14px;
+        animation: fadeIn 0.3s ease;
       }
 
+      /* CLIENTE */
       .user {
-        text-align: left;
+        align-self: flex-start;
+        background: rgba(255, 255, 255, 0.1);
+        color: #cbd5e1;
+        border-bottom-left-radius: 5px;
       }
 
+      /* ASESOR */
       .asesor {
-        text-align: right;
+        align-self: flex-end;
+        background: linear-gradient(135deg, #4a8df5, #00c6ff);
+        color: white;
+        border-bottom-right-radius: 5px;
       }
 
       /* INPUT */
       .input {
         display: flex;
-        padding: 10px;
+        gap: 10px;
+        padding: 15px;
         background: #111c2f;
       }
 
-      input {
+      .input input {
         flex: 1;
-        padding: 10px;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
       }
 
-      button {
-        padding: 10px;
-        background: #1e90ff;
-        color: white;
+      .input button {
+        padding: 12px 20px;
+        border-radius: 10px;
         border: none;
+        background: linear-gradient(135deg, #4a8df5, #00c6ff);
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .input button:hover {
+        transform: scale(1.05);
+      }
+
+      /* ANIMACION */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
@@ -99,8 +149,10 @@
     </div>
 
     <div class="container">
+      <!-- LISTA -->
       <div class="tickets" id="tickets"></div>
 
+      <!-- CHAT -->
       <div class="chat">
         <div class="messages" id="messages"></div>
 
@@ -113,11 +165,14 @@
 
     <script>
       const user = JSON.parse(localStorage.getItem("usuario"));
+      if (!user) window.location.href = "/";
+
       document.getElementById("correo").innerText = user.email;
 
       let ticketActual = null;
+      let ultimoMensajeId = 0;
 
-      // CARGAR TICKETS
+      // ===== CARGAR TICKETS =====
       fetch(`/tickets/asesor/${user.email}`)
         .then((res) => res.json())
         .then((data) => {
@@ -130,6 +185,14 @@
 
             div.onclick = () => {
               ticketActual = t.id;
+              ultimoMensajeId = 0;
+
+              document
+                .querySelectorAll(".ticket")
+                .forEach((el) => el.classList.remove("active"));
+              div.classList.add("active");
+
+              document.getElementById("messages").innerHTML = "";
               cargarMensajes();
             };
 
@@ -137,27 +200,42 @@
           });
         });
 
-      // MENSAJES
+      // ===== MENSAJES =====
       function cargarMensajes() {
+        if (!ticketActual) return;
+
         fetch(`/chat/${ticketActual}`)
           .then((res) => res.json())
           .then((data) => {
             const box = document.getElementById("messages");
-            box.innerHTML = "";
 
             data.forEach((m) => {
+              if (m.id <= ultimoMensajeId) return;
+
               const div = document.createElement("div");
-              div.className =
-                "msg " + (m.remitente === user.email ? "asesor" : "user");
+              div.classList.add("msg");
+
+              if (m.remitente === user.email) {
+                div.classList.add("asesor");
+              } else {
+                div.classList.add("user");
+              }
+
               div.innerText = m.mensaje;
               box.appendChild(div);
+
+              ultimoMensajeId = m.id;
             });
+
+            box.scrollTop = box.scrollHeight;
           });
       }
 
-      // ENVIAR
+      // ===== ENVIAR =====
       function enviar() {
-        const mensaje = document.getElementById("msg").value;
+        const input = document.getElementById("msg");
+
+        if (!input.value || !ticketActual) return;
 
         fetch("/chat", {
           method: "POST",
@@ -165,13 +243,21 @@
           body: JSON.stringify({
             ticket_id: ticketActual,
             remitente: user.email,
-            mensaje,
+            mensaje: input.value,
           }),
         }).then(() => {
-          document.getElementById("msg").value = "";
+          input.value = "";
           cargarMensajes();
         });
       }
+
+      // ENTER
+      document.getElementById("msg").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") enviar();
+      });
+
+      // AUTO REFRESH
+      setInterval(cargarMensajes, 1500);
     </script>
   </body>
 </html>

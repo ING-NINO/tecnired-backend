@@ -45,7 +45,9 @@ const storage = new CloudinaryStorage({
       // 🔥 CLAVE REAL (esto arregla el PDF)
       format: file.mimetype === "application/pdf" ? "pdf" : undefined,
 
-      public_id: file.originalname.split(".")[0],
+      public_id: file.originalname
+        .replace(/\s+/g, "_") // 🔥 quita espacios
+        .replace(".pdf", ""), // limpia extensión,
     };
   },
 });

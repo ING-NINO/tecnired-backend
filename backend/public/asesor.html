@@ -6,6 +6,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
 
+    <!-- 🔥 FIREBASE -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
@@ -16,7 +17,7 @@
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
       const firebaseConfig = {
-        apiKey: "AIzaSy...",
+        apiKey: "TU_API_KEY",
         authDomain: "tecnired-221e0.firebaseapp.com",
         projectId: "tecnired-221e0",
         storageBucket: "tecnired-221e0.firebasestorage.app",
@@ -38,39 +39,31 @@
         color: white;
       }
 
-      /* ===== LAYOUT ===== */
       .container {
         display: flex;
         height: 100vh;
       }
 
-      /* ===== SIDEBAR ===== */
+      /* SIDEBAR */
       .sidebar {
         width: 260px;
-        background: rgba(2, 6, 23, 0.9);
-        backdrop-filter: blur(10px);
+        background: #020617;
         padding: 20px;
       }
 
       .ticket {
         padding: 12px;
-        border-radius: 12px;
+        border-radius: 10px;
         margin-bottom: 10px;
         cursor: pointer;
         background: #0f172a;
-        transition: 0.3s;
       }
 
       .ticket:hover {
-        transform: translateX(5px);
         background: #1e293b;
       }
 
-      .ticket.active {
-        background: linear-gradient(135deg, #4a8df5, #00c6ff);
-      }
-
-      /* ===== CHAT ===== */
+      /* CHAT */
       .chat {
         flex: 1;
         display: flex;
@@ -79,36 +72,24 @@
 
       .topbar {
         padding: 15px;
-        background: rgba(2, 6, 23, 0.9);
+        background: #020617;
         display: flex;
         justify-content: space-between;
-        backdrop-filter: blur(10px);
       }
 
-      .logout {
-        background: linear-gradient(135deg, #ff4d4d, #ff0000);
-        border: none;
-        padding: 8px 12px;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
-      }
-
-      /* ===== MENSAJES ===== */
       .messages {
         flex: 1;
         padding: 20px;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
       }
 
       .msg {
         max-width: 65%;
         padding: 12px;
         border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       }
 
       .asesor {
@@ -122,11 +103,11 @@
       }
 
       .msg img {
-        max-width: 220px;
+        max-width: 200px;
         border-radius: 10px;
       }
 
-      /* ===== INPUT ===== */
+      /* INPUT */
       .input-box {
         display: flex;
         gap: 10px;
@@ -141,41 +122,29 @@
         border: none;
       }
 
-      /* ===== BOTONES ===== */
-      .input-box button {
-        background: linear-gradient(135deg, #4a8df5, #00c6ff);
+      button {
+        background: #00c6ff;
         border: none;
         padding: 10px;
         border-radius: 10px;
         cursor: pointer;
       }
 
-      /* ===== MENU ===== */
+      /* MENU */
       #menuAdjuntos {
         display: none;
         position: absolute;
-        bottom: 45px;
+        bottom: 40px;
         background: #020617;
-        border-radius: 10px;
         padding: 10px;
+        border-radius: 10px;
       }
 
-      #menuAdjuntos button {
-        display: block;
-        width: 100%;
-        background: none;
-        border: none;
-        color: white;
-        padding: 8px;
-        cursor: pointer;
-      }
-
-      /* ===== PROGRESS ===== */
+      /* PROGRESS */
       #progressBar {
-        height: 5px;
+        height: 4px;
         width: 0%;
         background: #00c6ff;
-        transition: 0.2s;
       }
     </style>
   </head>
@@ -190,18 +159,19 @@
       <div class="chat">
         <div class="topbar">
           <span id="usuario"></span>
-          <button class="logout" onclick="logout()">Salir</button>
+          <button onclick="logout()">Salir</button>
         </div>
 
         <div id="progressBar"></div>
+
         <div class="messages" id="chat"></div>
 
         <div class="input-box">
           <div style="position: relative">
             <button onclick="toggleMenu()">📎</button>
             <div id="menuAdjuntos">
-              <button onclick="seleccionarArchivo('pdf')">📄 PDF</button>
-              <button onclick="seleccionarArchivo('img')">🖼️ Imagen</button>
+              <button onclick="seleccionarArchivo('pdf')">PDF</button>
+              <button onclick="seleccionarArchivo('img')">Imagen</button>
             </div>
           </div>
 
@@ -224,7 +194,7 @@
       let ticketActual = null;
       let tipoArchivo = null;
 
-      /* ===== MENU ===== */
+      /* MENU */
       function toggleMenu() {
         const m = document.getElementById("menuAdjuntos");
         m.style.display = m.style.display === "none" ? "block" : "none";
@@ -238,7 +208,19 @@
         document.getElementById("menuAdjuntos").style.display = "none";
       }
 
-      /* ===== SUBIDA (FIX IMPORTANTE) ===== */
+      /* 🔥 HISTORIAL */
+      function cargarMensajes() {
+        fetch(`/chat/${ticketActual}`)
+          .then((r) => r.json())
+          .then((data) => {
+            const chat = document.getElementById("chat");
+            chat.innerHTML = "";
+            data.forEach(agregarMensaje);
+            chat.scrollTop = chat.scrollHeight;
+          });
+      }
+
+      /* SUBIDA */
       async function subirArchivo(file) {
         const nombre = Date.now() + "_" + file.name;
         const storageRef = ref(storage, "tecnired/" + nombre);
@@ -287,14 +269,14 @@
         }
 
         if (tipoArchivo === "img" && !file.type.startsWith("image/")) {
-          alert("Solo imágenes");
+          alert("Solo imagen");
           return;
         }
 
         subirArchivo(file);
       });
 
-      /* ===== MENSAJES ===== */
+      /* MENSAJES */
       function agregarMensaje(m) {
         const chat = document.getElementById("chat");
         const div = document.createElement("div");
@@ -325,27 +307,31 @@
         if (m.ticket_id == ticketActual) agregarMensaje(m);
       });
 
-      /* ===== RESTO ===== */
+      /* TICKETS */
       function cargarTickets() {
         fetch(`/tickets/asesor/${usuario.email}`)
           .then((r) => r.json())
           .then((data) => {
             const cont = document.getElementById("tickets");
             cont.innerHTML = "";
+
             data.forEach((t) => {
               const div = document.createElement("div");
               div.className = "ticket";
               div.innerHTML = `#${t.id}<br>${t.categoria}`;
+
               div.onclick = () => {
                 ticketActual = t.id;
                 socket.emit("joinTicket", ticketActual);
-                document.getElementById("chat").innerHTML = "";
+                cargarMensajes(); // 🔥 CLAVE
               };
+
               cont.appendChild(div);
             });
           });
       }
 
+      /* ENVIAR TEXTO */
       function enviar() {
         const input = document.getElementById("mensaje");
         if (!input.value || !ticketActual) return;
@@ -360,7 +346,6 @@
           }),
         });
 
-        // 🔥 mostrar inmediato
         agregarMensaje({
           ticket_id: ticketActual,
           remitente: usuario.email,

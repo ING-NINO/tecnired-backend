@@ -1,9 +1,11 @@
 <!doctype html>
+
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Chat Cliente | TecniRed</title>
 
+    ```
     <style>
       body {
         margin: 0;
@@ -45,10 +47,6 @@
         cursor: pointer;
       }
 
-      header button:hover {
-        background: #e03b3b;
-      }
-
       .chat-box {
         flex: 1;
         overflow-y: auto;
@@ -69,24 +67,27 @@
       .mensaje.cliente {
         align-self: flex-end;
         background: linear-gradient(135deg, #4a8df5, #00c6ff);
-        color: white;
-        border-bottom-right-radius: 5px;
       }
 
       .mensaje.asesor {
         align-self: flex-start;
         background: rgba(255, 255, 255, 0.1);
-        color: #cbd5e1;
-        border-bottom-left-radius: 5px;
+      }
+
+      .mensaje img {
+        max-width: 200px;
+        border-radius: 10px;
+        margin-top: 5px;
       }
 
       .chat-input {
         display: flex;
         gap: 10px;
         margin-top: 10px;
+        align-items: center;
       }
 
-      .chat-input input {
+      .chat-input input[type="text"] {
         flex: 1;
         padding: 12px;
         border-radius: 10px;
@@ -98,14 +99,29 @@
       .chat-input button {
         background: linear-gradient(135deg, #4a8df5, #00c6ff);
         border: none;
-        padding: 12px 20px;
+        padding: 12px;
         border-radius: 10px;
         color: white;
         cursor: pointer;
       }
 
-      .chat-input button:hover {
-        transform: scale(1.05);
+      .file-btn {
+        background: #1e293b;
+      }
+
+      .preview {
+        position: absolute;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #020617;
+        padding: 10px;
+        border-radius: 10px;
+        display: none;
+      }
+
+      .preview img {
+        max-width: 150px;
       }
 
       @keyframes fadeIn {
@@ -119,6 +135,7 @@
         }
       }
     </style>
+    ```
   </head>
 
   <body>
@@ -128,9 +145,18 @@
         <button onclick="volver()">⬅ Volver</button>
       </header>
 
+      ```
       <div id="mensajes" class="chat-box"></div>
 
+      <!-- PREVIEW -->
+      <div class="preview" id="previewBox">
+        <img id="previewImg" />
+      </div>
+
       <div class="chat-input">
+        <input type="file" id="fileInput" hidden />
+        <button class="file-btn" onclick="abrirArchivo()">📎</button>
+
         <input id="mensajeInput" placeholder="Escribe mensaje..." />
         <button onclick="enviarMensaje()">Enviar</button>
       </div>
@@ -144,7 +170,9 @@
 
       const params = new URLSearchParams(window.location.search);
       const ticketId = params.get("ticket");
+
       let ultimoMensajeId = 0;
+
       // ===== CARGAR MENSAJES =====
       async function cargarMensajes() {
         const res = await fetch(`/chat/${ticketId}`);
@@ -153,7 +181,6 @@
         const contenedor = document.getElementById("mensajes");
 
         data.forEach((m) => {
-          // 🚫 Evitar duplicados
           if (m.id <= ultimoMensajeId) return;
 
           const div = document.createElement("div");
@@ -165,16 +192,23 @@
             div.classList.add("asesor");
           }
 
-          div.textContent = m.mensaje;
+          // 🔥 TEXTO O IMAGEN
+          if (m.mensaje.startsWith("http")) {
+            const img = document.createElement("img");
+            img.src = m.mensaje;
+            div.appendChild(img);
+          } else {
+            div.textContent = m.mensaje;
+          }
 
           contenedor.appendChild(div);
-
           ultimoMensajeId = m.id;
         });
 
         contenedor.scrollTop = contenedor.scrollHeight;
       }
-      // ===== ENVIAR MENSAJE =====
+
+      // ===== ENVIAR TEXTO =====
       async function enviarMensaje() {
         const input = document.getElementById("mensajeInput");
 
@@ -185,7 +219,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ticket_id: ticketId,
-            remitente: usuario.email, // 🔥 IMPORTANTE
+            remitente: usuario.email,
             mensaje: input.value,
           }),
         });
@@ -194,24 +228,53 @@
         cargarMensajes();
       }
 
-      // ENTER PARA ENVIAR
-      document
-        .getElementById("mensajeInput")
-        .addEventListener("keypress", function (e) {
-          if (e.key === "Enter") {
-            enviarMensaje();
-          }
+      // ===== ARCHIVOS =====
+      function abrirArchivo() {
+        document.getElementById("fileInput").click();
+      }
+
+      document.getElementById("fileInput").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const preview = document.getElementById("previewBox");
+        const img = document.getElementById("previewImg");
+
+        img.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+
+        enviarArchivo(file);
+      });
+
+      async function enviarArchivo(file) {
+        const formData = new FormData();
+        formData.append("archivo", file);
+        formData.append("ticket_id", ticketId);
+        formData.append("remitente", usuario.email);
+
+        await fetch("/chat/file", {
+          method: "POST",
+          body: formData,
         });
 
-      // ===== VOLVER =====
+        document.getElementById("previewBox").style.display = "none";
+        cargarMensajes();
+      }
+
+      // ENTER
+      document
+        .getElementById("mensajeInput")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") enviarMensaje();
+        });
+
       function volver() {
         window.location.href = "/user_cliente.html";
       }
 
-      // ===== AUTO REFRESH =====
       setInterval(cargarMensajes, 1000);
-
       cargarMensajes();
     </script>
+    ```
   </body>
 </html>

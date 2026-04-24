@@ -6,7 +6,6 @@
 
     <script src="/socket.io/socket.io.js"></script>
 
-    <!-- 🔥 FIREBASE -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
@@ -17,7 +16,7 @@
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
       const firebaseConfig = {
-        apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
+        apiKey: "AIzaSy...",
         authDomain: "tecnired-221e0.firebaseapp.com",
         projectId: "tecnired-221e0",
         storageBucket: "tecnired-221e0.firebasestorage.app",
@@ -35,34 +34,43 @@
       body {
         margin: 0;
         font-family: "Segoe UI";
-        background: #0b1629;
+        background: linear-gradient(135deg, #0b1629, #020617);
         color: white;
       }
 
+      /* ===== LAYOUT ===== */
       .container {
         display: flex;
         height: 100vh;
       }
 
+      /* ===== SIDEBAR ===== */
       .sidebar {
-        width: 280px;
-        background: #020617;
+        width: 260px;
+        background: rgba(2, 6, 23, 0.9);
+        backdrop-filter: blur(10px);
         padding: 20px;
-        overflow-y: auto;
       }
 
       .ticket {
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 12px;
         margin-bottom: 10px;
         cursor: pointer;
         background: #0f172a;
+        transition: 0.3s;
+      }
+
+      .ticket:hover {
+        transform: translateX(5px);
+        background: #1e293b;
       }
 
       .ticket.active {
         background: linear-gradient(135deg, #4a8df5, #00c6ff);
       }
 
+      /* ===== CHAT ===== */
       .chat {
         flex: 1;
         display: flex;
@@ -71,33 +79,36 @@
 
       .topbar {
         padding: 15px;
-        background: #020617;
+        background: rgba(2, 6, 23, 0.9);
         display: flex;
         justify-content: space-between;
+        backdrop-filter: blur(10px);
       }
 
       .logout {
-        background: red;
+        background: linear-gradient(135deg, #ff4d4d, #ff0000);
         border: none;
         padding: 8px 12px;
+        border-radius: 8px;
         color: white;
         cursor: pointer;
-        border-radius: 6px;
       }
 
+      /* ===== MENSAJES ===== */
       .messages {
         flex: 1;
         padding: 20px;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
       }
 
       .msg {
         max-width: 65%;
         padding: 12px;
         border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       }
 
       .asesor {
@@ -111,16 +122,16 @@
       }
 
       .msg img {
-        max-width: 200px;
+        max-width: 220px;
         border-radius: 10px;
       }
 
+      /* ===== INPUT ===== */
       .input-box {
         display: flex;
         gap: 10px;
         padding: 15px;
         background: #020617;
-        align-items: center;
       }
 
       .input-box input {
@@ -130,16 +141,25 @@
         border: none;
       }
 
+      /* ===== BOTONES ===== */
       .input-box button {
-        padding: 10px;
+        background: linear-gradient(135deg, #4a8df5, #00c6ff);
         border: none;
-        background: #00c6ff;
-        color: white;
+        padding: 10px;
         border-radius: 10px;
         cursor: pointer;
       }
 
-      /* 🔥 MENU */
+      /* ===== MENU ===== */
+      #menuAdjuntos {
+        display: none;
+        position: absolute;
+        bottom: 45px;
+        background: #020617;
+        border-radius: 10px;
+        padding: 10px;
+      }
+
       #menuAdjuntos button {
         display: block;
         width: 100%;
@@ -148,15 +168,9 @@
         color: white;
         padding: 8px;
         cursor: pointer;
-        text-align: left;
       }
 
-      #menuAdjuntos button:hover {
-        background: #1e293b;
-        border-radius: 6px;
-      }
-
-      /* 🔥 PROGRESS */
+      /* ===== PROGRESS ===== */
       #progressBar {
         height: 5px;
         width: 0%;
@@ -179,28 +193,13 @@
           <button class="logout" onclick="logout()">Salir</button>
         </div>
 
-        <div id="infoTicket"></div>
         <div id="progressBar"></div>
-
         <div class="messages" id="chat"></div>
 
         <div class="input-box">
-          <!-- 📎 MENU -->
           <div style="position: relative">
             <button onclick="toggleMenu()">📎</button>
-
-            <div
-              id="menuAdjuntos"
-              style="
-                display: none;
-                position: absolute;
-                bottom: 40px;
-                left: 0;
-                background: #020617;
-                border-radius: 10px;
-                padding: 10px;
-              "
-            >
+            <div id="menuAdjuntos">
               <button onclick="seleccionarArchivo('pdf')">📄 PDF</button>
               <button onclick="seleccionarArchivo('img')">🖼️ Imagen</button>
             </div>
@@ -220,28 +219,26 @@
       });
 
       const usuario = JSON.parse(localStorage.getItem("usuario"));
-      if (!usuario) window.location.href = "/";
-
       document.getElementById("usuario").textContent = usuario.email;
 
       let ticketActual = null;
       let tipoArchivo = null;
 
+      /* ===== MENU ===== */
       function toggleMenu() {
-        const menu = document.getElementById("menuAdjuntos");
-        menu.style.display = menu.style.display === "none" ? "block" : "none";
+        const m = document.getElementById("menuAdjuntos");
+        m.style.display = m.style.display === "none" ? "block" : "none";
       }
 
       function seleccionarArchivo(tipo) {
         tipoArchivo = tipo;
         const input = document.getElementById("fileInput");
-
         input.accept = tipo === "pdf" ? ".pdf" : "image/*";
         input.click();
-
         document.getElementById("menuAdjuntos").style.display = "none";
       }
 
+      /* ===== SUBIDA (FIX IMPORTANTE) ===== */
       async function subirArchivo(file) {
         const nombre = Date.now() + "_" + file.name;
         const storageRef = ref(storage, "tecnired/" + nombre);
@@ -250,12 +247,11 @@
 
         uploadTask.on(
           "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          (snap) => {
+            const progress = (snap.bytesTransferred / snap.totalBytes) * 100;
             document.getElementById("progressBar").style.width = progress + "%";
           },
-          (error) => console.log(error),
+          console.log,
           async () => {
             const url = await getDownloadURL(uploadTask.snapshot.ref);
 
@@ -269,6 +265,13 @@
               }),
             });
 
+            // 🔥 MOSTRAR SIN RECARGAR
+            agregarMensaje({
+              ticket_id: ticketActual,
+              remitente: usuario.email,
+              mensaje: url,
+            });
+
             document.getElementById("progressBar").style.width = "0%";
           },
         );
@@ -279,7 +282,7 @@
         if (!file) return;
 
         if (tipoArchivo === "pdf" && file.type !== "application/pdf") {
-          alert("Solo PDFs");
+          alert("Solo PDF");
           return;
         }
 
@@ -291,6 +294,7 @@
         subirArchivo(file);
       });
 
+      /* ===== MENSAJES ===== */
       function agregarMensaje(m) {
         const chat = document.getElementById("chat");
         const div = document.createElement("div");
@@ -306,16 +310,9 @@
           if (!url.includes("alt=media")) {
             url += url.includes("?") ? "&alt=media" : "?alt=media";
           }
-
-          const link = document.createElement("a");
-          link.href = url;
-          link.target = "_blank";
-          link.innerHTML = "📄 Ver PDF";
-          div.appendChild(link);
-        } else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)/)) {
-          const img = document.createElement("img");
-          img.src = m.mensaje;
-          div.appendChild(img);
+          div.innerHTML = `<a href="${url}" target="_blank">📄 Ver PDF</a>`;
+        } else if (mensaje.match(/\.(jpg|png|jpeg|gif|webp)/)) {
+          div.innerHTML = `<img src="${m.mensaje}">`;
         } else {
           div.textContent = m.mensaje;
         }
@@ -328,35 +325,22 @@
         if (m.ticket_id == ticketActual) agregarMensaje(m);
       });
 
-      function cargarMensajes() {
-        fetch(`/chat/${ticketActual}`)
-          .then((r) => r.json())
-          .then((data) => {
-            const chat = document.getElementById("chat");
-            chat.innerHTML = "";
-            data.forEach(agregarMensaje);
-          });
-      }
-
+      /* ===== RESTO ===== */
       function cargarTickets() {
         fetch(`/tickets/asesor/${usuario.email}`)
           .then((r) => r.json())
           .then((data) => {
             const cont = document.getElementById("tickets");
             cont.innerHTML = "";
-
             data.forEach((t) => {
               const div = document.createElement("div");
               div.className = "ticket";
-              div.innerHTML = `<b>#${t.id}</b><br>${t.categoria}`;
-
+              div.innerHTML = `#${t.id}<br>${t.categoria}`;
               div.onclick = () => {
                 ticketActual = t.id;
                 socket.emit("joinTicket", ticketActual);
                 document.getElementById("chat").innerHTML = "";
-                cargarMensajes();
               };
-
               cont.appendChild(div);
             });
           });
@@ -376,12 +360,19 @@
           }),
         });
 
+        // 🔥 mostrar inmediato
+        agregarMensaje({
+          ticket_id: ticketActual,
+          remitente: usuario.email,
+          mensaje: input.value,
+        });
+
         input.value = "";
       }
 
       function logout() {
         localStorage.removeItem("usuario");
-        window.location.href = "/";
+        location.href = "/";
       }
 
       cargarTickets();

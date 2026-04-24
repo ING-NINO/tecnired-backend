@@ -7,10 +7,6 @@ const nodemailer = require("nodemailer");
 const http = require("http");
 const { Server } = require("socket.io");
 
-const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
 // ===== APP + SERVER =====
 const app = express();
 const server = http.createServer(app);
@@ -19,33 +15,6 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3000;
-
-// ===== CLOUDINARY =====
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
-
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    let tipo = "image";
-
-    if (file.mimetype === "application/pdf") {
-      tipo = "image"; // 🔥 FIX
-    } else if (file.mimetype.startsWith("video")) {
-      tipo = "video";
-    }
-
-    return {
-      folder: "tecnired",
-      resource_type: tipo,
-      public_id: file.originalname.replace(/\s+/g, "_"),
-    };
-  },
-});
-const upload = multer({ storage });
 
 // ===== EMAIL =====
 const transporter = nodemailer.createTransport({
@@ -260,7 +229,7 @@ app.get("/chat/:ticket", (req, res) => {
   );
 });
 
-// ===== MENSAJE =====
+// ===== MENSAJE (🔥 CLAVE FINAL) =====
 app.post("/chat", (req, res) => {
   const { ticket_id, remitente, mensaje } = req.body;
 
@@ -270,37 +239,12 @@ app.post("/chat", (req, res) => {
     (err, result) => {
       if (err) return res.status(500).json({ ok: false });
 
+      // 🔥 TIEMPO REAL
       io.to("ticket_" + ticket_id).emit("nuevoMensaje", {
         id: result.insertId,
         ticket_id,
         remitente,
         mensaje,
-      });
-
-      res.json({ ok: true });
-    },
-  );
-});
-
-// ===== ARCHIVOS =====
-app.post("/chat/file", upload.single("archivo"), (req, res) => {
-  const { ticket_id, remitente } = req.body;
-
-  if (!req.file) return res.json({ ok: false });
-
-  const url = req.file.secure_url || req.file.path;
-
-  db.query(
-    "INSERT INTO mensajes (ticket_id,remitente,mensaje) VALUES (?,?,?)",
-    [ticket_id, remitente, url],
-    (err, result) => {
-      if (err) return res.status(500).json({ ok: false });
-
-      io.to("ticket_" + ticket_id).emit("nuevoMensaje", {
-        id: result.insertId,
-        ticket_id,
-        remitente,
-        mensaje: url,
       });
 
       res.json({ ok: true });

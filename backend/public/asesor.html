@@ -6,22 +6,36 @@
 
     <script src="/socket.io/socket.io.js"></script>
 
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
+    <!-- 🔥 FIREBASE -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getStorage,
+        ref,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
+        authDomain: "tecnired-221e0.firebaseapp.com",
+        projectId: "tecnired-221e0",
+        storageBucket: "tecnired-221e0.firebasestorage.app",
+        appId: "1:247442670329:web:8a3215d5aeed054bd69828",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      window.storage = getStorage(app);
+      window.ref = ref;
+      window.uploadBytes = uploadBytes;
+      window.getDownloadURL = getDownloadURL;
+    </script>
 
     <style>
-      :root {
-        --primary: #4a8df5;
-        --secondary: #00c6ff;
-        --dark: #0b1629;
-      }
-
       body {
         margin: 0;
         font-family: "Segoe UI";
-        background: var(--dark);
+        background: #0b1629;
         color: white;
       }
 
@@ -31,7 +45,7 @@
       }
 
       .sidebar {
-        width: 300px;
+        width: 280px;
         background: #020617;
         padding: 20px;
         overflow-y: auto;
@@ -39,20 +53,14 @@
 
       .ticket {
         padding: 12px;
-        border-radius: 12px;
+        border-radius: 10px;
         margin-bottom: 10px;
         cursor: pointer;
         background: #0f172a;
-        transition: 0.3s;
-      }
-
-      .ticket:hover {
-        background: #1e293b;
-        transform: translateX(5px);
       }
 
       .ticket.active {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: linear-gradient(135deg, #4a8df5, #00c6ff);
       }
 
       .chat {
@@ -66,28 +74,15 @@
         background: #020617;
         display: flex;
         justify-content: space-between;
-        align-items: center;
       }
 
       .logout {
-        background: linear-gradient(135deg, #ff4d4d, #ff0000);
+        background: red;
         border: none;
-        padding: 8px 15px;
-        border-radius: 10px;
+        padding: 8px 12px;
         color: white;
         cursor: pointer;
-        transition: 0.3s;
-      }
-
-      .logout:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 10px red;
-      }
-
-      #infoTicket {
-        padding: 10px;
-        color: #00c6ff;
-        border-bottom: 1px solid #1e293b;
+        border-radius: 6px;
       }
 
       .messages {
@@ -105,27 +100,19 @@
         border-radius: 15px;
       }
 
+      .asesor {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #4a8df5, #00c6ff);
+      }
+
       .cliente {
         align-self: flex-start;
         background: #334155;
       }
 
-      .asesor {
-        align-self: flex-end;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-      }
-
-      .msg img,
-      .msg video {
-        max-width: 250px;
+      .msg img {
+        max-width: 200px;
         border-radius: 10px;
-        margin-top: 5px;
-      }
-
-      a {
-        color: #00c6ff;
-        display: block;
-        margin-top: 5px;
       }
 
       .input-box {
@@ -133,24 +120,21 @@
         gap: 10px;
         padding: 15px;
         background: #020617;
-        border-top: 1px solid #1e293b;
       }
 
       .input-box input {
         flex: 1;
-        padding: 12px;
+        padding: 10px;
         border-radius: 10px;
         border: none;
-        background: #0f172a;
-        color: white;
       }
 
       .input-box button {
-        padding: 12px;
-        border-radius: 10px;
+        padding: 10px;
         border: none;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background: #00c6ff;
         color: white;
+        border-radius: 10px;
         cursor: pointer;
       }
     </style>
@@ -158,13 +142,11 @@
 
   <body>
     <div class="container">
-      <!-- SIDEBAR -->
       <div class="sidebar">
         <h2>📂 Tickets</h2>
         <div id="tickets"></div>
       </div>
 
-      <!-- CHAT -->
       <div class="chat">
         <div class="topbar">
           <span id="usuario"></span>
@@ -172,7 +154,6 @@
         </div>
 
         <div id="infoTicket"></div>
-
         <div class="messages" id="chat"></div>
 
         <div class="input-box">
@@ -186,7 +167,7 @@
     </div>
 
     <script>
-      const socket = io();
+      const socket = io("https://TU-APP.onrender.com");
 
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       if (!usuario) window.location.href = "/";
@@ -195,6 +176,7 @@
 
       let ticketActual = null;
 
+      /* ================= TICKETS ================= */
       function cargarTickets() {
         fetch(`/tickets/asesor/${usuario.email}`)
           .then((res) => res.json())
@@ -213,16 +195,13 @@
                 document
                   .querySelectorAll(".ticket")
                   .forEach((el) => el.classList.remove("active"));
-
                 div.classList.add("active");
 
                 document.getElementById("chat").innerHTML = "";
-
                 document.getElementById("infoTicket").innerHTML =
                   `🎫 Ticket #${t.id}<br>${t.descripcion}`;
 
                 socket.emit("joinTicket", ticketActual);
-
                 cargarMensajes();
               };
 
@@ -231,54 +210,65 @@
           });
       }
 
+      /* ================= MENSAJES ================= */
       function agregarMensaje(m) {
         const chat = document.getElementById("chat");
 
         const div = document.createElement("div");
         div.classList.add("msg");
 
-        if (m.remitente === usuario.email) {
-          div.classList.add("asesor");
-        } else {
-          div.classList.add("cliente");
-        }
+        if (m.remitente === usuario.email) div.classList.add("asesor");
+        else div.classList.add("cliente");
 
         const mensaje = m.mensaje.toLowerCase();
 
-        // 🔥 PDF PERFECTO (SOLUCIÓN FINAL)
-        if (mensaje.includes(".pdf") || mensaje.includes("raw/upload")) {
-          const link = document.createElement("a");
-          link.href = m.mensaje;
-          link.target = "_blank";
-          link.innerHTML = "📄 <b>Ver PDF</b>";
+        /* 🔥 PDF CORREGIDO */
+        if (
+          mensaje.includes(".pdf") ||
+          mensaje.includes("application/pdf") ||
+          mensaje.includes("firebasestorage")
+        ) {
+          let url = m.mensaje;
 
-          const descargar = document.createElement("a");
-          descargar.href = m.mensaje + "?fl_attachment=true";
-          descargar.innerHTML = "⬇ Descargar PDF";
+          // 🔥 SOLUCIÓN FINAL
+          if (!url.includes("alt=media")) {
+            url += "?alt=media";
+          }
+
+          const link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.innerHTML = "📄 Ver PDF";
+          link.style.color = "#00c6ff";
 
           div.appendChild(link);
-          div.appendChild(descargar);
-        } else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+        } else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)/)) {
+          /* 🖼️ IMAGEN */
           const img = document.createElement("img");
           img.src = m.mensaje;
           div.appendChild(img);
-        } else if (mensaje.match(/\.(mp4|webm)$/)) {
+        } else if (mensaje.match(/\.(mp4|webm)/)) {
+          /* 🎥 VIDEO */
           const video = document.createElement("video");
           video.src = m.mensaje;
           video.controls = true;
+          video.style.maxWidth = "250px";
           div.appendChild(video);
-        } else if (mensaje.match(/\.(mp3|wav|ogg)$/)) {
+        } else if (mensaje.match(/\.(mp3|wav|ogg)/)) {
+          /* 🎧 AUDIO */
           const audio = document.createElement("audio");
           audio.src = m.mensaje;
           audio.controls = true;
           div.appendChild(audio);
         } else if (mensaje.startsWith("http")) {
+          /* 🔗 LINK */
           const link = document.createElement("a");
           link.href = m.mensaje;
           link.target = "_blank";
           link.textContent = "📎 Abrir archivo";
           div.appendChild(link);
         } else {
+          /* 💬 TEXTO */
           div.textContent = m.mensaje;
         }
 
@@ -302,6 +292,7 @@
         }
       });
 
+      /* ================= ENVIAR ================= */
       function enviar() {
         const input = document.getElementById("mensaje");
 
@@ -320,6 +311,25 @@
         input.value = "";
       }
 
+      /* ================= SUBIR ARCHIVO ================= */
+      async function subirArchivo(file) {
+        const nombre = Date.now() + "_" + file.name;
+        const storageRef = ref(storage, "tecnired/" + nombre);
+
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+
+        await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ticket_id: ticketActual,
+            remitente: usuario.email,
+            mensaje: url,
+          }),
+        });
+      }
+
       function abrirArchivo() {
         document.getElementById("fileInput").click();
       }
@@ -328,17 +338,10 @@
         const file = e.target.files[0];
         if (!file) return;
 
-        const formData = new FormData();
-        formData.append("archivo", file);
-        formData.append("ticket_id", ticketActual);
-        formData.append("remitente", usuario.email);
-
-        fetch("/chat/file", {
-          method: "POST",
-          body: formData,
-        });
+        subirArchivo(file);
       });
 
+      /* ================= LOGOUT ================= */
       function logout() {
         localStorage.removeItem("usuario");
         window.location.href = "/";

@@ -245,47 +245,34 @@
 
         const mensaje = m.mensaje.toLowerCase();
 
-        // 🔥 PDF FIX FINAL
+        // 🔥 PDF PERFECTO (SOLUCIÓN FINAL)
         if (mensaje.includes(".pdf") || mensaje.includes("raw/upload")) {
           const link = document.createElement("a");
-          link.href = m.mensaje + "?fl_attachment=false";
+          link.href = m.mensaje;
           link.target = "_blank";
-          link.textContent = "📄 Ver PDF";
+          link.innerHTML = "📄 <b>Ver PDF</b>";
 
           const descargar = document.createElement("a");
           descargar.href = m.mensaje + "?fl_attachment=true";
-          descargar.download = "archivo.pdf";
-          descargar.textContent = "⬇ Descargar PDF";
+          descargar.innerHTML = "⬇ Descargar PDF";
 
           div.appendChild(link);
           div.appendChild(descargar);
-        }
-
-        // IMAGEN
-        else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+        } else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
           const img = document.createElement("img");
           img.src = m.mensaje;
           div.appendChild(img);
-        }
-
-        // VIDEO
-        else if (mensaje.match(/\.(mp4|webm)$/)) {
+        } else if (mensaje.match(/\.(mp4|webm)$/)) {
           const video = document.createElement("video");
           video.src = m.mensaje;
           video.controls = true;
           div.appendChild(video);
-        }
-
-        // AUDIO
-        else if (mensaje.match(/\.(mp3|wav|ogg)$/)) {
+        } else if (mensaje.match(/\.(mp3|wav|ogg)$/)) {
           const audio = document.createElement("audio");
           audio.src = m.mensaje;
           audio.controls = true;
           div.appendChild(audio);
-        }
-
-        // LINK
-        else if (mensaje.startsWith("http")) {
+        } else if (mensaje.startsWith("http")) {
           const link = document.createElement("a");
           link.href = m.mensaje;
           link.target = "_blank";

@@ -2,12 +2,21 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const db = require("./db");
+const multer = require("multer");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// ===== multer
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
 
+const upload = multer({ storage });
 // ===== CONFIGURACIÓN CORREO =====
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",

@@ -2,115 +2,169 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Chat - TecniRed</title>
+    <title>Panel Asesor | TecniRed</title>
 
     <link
-      rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
     />
 
     <style>
+      :root {
+        --primary: #4a8df5;
+        --secondary: #00c6ff;
+        --dark: #0b1629;
+      }
+
       body {
         margin: 0;
         font-family: "Segoe UI";
-        background: #0f172a;
+        background: var(--dark);
         color: white;
       }
 
-      /* CONTENEDOR */
-      .chat-container {
+      /* ===== LAYOUT ===== */
+      .container {
         display: flex;
         height: 100vh;
       }
 
-      /* SIDEBAR */
+      /* ===== SIDEBAR ===== */
       .sidebar {
         width: 300px;
         background: #020617;
         padding: 20px;
         border-right: 1px solid #1e293b;
+        overflow-y: auto;
       }
 
       .sidebar h2 {
         margin-bottom: 20px;
+        color: var(--secondary);
       }
 
       .ticket {
-        padding: 10px;
-        border-radius: 10px;
+        padding: 12px;
+        border-radius: 12px;
         margin-bottom: 10px;
         cursor: pointer;
         background: #0f172a;
+        transition: 0.3s;
       }
 
       .ticket:hover {
         background: #1e293b;
+        transform: translateX(5px);
       }
 
-      /* CHAT */
+      .ticket.active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+      }
+
+      /* ===== CHAT ===== */
       .chat {
         flex: 1;
         display: flex;
         flex-direction: column;
       }
 
+      .topbar {
+        padding: 15px;
+        background: #020617;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #1e293b;
+      }
+
       .messages {
         flex: 1;
         padding: 20px;
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
+      /* MENSAJES */
       .msg {
-        margin-bottom: 10px;
-        padding: 10px;
-        border-radius: 10px;
-        max-width: 60%;
+        max-width: 65%;
+        padding: 12px 16px;
+        border-radius: 15px;
+        font-size: 14px;
+        animation: fadeIn 0.3s ease;
       }
 
       .cliente {
-        background: #2563eb;
-        margin-left: auto;
-      }
-
-      .asesor {
+        align-self: flex-start;
         background: #334155;
       }
 
+      .asesor {
+        align-self: flex-end;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+      }
+
+      /* INPUT */
       .input-box {
         display: flex;
-        padding: 10px;
+        gap: 10px;
+        padding: 15px;
+        background: #020617;
         border-top: 1px solid #1e293b;
       }
 
-      input {
+      .input-box input {
         flex: 1;
-        padding: 10px;
-        border: none;
+        padding: 12px;
         border-radius: 10px;
+        border: none;
+        background: #0f172a;
+        color: white;
       }
 
-      button {
-        margin-left: 10px;
-        padding: 10px;
+      .input-box button {
+        padding: 12px 20px;
         border: none;
         border-radius: 10px;
-        background: #3b82f6;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: white;
         cursor: pointer;
+      }
+
+      .input-box button:hover {
+        transform: scale(1.05);
+      }
+
+      /* ANIMACION */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
 
   <body>
-    <div class="chat-container">
-      <!-- SIDEBAR -->
+    <div class="container">
+      <!-- ===== SIDEBAR ===== -->
       <div class="sidebar">
         <h2>📂 Tickets</h2>
         <div id="tickets"></div>
       </div>
 
-      <!-- CHAT -->
+      <!-- ===== CHAT ===== -->
       <div class="chat">
+        <div class="topbar">
+          <span id="usuario"></span>
+          <button onclick="logout()">Salir</button>
+        </div>
+
         <div class="messages" id="chat"></div>
 
         <div class="input-box">
@@ -122,7 +176,12 @@
 
     <script>
       const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!usuario) window.location.href = "/";
+
+      document.getElementById("usuario").textContent = usuario.email;
+
       let ticketActual = null;
+      let ultimoMensajeId = 0;
 
       /* ===== CARGAR TICKETS ===== */
       function cargarTickets() {
@@ -135,45 +194,63 @@
             data.forEach((t) => {
               const div = document.createElement("div");
               div.className = "ticket";
-              div.innerHTML = `#${t.id} - ${t.categoria}`;
-              div.onclick = () => abrirChat(t.id);
+              div.innerHTML = `<b>#${t.id}</b><br>${t.categoria}`;
+
+              div.onclick = () => {
+                document
+                  .querySelectorAll(".ticket")
+                  .forEach((el) => el.classList.remove("active"));
+                div.classList.add("active");
+
+                ticketActual = t.id;
+                ultimoMensajeId = 0;
+                document.getElementById("chat").innerHTML = "";
+                cargarMensajes(true);
+              };
+
               cont.appendChild(div);
             });
           });
       }
 
-      /* ===== ABRIR CHAT ===== */
-      function abrirChat(id) {
-        ticketActual = id;
-        cargarMensajes();
-      }
-
-      /* ===== CARGAR MENSAJES ===== */
-      function cargarMensajes() {
+      /* ===== CARGAR MENSAJES SIN PARPADEO ===== */
+      function cargarMensajes(scroll = false) {
         if (!ticketActual) return;
 
         fetch(`/chat/${ticketActual}`)
           .then((res) => res.json())
           .then((data) => {
             const chat = document.getElementById("chat");
-            chat.innerHTML = "";
 
             data.forEach((m) => {
+              if (m.id <= ultimoMensajeId) return;
+
               const div = document.createElement("div");
-              div.className =
-                "msg " + (m.remitente === usuario.email ? "cliente" : "asesor");
+              div.classList.add("msg");
+
+              if (m.remitente === usuario.email) {
+                div.classList.add("asesor");
+              } else {
+                div.classList.add("cliente");
+              }
 
               div.textContent = m.mensaje;
               chat.appendChild(div);
+
+              ultimoMensajeId = m.id;
             });
 
-            chat.scrollTop = chat.scrollHeight;
+            if (scroll) {
+              chat.scrollTop = chat.scrollHeight;
+            }
           });
       }
 
       /* ===== ENVIAR MENSAJE ===== */
       function enviar() {
-        const texto = document.getElementById("mensaje").value;
+        const input = document.getElementById("mensaje");
+
+        if (!input.value || !ticketActual) return;
 
         fetch("/chat", {
           method: "POST",
@@ -181,16 +258,29 @@
           body: JSON.stringify({
             ticket_id: ticketActual,
             remitente: usuario.email,
-            mensaje: texto,
+            mensaje: input.value,
           }),
         }).then(() => {
-          document.getElementById("mensaje").value = "";
-          cargarMensajes();
+          input.value = "";
+          cargarMensajes(true);
         });
       }
 
-      /* ===== AUTO REFRESH ===== */
-      setInterval(cargarMensajes, 2000);
+      /* ENTER PARA ENVIAR */
+      document.getElementById("mensaje").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          enviar();
+        }
+      });
+
+      /* AUTO REFRESH */
+      setInterval(() => cargarMensajes(false), 1500);
+
+      /* LOGOUT */
+      function logout() {
+        localStorage.removeItem("usuario");
+        window.location.href = "/";
+      }
 
       cargarTickets();
     </script>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <title>Chat Cliente | TecniRed</title>
 
+    <!-- SOCKET -->
+    <script src="/socket.io/socket.io.js"></script>
+
     <style>
       body {
         margin: 0;
@@ -41,6 +44,12 @@
         border-radius: 8px;
         color: white;
         cursor: pointer;
+      }
+
+      .info-ticket {
+        margin-top: 10px;
+        color: #00c6ff;
+        font-size: 14px;
       }
 
       .chat-box {
@@ -112,6 +121,9 @@
         <button onclick="volver()">Volver</button>
       </header>
 
+      <!-- INFO TICKET -->
+      <div id="infoTicket" class="info-ticket"></div>
+
       <div id="mensajes" class="chat-box"></div>
 
       <div class="chat-input">
@@ -124,6 +136,8 @@
     </div>
 
     <script>
+      const socket = io();
+
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       if (!usuario) window.location.href = "/";
 
@@ -132,55 +146,76 @@
       const params = new URLSearchParams(window.location.search);
       const ticketId = params.get("ticket");
 
-      let ultimoMensajeId = 0;
+      // 🔥 UNIRSE AL TICKET (CLAVE)
+      socket.emit("joinTicket", ticketId);
+
+      // ===== MOSTRAR MENSAJE =====
+      function agregarMensaje(m) {
+        const contenedor = document.getElementById("mensajes");
+
+        const div = document.createElement("div");
+        div.classList.add("mensaje");
+
+        if (m.remitente === usuario.email) {
+          div.classList.add("cliente");
+        } else {
+          div.classList.add("asesor");
+        }
+
+        const mensaje = m.mensaje.toLowerCase();
+
+        // 📄 PDF
+        if (mensaje.endsWith(".pdf")) {
+          const link = document.createElement("a");
+          link.href = m.mensaje;
+          link.target = "_blank";
+          link.textContent = "📄 Ver PDF";
+          div.appendChild(link);
+        }
+
+        // 🖼️ IMAGEN
+        else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+          const img = document.createElement("img");
+          img.src = m.mensaje;
+          div.appendChild(img);
+        }
+
+        // 🔗 OTROS LINKS
+        else if (mensaje.startsWith("http")) {
+          const link = document.createElement("a");
+          link.href = m.mensaje;
+          link.target = "_blank";
+          link.textContent = "📎 Abrir archivo";
+          div.appendChild(link);
+        }
+
+        // 💬 TEXTO
+        else {
+          div.textContent = m.mensaje;
+        }
+
+        contenedor.appendChild(div);
+        contenedor.scrollTop = contenedor.scrollHeight;
+      }
 
       // ===== CARGAR MENSAJES =====
       async function cargarMensajes() {
         const res = await fetch(`/chat/${ticketId}`);
         const data = await res.json();
 
-        const contenedor = document.getElementById("mensajes");
+        document.getElementById("mensajes").innerHTML = "";
 
-        data.forEach((m) => {
-          if (m.id <= ultimoMensajeId) return;
-
-          const div = document.createElement("div");
-          div.classList.add("mensaje");
-
-          if (m.remitente === usuario.email) {
-            div.classList.add("cliente");
-          } else {
-            div.classList.add("asesor");
-          }
-
-          // 🔥 DETECTAR TIPO DE ARCHIVO
-          if (m.mensaje.startsWith("http")) {
-            // IMAGEN
-            if (m.mensaje.match(/\.(jpg|jpeg|png|gif)$/i)) {
-              const img = document.createElement("img");
-              img.src = m.mensaje;
-              div.appendChild(img);
-            }
-            // PDF u otro archivo
-            else {
-              const link = document.createElement("a");
-              link.href = m.mensaje;
-              link.target = "_blank";
-              link.textContent = "📄 Ver archivo";
-              div.appendChild(link);
-            }
-          } else {
-            div.textContent = m.mensaje;
-          }
-
-          contenedor.appendChild(div);
-          ultimoMensajeId = m.id;
-        });
-
-        contenedor.scrollTop = contenedor.scrollHeight;
+        data.forEach(agregarMensaje);
       }
 
-      // ===== ENVIAR TEXTO =====
+      // ===== SOCKET TIEMPO REAL =====
+      socket.on("nuevoMensaje", (m) => {
+        if (m.ticket_id == ticketId) {
+          agregarMensaje(m);
+        }
+      });
+
+      // ===== ENVIAR MENSAJE =====
       async function enviarMensaje() {
         const input = document.getElementById("mensajeInput");
 
@@ -197,7 +232,6 @@
         });
 
         input.value = "";
-        cargarMensajes();
       }
 
       // ===== ARCHIVOS =====
@@ -220,22 +254,12 @@
             method: "POST",
             body: formData,
           });
-
-          cargarMensajes();
-        });
-
-      // ENTER
-      document
-        .getElementById("mensajeInput")
-        .addEventListener("keypress", (e) => {
-          if (e.key === "Enter") enviarMensaje();
         });
 
       function volver() {
         window.location.href = "/user_cliente.html";
       }
 
-      setInterval(cargarMensajes, 1000);
       cargarMensajes();
     </script>
   </body>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <title>Panel Asesor | TecniRed</title>
 
+    <!-- SOCKET -->
+    <script src="/socket.io/socket.io.js"></script>
+
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       rel="stylesheet"
@@ -28,13 +31,11 @@
         height: 100vh;
       }
 
-      /* SIDEBAR */
       .sidebar {
         width: 300px;
         background: #020617;
         padding: 20px;
         border-right: 1px solid #1e293b;
-        overflow-y: auto;
       }
 
       .ticket {
@@ -43,19 +44,12 @@
         margin-bottom: 10px;
         cursor: pointer;
         background: #0f172a;
-        transition: 0.3s;
-      }
-
-      .ticket:hover {
-        background: #1e293b;
-        transform: translateX(5px);
       }
 
       .ticket.active {
         background: linear-gradient(135deg, var(--primary), var(--secondary));
       }
 
-      /* CHAT */
       .chat {
         flex: 1;
         display: flex;
@@ -67,7 +61,6 @@
         background: #020617;
         display: flex;
         justify-content: space-between;
-        border-bottom: 1px solid #1e293b;
       }
 
       .messages {
@@ -81,7 +74,7 @@
 
       .msg {
         max-width: 65%;
-        padding: 12px 16px;
+        padding: 12px;
         border-radius: 15px;
       }
 
@@ -95,20 +88,11 @@
         background: linear-gradient(135deg, var(--primary), var(--secondary));
       }
 
-      .msg img {
-        max-width: 200px;
-        border-radius: 10px;
-        margin-top: 5px;
-      }
-
-      /* INPUT */
       .input-box {
         display: flex;
         gap: 10px;
         padding: 15px;
         background: #020617;
-        border-top: 1px solid #1e293b;
-        align-items: center;
       }
 
       .input-box input {
@@ -122,30 +106,17 @@
 
       .input-box button {
         padding: 12px;
-        border: none;
         border-radius: 10px;
+        border: none;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: white;
         cursor: pointer;
       }
 
-      .file-btn {
-        background: #1e293b;
-      }
-
-      .preview {
-        position: absolute;
-        bottom: 90px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #020617;
-        padding: 10px;
-        border-radius: 10px;
-        display: none;
-      }
-
-      .preview img {
-        max-width: 150px;
+      .logout {
+        background: red;
+        padding: 8px 15px;
+        border-radius: 8px;
       }
     </style>
   </head>
@@ -162,41 +133,34 @@
       <div class="chat">
         <div class="topbar">
           <span id="usuario"></span>
-          <button onclick="logout()">Salir</button>
+          <button class="logout" onclick="logout()">Salir</button>
         </div>
+
+        <div id="infoTicket" style="padding: 10px; color: #00c6ff"></div>
 
         <div class="messages" id="chat"></div>
 
-        <!-- PREVIEW -->
-        <div class="preview" id="previewBox">
-          <img id="previewImg" />
-        </div>
-
         <div class="input-box">
           <input type="file" id="fileInput" hidden />
-          <button class="file-btn" onclick="abrirArchivo()">
-            <i class="fa fa-paperclip"></i>
-          </button>
+          <button onclick="abrirArchivo()">📎</button>
 
           <input id="mensaje" placeholder="Escribe mensaje..." />
-
-          <button onclick="enviar()">
-            <i class="fa fa-paper-plane"></i>
-          </button>
+          <button onclick="enviar()">➤</button>
         </div>
       </div>
     </div>
 
     <script>
+      const socket = io();
+
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       if (!usuario) window.location.href = "/";
 
       document.getElementById("usuario").textContent = usuario.email;
 
       let ticketActual = null;
-      let ultimoMensajeId = 0;
 
-      // ===== CARGAR TICKETS =====
+      // ===== TICKETS =====
       function cargarTickets() {
         fetch(`/tickets/asesor/${usuario.email}`)
           .then((res) => res.json())
@@ -210,15 +174,16 @@
               div.innerHTML = `<b>#${t.id}</b><br>${t.categoria}`;
 
               div.onclick = () => {
-                document
-                  .querySelectorAll(".ticket")
-                  .forEach((el) => el.classList.remove("active"));
-                div.classList.add("active");
-
                 ticketActual = t.id;
-                ultimoMensajeId = 0;
+
                 document.getElementById("chat").innerHTML = "";
-                cargarMensajes(true);
+
+                document.getElementById("infoTicket").innerHTML =
+                  `🎫 Ticket #${t.id} - ${t.categoria}<br>${t.descripcion}`;
+
+                socket.emit("joinTicket", ticketActual);
+
+                cargarMensajes();
               };
 
               cont.appendChild(div);
@@ -226,87 +191,55 @@
           });
       }
 
-      // ===== CARGAR MENSAJES =====
-      function cargarMensajes(scroll = false) {
-        if (!ticketActual) return;
+      // ===== MENSAJES =====
+      function agregarMensaje(m) {
+        const chat = document.getElementById("chat");
 
+        const div = document.createElement("div");
+        div.classList.add("msg");
+
+        if (m.remitente === usuario.email) {
+          div.classList.add("asesor");
+        } else {
+          div.classList.add("cliente");
+        }
+
+        const mensaje = m.mensaje.toLowerCase();
+
+        if (mensaje.endsWith(".pdf")) {
+          const link = document.createElement("a");
+          link.href = m.mensaje;
+          link.target = "_blank";
+          link.textContent = "📄 Ver PDF";
+          div.appendChild(link);
+        } else if (mensaje.match(/\.(jpg|png|jpeg|gif|webp)$/)) {
+          const img = document.createElement("img");
+          img.src = m.mensaje;
+          div.appendChild(img);
+        } else {
+          div.textContent = m.mensaje;
+        }
+
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function cargarMensajes() {
         fetch(`/chat/${ticketActual}`)
           .then((res) => res.json())
           .then((data) => {
-            const chat = document.getElementById("chat");
-
-            data.forEach((m) => {
-              if (m.id <= ultimoMensajeId) return;
-
-              const div = document.createElement("div");
-              div.classList.add("msg");
-
-              if (m.remitente === usuario.email) {
-                div.classList.add("asesor");
-              } else {
-                div.classList.add("cliente");
-              }
-
-              const mensaje = m.mensaje.toLowerCase();
-
-              // 🖼️ IMAGEN
-              if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-                const img = document.createElement("img");
-                img.src = m.mensaje;
-                div.appendChild(img);
-              }
-
-              // 📄 PDF
-              else if (mensaje.endsWith(".pdf")) {
-                const link = document.createElement("a");
-                link.href = m.mensaje;
-                link.target = "_blank";
-                link.textContent = "📄 Ver PDF";
-                link.style.color = "#00c6ff";
-                div.appendChild(link);
-              }
-
-              // 🎥 VIDEO
-              else if (mensaje.match(/\.(mp4|webm|ogg)$/)) {
-                const video = document.createElement("video");
-                video.src = m.mensaje;
-                video.controls = true;
-                video.style.maxWidth = "250px";
-                div.appendChild(video);
-              }
-
-              // 🎧 AUDIO
-              else if (mensaje.match(/\.(mp3|wav|ogg)$/)) {
-                const audio = document.createElement("audio");
-                audio.src = m.mensaje;
-                audio.controls = true;
-                div.appendChild(audio);
-              }
-
-              // 🔗 OTRO LINK
-              else if (mensaje.startsWith("http")) {
-                const link = document.createElement("a");
-                link.href = m.mensaje;
-                link.target = "_blank";
-                link.textContent = "📎 Abrir archivo";
-                link.style.color = "#00c6ff";
-                div.appendChild(link);
-              }
-
-              // 💬 TEXTO
-              else {
-                div.textContent = m.mensaje;
-              }
-
-              chat.appendChild(div);
-              ultimoMensajeId = m.id;
-            });
-
-            if (scroll) chat.scrollTop = chat.scrollHeight;
+            data.forEach(agregarMensaje);
           });
       }
 
-      // ===== ENVIAR TEXTO =====
+      // ===== SOCKET REALTIME =====
+      socket.on("nuevoMensaje", (m) => {
+        if (m.ticket_id == ticketActual) {
+          agregarMensaje(m);
+        }
+      });
+
+      // ===== ENVIAR =====
       function enviar() {
         const input = document.getElementById("mensaje");
 
@@ -320,54 +253,29 @@
             remitente: usuario.email,
             mensaje: input.value,
           }),
-        }).then(() => {
-          input.value = "";
-          cargarMensajes(true);
         });
+
+        input.value = "";
       }
 
-      // ===== ARCHIVOS =====
       function abrirArchivo() {
         document.getElementById("fileInput").click();
       }
 
       document.getElementById("fileInput").addEventListener("change", (e) => {
         const file = e.target.files[0];
-        if (!file) return;
 
-        const preview = document.getElementById("previewBox");
-        const img = document.getElementById("previewImg");
-
-        img.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-
-        enviarArchivo(file);
-      });
-
-      async function enviarArchivo(file) {
         const formData = new FormData();
         formData.append("archivo", file);
         formData.append("ticket_id", ticketActual);
         formData.append("remitente", usuario.email);
 
-        await fetch("/chat/file", {
+        fetch("/chat/file", {
           method: "POST",
           body: formData,
         });
-
-        document.getElementById("previewBox").style.display = "none";
-        cargarMensajes(true);
-      }
-
-      // ENTER
-      document.getElementById("mensaje").addEventListener("keypress", (e) => {
-        if (e.key === "Enter") enviar();
       });
 
-      // AUTO REFRESH
-      setInterval(() => cargarMensajes(false), 1500);
-
-      // LOGOUT
       function logout() {
         localStorage.removeItem("usuario");
         window.location.href = "/";

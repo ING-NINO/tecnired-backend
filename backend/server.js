@@ -4,33 +4,45 @@ const path = require("path");
 const db = require("./db");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-// CONFIG CLOUDINARY
+// ===== APP + SERVER =====
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*" },
+});
+
+const PORT = process.env.PORT || 3000;
+
+// ===== CLOUDINARY =====
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUD_API_KEY,
   api_secret: process.env.CLOUD_API_SECRET,
 });
 
-// STORAGE EN LA NUBE
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "tecnired",
-    resource_type: "auto", // acepta imágenes, pdf, audio, etc
+  params: async (req, file) => {
+    let tipo = "image";
+    if (file.mimetype === "application/pdf") tipo = "raw";
+    else if (file.mimetype.startsWith("video")) tipo = "video";
+
+    return {
+      folder: "tecnired",
+      resource_type: tipo,
+    };
   },
 });
-
 const upload = multer({ storage });
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// ===== CONFIGURACIÓN CORREO =====
+// ===== EMAIL =====
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
@@ -47,7 +59,7 @@ const correosNivel = {
   3: "cs7256082@gmail.com",
 };
 
-// ===== MIDDLEWARES =====
+// ===== MIDDLEWARE =====
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -57,42 +69,46 @@ app.use((req, res, next) => {
   next();
 });
 
-// ===== RUTA PRINCIPAL =====
+// ===== SOCKET =====
+io.on("connection", (socket) => {
+  console.log("🟢 Usuario conectado");
+
+  socket.on("joinTicket", (ticketId) => {
+    socket.join("ticket_" + ticketId);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("🔴 Usuario desconectado");
+  });
+});
+
+// ===== ROOT =====
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
-// ===== REGISTRO =====
+// ===== REGISTER =====
 app.post("/register", (req, res) => {
   const { nombre, email, password, telefono } = req.body;
 
   if (!nombre || !email || !password || !telefono) {
-    return res.json({
-      status: "fail",
-      message: "Todos los campos son obligatorios",
-    });
+    return res.json({ status: "fail", message: "Campos obligatorios" });
   }
 
-  const verificar = "SELECT email FROM usuarios WHERE email = ?";
-  db.query(verificar, [email], (err, result) => {
-    if (err)
-      return res.json({ status: "fail", message: "Error en verificación" });
+  db.query("SELECT email FROM usuarios WHERE email = ?", [email], (err, r) => {
+    if (err) return res.json({ status: "fail" });
 
-    if (result.length > 0)
-      return res.json({
-        status: "fail",
-        message: "El correo ya está registrado",
-      });
+    if (r.length > 0)
+      return res.json({ status: "fail", message: "Correo ya existe" });
 
-    const sql =
-      "INSERT INTO usuarios (nombre, email, password, telefono) VALUES (?, ?, ?, ?)";
-
-    db.query(sql, [nombre, email, password, telefono], (err) => {
-      if (err)
-        return res.json({ status: "fail", message: "Error al registrar" });
-
-      res.json({ status: "ok", message: "Usuario creado correctamente" });
-    });
+    db.query(
+      "INSERT INTO usuarios (nombre,email,password,telefono) VALUES (?,?,?,?)",
+      [nombre, email, password, telefono],
+      (err) => {
+        if (err) return res.json({ status: "fail" });
+        res.json({ status: "ok" });
+      },
+    );
   });
 });
 
@@ -100,260 +116,137 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  const sql =
-    "SELECT id, nombre, email, rol FROM usuarios WHERE email = ? AND password = ?";
+  db.query(
+    "SELECT id,nombre,email,rol FROM usuarios WHERE email=? AND password=?",
+    [email, password],
+    (err, rows) => {
+      if (err) return res.json({ status: "fail" });
+      if (!rows.length)
+        return res.json({
+          status: "fail",
+          message: "Credenciales incorrectas",
+        });
 
-  db.query(sql, [email, password], (err, rows) => {
-    if (err)
-      return res.json({ status: "fail", message: "Error en la consulta" });
-
-    if (rows.length === 0)
-      return res.json({ status: "fail", message: "Credenciales incorrectas" });
-
-    res.json({ status: "ok", user: rows[0] });
-  });
+      res.json({ status: "ok", user: rows[0] });
+    },
+  );
 });
 
-// ===== TICKETS DEL USUARIO =====
+// ===== TICKETS USUARIO =====
 app.get("/tickets/usuario/:email", (req, res) => {
-  const { email } = req.params;
-
-  const sql = `
-    SELECT t.*, COALESCE(u.telefono,'No registrado') AS telefono
-    FROM tickets t
-    LEFT JOIN usuarios u ON t.email = u.email
-    WHERE t.email = ?
-    ORDER BY t.id DESC
-  `;
-
-  db.query(sql, [email], (err, rows) => {
-    if (err) {
-      console.log("❌ Error tickets usuario:", err);
-      return res.status(500).json([]);
-    }
-    res.json(rows);
-  });
+  db.query(
+    `SELECT t.*, COALESCE(u.telefono,'No registrado') AS telefono
+     FROM tickets t
+     LEFT JOIN usuarios u ON t.email = u.email
+     WHERE t.email = ?
+     ORDER BY t.id DESC`,
+    [req.params.email],
+    (err, rows) => {
+      if (err) return res.status(500).json([]);
+      res.json(rows);
+    },
+  );
 });
 
 // ===== CREAR TICKET =====
 app.post("/tickets", (req, res) => {
   const { nombre, email, categoria, descripcion } = req.body;
 
-  if (!nombre || !email || !categoria || !descripcion) {
-    return res.json({ status: "fail", message: "Datos incompletos" });
-  }
-
-  const sqlUsuario = "SELECT telefono FROM usuarios WHERE email = ?";
-
-  db.query(sqlUsuario, [email], (err, usuarioRows) => {
-    if (err || usuarioRows.length === 0) {
-      console.log("❌ Error buscando usuario:", err);
-      return res.json({
-        status: "fail",
-        message: "Usuario no encontrado",
-      });
-    }
-
-    const validar =
-      "SELECT COUNT(*) AS total FROM tickets WHERE email = ? AND estado IN ('Nuevo', 'Proceso')";
-
-    db.query(validar, [email], (err, result) => {
-      if (err) {
-        console.log("❌ Error validando tickets:", err);
-        return res.status(500).json({ status: "fail" });
-      }
-
-      if (result[0].total >= 3) {
-        return res.json({
-          status: "fail",
-          message:
-            "Ya tienes 3 tickets activos. Debes esperar a que se finalicen.",
-        });
-      }
-
-      // 🔥 CORREGIDO: SIN telefono
-      const sqlTicket = `
-        INSERT INTO tickets
-        (nombre, email, categoria, descripcion, prioridad, estado, escala, fecha)
-        VALUES (?, ?, ?, ?, 'Pendiente', 'Nuevo', 'Seleccionar', NOW())
-      `;
-
-      db.query(sqlTicket, [nombre, email, categoria, descripcion], (err) => {
-        if (err) {
-          console.log("❌ Error insertando ticket:", err);
-          return res.status(500).json({
-            status: "fail",
-            message: "Error al crear ticket",
-          });
-        }
-
-        res.json({
-          status: "ok",
-          message: "Ticket creado correctamente",
-        });
-      });
-    });
-  });
+  db.query(
+    `INSERT INTO tickets 
+    (nombre,email,categoria,descripcion,prioridad,estado,escala,fecha)
+    VALUES (?,?,?,?, 'Pendiente','Nuevo','Seleccionar',NOW())`,
+    [nombre, email, categoria, descripcion],
+    (err) => {
+      if (err) return res.status(500).json({ status: "fail" });
+      res.json({ status: "ok" });
+    },
+  );
 });
 
-// ===== TODOS LOS TICKETS (ADMIN) =====
+// ===== ADMIN TODOS LOS TICKETS =====
 app.get("/tickets", (req, res) => {
-  const sql = `
-    SELECT t.id, t.nombre, t.email,
-           COALESCE(u.telefono,'No registrado') AS telefono,
-           t.categoria, t.descripcion, t.estado,
-           COALESCE(t.escala,'Seleccionar') AS escala, t.fecha
+  db.query(
+    `SELECT t.id, t.nombre, t.email,
+    COALESCE(u.telefono,'No registrado') AS telefono,
+    t.categoria, t.descripcion, t.estado,
+    COALESCE(t.escala,'Seleccionar') AS escala, t.fecha
     FROM tickets t
     LEFT JOIN usuarios u ON t.email = u.email
-    ORDER BY t.id DESC
-  `;
-
-  db.query(sql, (err, rows) => {
-    if (err) {
-      console.log("❌ Error cargando tickets admin:", err);
-      return res.status(500).json([]);
-    }
-    res.json(rows);
-  });
+    ORDER BY t.id DESC`,
+    (err, rows) => {
+      if (err) return res.status(500).json([]);
+      res.json(rows);
+    },
+  );
 });
 
 // ===== CAMBIAR ESTADO =====
 app.put("/tickets/:id", (req, res) => {
-  const { id } = req.params;
-  const { estado } = req.body;
-
-  const sql = "UPDATE tickets SET estado = ? WHERE id = ?";
-
-  db.query(sql, [estado, id], (err) => {
-    if (err) return res.json({ status: "fail" });
-    res.json({ status: "ok" });
-  });
+  db.query(
+    "UPDATE tickets SET estado=? WHERE id=?",
+    [req.body.estado, req.params.id],
+    () => res.json({ status: "ok" }),
+  );
 });
 
-// ===== ESCALAR TICKET =====
+// ===== ESCALAR =====
 app.put("/tickets/escalar/:id", (req, res) => {
-  const { id } = req.params;
   const { escala } = req.body;
 
-  const sql = "UPDATE tickets SET escala = ? WHERE id = ?";
-
-  db.query(sql, [escala, id], (err) => {
-    if (err) return res.json({ status: "fail", message: "Error actualizando" });
-
-    const sqlTicket = `
-      SELECT t.nombre, t.email, t.categoria, t.descripcion,
-             COALESCE(u.telefono,'No registrado') AS telefono
-      FROM tickets t
-      LEFT JOIN usuarios u ON t.email = u.email
-      WHERE t.id = ?
-    `;
-
-    db.query(sqlTicket, [id], (err, rows) => {
-      if (err || rows.length === 0) return;
-
-      const ticket = rows[0];
-
-      const mailOptions = {
-        from: "cs7256081@gmail.com",
-        to: ticket.email,
-        cc: correosNivel[escala],
-        bcc: "cs7256081@gmail.com",
-        subject: `Ticket Escalado a Nivel ${escala} - TecniRed`,
-        html: `
-          <div style="font-family: Arial; padding:20px;">
-            <h2 style="color:#2c3e50;">Ticket Escalado - TecniRed</h2>
-            <hr>
-            <p><strong>Nombre Cliente:</strong> ${ticket.nombre}</p>
-            <p><strong>Email Cliente:</strong> ${ticket.email}</p>
-            <p><strong>Teléfono Cliente:</strong> ${ticket.telefono}</p>
-            <p><strong>Categoría:</strong> ${ticket.categoria}</p>
-            <p><strong>Descripción:</strong> ${ticket.descripcion}</p>
-            <p><strong>Nivel Asignado:</strong> ${escala}</p>
-            <br><hr>
-            <p style="margin-top:20px; font-weight:bold;">
-              Atentamente,<br>Equipo TecniRed
-            </p>
-            <img src="https://iili.io/qHaRGrQ.md.png" width="150" />
-          </div>
-        `,
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.log("❌ Error enviando correo:", error);
-        else console.log("✅ Correo enviado:", info.response);
-      });
-    });
-
-    res.json({ status: "ok" });
-  });
+  db.query(
+    "UPDATE tickets SET escala=? WHERE id=?",
+    [escala, req.params.id],
+    () => {
+      res.json({ status: "ok" });
+    },
+  );
 });
 
-// ===== FILTRAR POR FECHA =====
+// ===== FILTRO ADMIN =====
 app.get("/admin/tickets", (req, res) => {
   const { inicio } = req.query;
 
-  let sql = `
-    SELECT t.id, t.nombre, t.email,
-           COALESCE(u.telefono,'No registrado') AS telefono,
-           t.categoria, t.descripcion, t.estado,
-           COALESCE(t.escala,'Seleccionar') AS escala, t.fecha
-    FROM tickets t
-    LEFT JOIN usuarios u ON t.email = u.email
-  `;
-
-  const params = [];
+  let sql = `SELECT * FROM tickets`;
+  let params = [];
 
   if (inicio) {
-    sql += " WHERE DATE(t.fecha) = ?";
+    sql += " WHERE DATE(fecha)=?";
     params.push(inicio);
   }
 
-  sql += " ORDER BY t.id DESC";
-
   db.query(sql, params, (err, rows) => {
-    if (err) return res.status(500).json([]);
+    if (err) return res.json([]);
     res.json(rows);
   });
 });
 
-// ===== INICIAR SERVIDOR =====
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-});
-
-// ===== TICKETS PARA ASESOR SEGÚN NIVEL =====
+// ===== TICKETS ASESOR =====
 app.get("/tickets/asesor/:email", (req, res) => {
-  const { email } = req.params;
+  db.query(
+    "SELECT rol FROM usuarios WHERE email=?",
+    [req.params.email],
+    (err, user) => {
+      if (!user.length) return res.json([]);
 
-  const sqlUser = "SELECT rol FROM usuarios WHERE email = ?";
+      const nivel = user[0].rol.replace("asesor", "");
 
-  db.query(sqlUser, [email], (err, user) => {
-    if (err || user.length === 0) return res.json([]);
-
-    const rol = user[0].rol;
-
-    // ejemplo: asesor1 → nivel 1
-    const nivel = rol.replace("asesor", "");
-
-    const sql = `
-      SELECT * FROM tickets
-      WHERE escala = ?
-      ORDER BY fecha DESC
-    `;
-
-    db.query(sql, [nivel], (err, rows) => {
-      if (err) {
-        console.log("❌ Error asesor tickets:", err);
-        return res.json([]);
-      }
-      res.json(rows);
-    });
-  });
+      db.query(
+        "SELECT * FROM tickets WHERE escala=? ORDER BY fecha DESC",
+        [nivel],
+        (err, rows) => {
+          if (err) return res.json([]);
+          res.json(rows);
+        },
+      );
+    },
+  );
 });
-// OBTENER MENSAJES
+
+// ===== CHAT =====
 app.get("/chat/:ticket", (req, res) => {
   db.query(
-    "SELECT * FROM mensajes WHERE ticket_id = ? ORDER BY fecha ASC",
+    "SELECT * FROM mensajes WHERE ticket_id=? ORDER BY fecha ASC",
     [req.params.ticket],
     (err, rows) => {
       if (err) return res.json([]);
@@ -362,35 +255,55 @@ app.get("/chat/:ticket", (req, res) => {
   );
 });
 
-// ENVIAR MENSAJE
+// ===== MENSAJE =====
 app.post("/chat", (req, res) => {
   const { ticket_id, remitente, mensaje } = req.body;
 
   db.query(
-    "INSERT INTO mensajes (ticket_id, remitente, mensaje) VALUES (?,?,?)",
+    "INSERT INTO mensajes (ticket_id,remitente,mensaje) VALUES (?,?,?)",
     [ticket_id, remitente, mensaje],
-    () => res.json({ ok: true }),
-  );
-});
+    (err, result) => {
+      if (err) return res.status(500).json({ ok: false });
 
-app.use("/uploads", express.static("uploads"));
+      io.to("ticket_" + ticket_id).emit("nuevoMensaje", {
+        id: result.insertId,
+        ticket_id,
+        remitente,
+        mensaje,
+      });
 
-// ===== ENVIAR ARCHIVO =====
-app.post("/chat/file", upload.single("archivo"), (req, res) => {
-  const { ticket_id, remitente } = req.body;
-
-  if (!req.file) {
-    return res.json({ ok: false, message: "No hay archivo" });
-  }
-
-  // 🔥 AQUÍ ESTÁ LA CLAVE
-  const archivoUrl = req.file.secure_url || req.file.path;
-
-  db.query(
-    "INSERT INTO mensajes (ticket_id, remitente, mensaje) VALUES (?,?,?)",
-    [ticket_id, remitente, archivoUrl],
-    () => {
       res.json({ ok: true });
     },
   );
+});
+
+// ===== ARCHIVOS =====
+app.post("/chat/file", upload.single("archivo"), (req, res) => {
+  const { ticket_id, remitente } = req.body;
+
+  if (!req.file) return res.json({ ok: false });
+
+  const url = req.file.secure_url || req.file.path;
+
+  db.query(
+    "INSERT INTO mensajes (ticket_id,remitente,mensaje) VALUES (?,?,?)",
+    [ticket_id, remitente, url],
+    (err, result) => {
+      if (err) return res.status(500).json({ ok: false });
+
+      io.to("ticket_" + ticket_id).emit("nuevoMensaje", {
+        id: result.insertId,
+        ticket_id,
+        remitente,
+        mensaje: url,
+      });
+
+      res.json({ ok: true });
+    },
+  );
+});
+
+// ===== START =====
+server.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });

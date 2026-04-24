@@ -1,11 +1,9 @@
 <!doctype html>
-
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Panel Asesor | TecniRed</title>
 
-    ```
     <script src="/socket.io/socket.io.js"></script>
 
     <link
@@ -71,7 +69,6 @@
         align-items: center;
       }
 
-      /* 🔥 BOTÓN PRO */
       .logout {
         background: linear-gradient(135deg, #ff4d4d, #ff0000);
         border: none;
@@ -106,7 +103,6 @@
         max-width: 65%;
         padding: 12px;
         border-radius: 15px;
-        animation: fadeIn 0.3s ease;
       }
 
       .cliente {
@@ -156,25 +152,8 @@
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: white;
         cursor: pointer;
-        transition: 0.3s;
-      }
-
-      .input-box button:hover {
-        transform: scale(1.05);
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
       }
     </style>
-    ```
   </head>
 
   <body>
@@ -185,7 +164,6 @@
         <div id="tickets"></div>
       </div>
 
-      ```
       <!-- CHAT -->
       <div class="chat">
         <div class="topbar">
@@ -217,7 +195,6 @@
 
       let ticketActual = null;
 
-      // ===== CARGAR TICKETS =====
       function cargarTickets() {
         fetch(`/tickets/asesor/${usuario.email}`)
           .then((res) => res.json())
@@ -254,7 +231,6 @@
           });
       }
 
-      // ===== AGREGAR MENSAJE =====
       function agregarMensaje(m) {
         const chat = document.getElementById("chat");
 
@@ -269,16 +245,16 @@
 
         const mensaje = m.mensaje.toLowerCase();
 
-        // PDF
+        // 🔥 PDF FIX FINAL
         if (mensaje.includes(".pdf") || mensaje.includes("raw/upload")) {
           const link = document.createElement("a");
-          link.href = m.mensaje;
+          link.href = m.mensaje + "?fl_attachment=false";
           link.target = "_blank";
           link.textContent = "📄 Ver PDF";
 
           const descargar = document.createElement("a");
-          descargar.href = m.mensaje;
-          descargar.download = "";
+          descargar.href = m.mensaje + "?fl_attachment=true";
+          descargar.download = "archivo.pdf";
           descargar.textContent = "⬇ Descargar PDF";
 
           div.appendChild(link);
@@ -315,10 +291,7 @@
           link.target = "_blank";
           link.textContent = "📎 Abrir archivo";
           div.appendChild(link);
-        }
-
-        // TEXTO
-        else {
+        } else {
           div.textContent = m.mensaje;
         }
 
@@ -326,26 +299,22 @@
         chat.scrollTop = chat.scrollHeight;
       }
 
-      // ===== CARGAR MENSAJES =====
       function cargarMensajes() {
         fetch(`/chat/${ticketActual}`)
           .then((res) => res.json())
           .then((data) => {
             const chat = document.getElementById("chat");
             chat.innerHTML = "";
-
             data.forEach(agregarMensaje);
           });
       }
 
-      // ===== SOCKET TIEMPO REAL =====
       socket.on("nuevoMensaje", (m) => {
         if (m.ticket_id == ticketActual) {
           agregarMensaje(m);
         }
       });
 
-      // ===== ENVIAR =====
       function enviar() {
         const input = document.getElementById("mensaje");
 
@@ -364,7 +333,6 @@
         input.value = "";
       }
 
-      // ===== ARCHIVOS =====
       function abrirArchivo() {
         document.getElementById("fileInput").click();
       }
@@ -391,6 +359,5 @@
 
       cargarTickets();
     </script>
-    ```
   </body>
 </html>

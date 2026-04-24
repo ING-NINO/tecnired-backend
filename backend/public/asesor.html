@@ -247,12 +247,54 @@
                 div.classList.add("cliente");
               }
 
-              // 🔥 DETECTAR IMAGEN
-              if (m.mensaje.startsWith("http")) {
+              const mensaje = m.mensaje.toLowerCase();
+
+              // 🖼️ IMAGEN
+              if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
                 const img = document.createElement("img");
                 img.src = m.mensaje;
                 div.appendChild(img);
-              } else {
+              }
+
+              // 📄 PDF
+              else if (mensaje.endsWith(".pdf")) {
+                const link = document.createElement("a");
+                link.href = m.mensaje;
+                link.target = "_blank";
+                link.textContent = "📄 Ver PDF";
+                link.style.color = "#00c6ff";
+                div.appendChild(link);
+              }
+
+              // 🎥 VIDEO
+              else if (mensaje.match(/\.(mp4|webm|ogg)$/)) {
+                const video = document.createElement("video");
+                video.src = m.mensaje;
+                video.controls = true;
+                video.style.maxWidth = "250px";
+                div.appendChild(video);
+              }
+
+              // 🎧 AUDIO
+              else if (mensaje.match(/\.(mp3|wav|ogg)$/)) {
+                const audio = document.createElement("audio");
+                audio.src = m.mensaje;
+                audio.controls = true;
+                div.appendChild(audio);
+              }
+
+              // 🔗 OTRO LINK
+              else if (mensaje.startsWith("http")) {
+                const link = document.createElement("a");
+                link.href = m.mensaje;
+                link.target = "_blank";
+                link.textContent = "📎 Abrir archivo";
+                link.style.color = "#00c6ff";
+                div.appendChild(link);
+              }
+
+              // 💬 TEXTO
+              else {
                 div.textContent = m.mensaje;
               }
 

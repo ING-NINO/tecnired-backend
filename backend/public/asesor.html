@@ -222,17 +222,12 @@
 
         const mensaje = m.mensaje.toLowerCase();
 
-        /* 🔥 PDF CORREGIDO */
-        if (
-          mensaje.includes(".pdf") ||
-          mensaje.includes("application/pdf") ||
-          mensaje.includes("firebasestorage")
-        ) {
+        /* 📄 PDF */
+        if (mensaje.includes(".pdf") || mensaje.includes("application/pdf")) {
           let url = m.mensaje;
 
-          // 🔥 SOLUCIÓN FINAL
           if (!url.includes("alt=media")) {
-            url += "?alt=media";
+            url += url.includes("?") ? "&alt=media" : "?alt=media";
           }
 
           const link = document.createElement("a");
@@ -242,33 +237,48 @@
           link.style.color = "#00c6ff";
 
           div.appendChild(link);
-        } else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)/)) {
-          /* 🖼️ IMAGEN */
+        } else if (
+
+        /* 🖼️ IMÁGENES (🔥 CLAVE AQUÍ) */
+          mensaje.match(/\.(jpg|jpeg|png|gif|webp)/) ||
+          mensaje.includes("firebasestorage")
+        ) {
           const img = document.createElement("img");
           img.src = m.mensaje;
+          img.style.maxWidth = "220px";
+          img.style.borderRadius = "10px";
+          img.style.marginTop = "5px";
+
           div.appendChild(img);
         } else if (mensaje.match(/\.(mp4|webm)/)) {
-          /* 🎥 VIDEO */
+
+        /* 🎥 VIDEO */
           const video = document.createElement("video");
           video.src = m.mensaje;
           video.controls = true;
           video.style.maxWidth = "250px";
+
           div.appendChild(video);
         } else if (mensaje.match(/\.(mp3|wav|ogg)/)) {
-          /* 🎧 AUDIO */
+
+        /* 🎧 AUDIO */
           const audio = document.createElement("audio");
           audio.src = m.mensaje;
           audio.controls = true;
+
           div.appendChild(audio);
         } else if (mensaje.startsWith("http")) {
-          /* 🔗 LINK */
+
+        /* 🔗 OTROS ARCHIVOS */
           const link = document.createElement("a");
           link.href = m.mensaje;
           link.target = "_blank";
           link.textContent = "📎 Abrir archivo";
+
           div.appendChild(link);
         } else {
-          /* 💬 TEXTO */
+
+        /* 💬 TEXTO */
           div.textContent = m.mensaje;
         }
 

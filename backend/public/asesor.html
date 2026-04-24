@@ -1,10 +1,11 @@
 <!doctype html>
+
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Panel Asesor | TecniRed</title>
 
-    <!-- SOCKET -->
+    ```
     <script src="/socket.io/socket.io.js"></script>
 
     <link
@@ -35,7 +36,7 @@
         width: 300px;
         background: #020617;
         padding: 20px;
-        border-right: 1px solid #1e293b;
+        overflow-y: auto;
       }
 
       .ticket {
@@ -44,6 +45,12 @@
         margin-bottom: 10px;
         cursor: pointer;
         background: #0f172a;
+        transition: 0.3s;
+      }
+
+      .ticket:hover {
+        background: #1e293b;
+        transform: translateX(5px);
       }
 
       .ticket.active {
@@ -61,6 +68,29 @@
         background: #020617;
         display: flex;
         justify-content: space-between;
+        align-items: center;
+      }
+
+      /* 🔥 BOTÓN PRO */
+      .logout {
+        background: linear-gradient(135deg, #ff4d4d, #ff0000);
+        border: none;
+        padding: 8px 15px;
+        border-radius: 10px;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .logout:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px red;
+      }
+
+      #infoTicket {
+        padding: 10px;
+        color: #00c6ff;
+        border-bottom: 1px solid #1e293b;
       }
 
       .messages {
@@ -76,6 +106,7 @@
         max-width: 65%;
         padding: 12px;
         border-radius: 15px;
+        animation: fadeIn 0.3s ease;
       }
 
       .cliente {
@@ -88,11 +119,25 @@
         background: linear-gradient(135deg, var(--primary), var(--secondary));
       }
 
+      .msg img,
+      .msg video {
+        max-width: 250px;
+        border-radius: 10px;
+        margin-top: 5px;
+      }
+
+      a {
+        color: #00c6ff;
+        display: block;
+        margin-top: 5px;
+      }
+
       .input-box {
         display: flex;
         gap: 10px;
         padding: 15px;
         background: #020617;
+        border-top: 1px solid #1e293b;
       }
 
       .input-box input {
@@ -111,14 +156,25 @@
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: white;
         cursor: pointer;
+        transition: 0.3s;
       }
 
-      .logout {
-        background: red;
-        padding: 8px 15px;
-        border-radius: 8px;
+      .input-box button:hover {
+        transform: scale(1.05);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
+    ```
   </head>
 
   <body>
@@ -129,6 +185,7 @@
         <div id="tickets"></div>
       </div>
 
+      ```
       <!-- CHAT -->
       <div class="chat">
         <div class="topbar">
@@ -136,7 +193,7 @@
           <button class="logout" onclick="logout()">Salir</button>
         </div>
 
-        <div id="infoTicket" style="padding: 10px; color: #00c6ff"></div>
+        <div id="infoTicket"></div>
 
         <div class="messages" id="chat"></div>
 
@@ -160,7 +217,7 @@
 
       let ticketActual = null;
 
-      // ===== TICKETS =====
+      // ===== CARGAR TICKETS =====
       function cargarTickets() {
         fetch(`/tickets/asesor/${usuario.email}`)
           .then((res) => res.json())
@@ -176,10 +233,16 @@
               div.onclick = () => {
                 ticketActual = t.id;
 
+                document
+                  .querySelectorAll(".ticket")
+                  .forEach((el) => el.classList.remove("active"));
+
+                div.classList.add("active");
+
                 document.getElementById("chat").innerHTML = "";
 
                 document.getElementById("infoTicket").innerHTML =
-                  `🎫 Ticket #${t.id} - ${t.categoria}<br>${t.descripcion}`;
+                  `🎫 Ticket #${t.id}<br>${t.descripcion}`;
 
                 socket.emit("joinTicket", ticketActual);
 
@@ -191,7 +254,7 @@
           });
       }
 
-      // ===== MENSAJES =====
+      // ===== AGREGAR MENSAJE =====
       function agregarMensaje(m) {
         const chat = document.getElementById("chat");
 
@@ -206,17 +269,56 @@
 
         const mensaje = m.mensaje.toLowerCase();
 
-        if (mensaje.endsWith(".pdf")) {
+        // PDF
+        if (mensaje.includes(".pdf") || mensaje.includes("raw/upload")) {
           const link = document.createElement("a");
           link.href = m.mensaje;
           link.target = "_blank";
           link.textContent = "📄 Ver PDF";
+
+          const descargar = document.createElement("a");
+          descargar.href = m.mensaje;
+          descargar.download = "";
+          descargar.textContent = "⬇ Descargar PDF";
+
           div.appendChild(link);
-        } else if (mensaje.match(/\.(jpg|png|jpeg|gif|webp)$/)) {
+          div.appendChild(descargar);
+        }
+
+        // IMAGEN
+        else if (mensaje.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
           const img = document.createElement("img");
           img.src = m.mensaje;
           div.appendChild(img);
-        } else {
+        }
+
+        // VIDEO
+        else if (mensaje.match(/\.(mp4|webm)$/)) {
+          const video = document.createElement("video");
+          video.src = m.mensaje;
+          video.controls = true;
+          div.appendChild(video);
+        }
+
+        // AUDIO
+        else if (mensaje.match(/\.(mp3|wav|ogg)$/)) {
+          const audio = document.createElement("audio");
+          audio.src = m.mensaje;
+          audio.controls = true;
+          div.appendChild(audio);
+        }
+
+        // LINK
+        else if (mensaje.startsWith("http")) {
+          const link = document.createElement("a");
+          link.href = m.mensaje;
+          link.target = "_blank";
+          link.textContent = "📎 Abrir archivo";
+          div.appendChild(link);
+        }
+
+        // TEXTO
+        else {
           div.textContent = m.mensaje;
         }
 
@@ -224,15 +326,19 @@
         chat.scrollTop = chat.scrollHeight;
       }
 
+      // ===== CARGAR MENSAJES =====
       function cargarMensajes() {
         fetch(`/chat/${ticketActual}`)
           .then((res) => res.json())
           .then((data) => {
+            const chat = document.getElementById("chat");
+            chat.innerHTML = "";
+
             data.forEach(agregarMensaje);
           });
       }
 
-      // ===== SOCKET REALTIME =====
+      // ===== SOCKET TIEMPO REAL =====
       socket.on("nuevoMensaje", (m) => {
         if (m.ticket_id == ticketActual) {
           agregarMensaje(m);
@@ -243,7 +349,7 @@
       function enviar() {
         const input = document.getElementById("mensaje");
 
-        if (!input.value || !ticketActual) return;
+        if (!input.value.trim() || !ticketActual) return;
 
         fetch("/chat", {
           method: "POST",
@@ -258,12 +364,14 @@
         input.value = "";
       }
 
+      // ===== ARCHIVOS =====
       function abrirArchivo() {
         document.getElementById("fileInput").click();
       }
 
       document.getElementById("fileInput").addEventListener("change", (e) => {
         const file = e.target.files[0];
+        if (!file) return;
 
         const formData = new FormData();
         formData.append("archivo", file);
@@ -283,5 +391,6 @@
 
       cargarTickets();
     </script>
+    ```
   </body>
 </html>

@@ -1,10 +1,11 @@
 <!doctype html>
+
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Chat Cliente | TecniRed</title>
 
-    <!-- SOCKET -->
+    ```
     <script src="/socket.io/socket.io.js"></script>
 
     <style>
@@ -24,6 +25,7 @@
         display: flex;
         flex-direction: column;
         height: 85vh;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       }
 
       header {
@@ -38,12 +40,18 @@
       }
 
       header button {
-        background: red;
+        background: linear-gradient(135deg, #ff4d4d, #ff0000);
         border: none;
         padding: 8px 15px;
-        border-radius: 8px;
+        border-radius: 10px;
         color: white;
         cursor: pointer;
+        transition: 0.3s;
+      }
+
+      header button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px red;
       }
 
       .info-ticket {
@@ -65,6 +73,7 @@
         max-width: 65%;
         padding: 12px;
         border-radius: 15px;
+        animation: fadeIn 0.3s ease;
       }
 
       .cliente {
@@ -77,8 +86,9 @@
         background: #1e293b;
       }
 
-      .mensaje img {
-        max-width: 200px;
+      .mensaje img,
+      .mensaje video {
+        max-width: 220px;
         border-radius: 10px;
         margin-top: 5px;
       }
@@ -107,21 +117,38 @@
         padding: 10px;
         border: none;
         border-radius: 10px;
-        background: #00c6ff;
+        background: linear-gradient(135deg, #4a8df5, #00c6ff);
         color: white;
         cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .chat-input button:hover {
+        transform: scale(1.05);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
+    ```
   </head>
 
   <body>
     <div class="chat-container">
       <header>
         <span id="usuario"></span>
-        <button onclick="volver()">Volver</button>
+        <button onclick="volver()">⬅ Volver</button>
       </header>
 
-      <!-- INFO TICKET -->
+      ```
       <div id="infoTicket" class="info-ticket"></div>
 
       <div id="mensajes" class="chat-box"></div>
@@ -146,10 +173,13 @@
       const params = new URLSearchParams(window.location.search);
       const ticketId = params.get("ticket");
 
-      // 🔥 UNIRSE AL TICKET (CLAVE)
       socket.emit("joinTicket", ticketId);
 
-      // ===== MOSTRAR MENSAJE =====
+      // ===== MOSTRAR INFO TICKET =====
+      document.getElementById("infoTicket").innerHTML =
+        `🎫 Ticket #${ticketId}`;
+
+      // ===== AGREGAR MENSAJE =====
       function agregarMensaje(m) {
         const contenedor = document.getElementById("mensajes");
 
@@ -164,13 +194,20 @@
 
         const mensaje = m.mensaje.toLowerCase();
 
-        // 📄 PDF
-        if (mensaje.endsWith(".pdf")) {
+        // 📄 PDF (MEJORADO)
+        if (mensaje.includes(".pdf") || mensaje.includes("raw/upload")) {
           const link = document.createElement("a");
           link.href = m.mensaje;
           link.target = "_blank";
           link.textContent = "📄 Ver PDF";
+
+          const descargar = document.createElement("a");
+          descargar.href = m.mensaje;
+          descargar.download = "";
+          descargar.textContent = "⬇ Descargar PDF";
+
           div.appendChild(link);
+          div.appendChild(descargar);
         }
 
         // 🖼️ IMAGEN
@@ -180,7 +217,23 @@
           div.appendChild(img);
         }
 
-        // 🔗 OTROS LINKS
+        // 🎥 VIDEO
+        else if (mensaje.match(/\.(mp4|webm|ogg)$/)) {
+          const video = document.createElement("video");
+          video.src = m.mensaje;
+          video.controls = true;
+          div.appendChild(video);
+        }
+
+        // 🎧 AUDIO
+        else if (mensaje.match(/\.(mp3|wav|ogg)$/)) {
+          const audio = document.createElement("audio");
+          audio.src = m.mensaje;
+          audio.controls = true;
+          div.appendChild(audio);
+        }
+
+        // 🔗 OTRO LINK
         else if (mensaje.startsWith("http")) {
           const link = document.createElement("a");
           link.href = m.mensaje;
@@ -203,23 +256,24 @@
         const res = await fetch(`/chat/${ticketId}`);
         const data = await res.json();
 
-        document.getElementById("mensajes").innerHTML = "";
+        const contenedor = document.getElementById("mensajes");
+        contenedor.innerHTML = "";
 
         data.forEach(agregarMensaje);
       }
 
-      // ===== SOCKET TIEMPO REAL =====
+      // ===== TIEMPO REAL =====
       socket.on("nuevoMensaje", (m) => {
         if (m.ticket_id == ticketId) {
           agregarMensaje(m);
         }
       });
 
-      // ===== ENVIAR MENSAJE =====
+      // ===== ENVIAR =====
       async function enviarMensaje() {
         const input = document.getElementById("mensajeInput");
 
-        if (!input.value) return;
+        if (!input.value.trim()) return;
 
         await fetch("/chat", {
           method: "POST",
@@ -262,5 +316,6 @@
 
       cargarMensajes();
     </script>
+    ```
   </body>
 </html>

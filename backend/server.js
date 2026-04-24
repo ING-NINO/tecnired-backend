@@ -31,8 +31,12 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
     let tipo = "image";
-    if (file.mimetype === "application/pdf") tipo = "raw";
-    else if (file.mimetype.startsWith("video")) tipo = "video";
+
+    if (file.mimetype === "application/pdf") {
+      tipo = "raw"; // ✅ PDF BIEN
+    } else if (file.mimetype.startsWith("video")) {
+      tipo = "video";
+    }
 
     return {
       folder: "tecnired",

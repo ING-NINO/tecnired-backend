@@ -167,8 +167,9 @@
     </div>
 
     <script>
-      const socket = io("https://TU-APP.onrender.com");
-
+      const socket = io("https://TU-APP.onrender.com", {
+        transports: ["websocket"],
+      });
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       if (!usuario) window.location.href = "/";
 
@@ -238,8 +239,7 @@
 
           div.appendChild(link);
         } else if (
-
-        /* 🖼️ IMÁGENES (🔥 CLAVE AQUÍ) */
+          /* 🖼️ IMÁGENES (🔥 CLAVE AQUÍ) */
           mensaje.match(/\.(jpg|jpeg|png|gif|webp)/) ||
           mensaje.includes("firebasestorage")
         ) {
@@ -251,8 +251,7 @@
 
           div.appendChild(img);
         } else if (mensaje.match(/\.(mp4|webm)/)) {
-
-        /* 🎥 VIDEO */
+          /* 🎥 VIDEO */
           const video = document.createElement("video");
           video.src = m.mensaje;
           video.controls = true;
@@ -260,16 +259,14 @@
 
           div.appendChild(video);
         } else if (mensaje.match(/\.(mp3|wav|ogg)/)) {
-
-        /* 🎧 AUDIO */
+          /* 🎧 AUDIO */
           const audio = document.createElement("audio");
           audio.src = m.mensaje;
           audio.controls = true;
 
           div.appendChild(audio);
         } else if (mensaje.startsWith("http")) {
-
-        /* 🔗 OTROS ARCHIVOS */
+          /* 🔗 OTROS ARCHIVOS */
           const link = document.createElement("a");
           link.href = m.mensaje;
           link.target = "_blank";
@@ -277,8 +274,7 @@
 
           div.appendChild(link);
         } else {
-
-        /* 💬 TEXTO */
+          /* 💬 TEXTO */
           div.textContent = m.mensaje;
         }
 

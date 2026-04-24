@@ -38,11 +38,6 @@
         overflow-y: auto;
       }
 
-      .sidebar h2 {
-        margin-bottom: 20px;
-        color: var(--secondary);
-      }
-
       .ticket {
         padding: 12px;
         border-radius: 12px;
@@ -73,7 +68,6 @@
         background: #020617;
         display: flex;
         justify-content: space-between;
-        align-items: center;
         border-bottom: 1px solid #1e293b;
       }
 
@@ -105,6 +99,12 @@
         background: linear-gradient(135deg, var(--primary), var(--secondary));
       }
 
+      .msg img {
+        max-width: 200px;
+        border-radius: 10px;
+        margin-top: 5px;
+      }
+
       /* INPUT */
       .input-box {
         display: flex;
@@ -112,9 +112,10 @@
         padding: 15px;
         background: #020617;
         border-top: 1px solid #1e293b;
+        align-items: center;
       }
 
-      .input-box input {
+      .input-box input[type="text"] {
         flex: 1;
         padding: 12px;
         border-radius: 10px;
@@ -124,7 +125,7 @@
       }
 
       .input-box button {
-        padding: 12px 20px;
+        padding: 12px;
         border: none;
         border-radius: 10px;
         background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -132,8 +133,23 @@
         cursor: pointer;
       }
 
-      .input-box button:hover {
-        transform: scale(1.05);
+      .file-btn {
+        background: #1e293b;
+      }
+
+      .preview {
+        position: absolute;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #020617;
+        padding: 10px;
+        border-radius: 10px;
+        display: none;
+      }
+
+      .preview img {
+        max-width: 150px;
       }
 
       /* ANIMACION */
@@ -152,13 +168,13 @@
 
   <body>
     <div class="container">
-      <!-- ===== SIDEBAR ===== -->
+      <!-- SIDEBAR -->
       <div class="sidebar">
         <h2>📂 Tickets</h2>
         <div id="tickets"></div>
       </div>
 
-      <!-- ===== CHAT ===== -->
+      <!-- CHAT -->
       <div class="chat">
         <div class="topbar">
           <span id="usuario"></span>
@@ -167,9 +183,22 @@
 
         <div class="messages" id="chat"></div>
 
+        <!-- PREVIEW -->
+        <div class="preview" id="previewBox">
+          <img id="previewImg" />
+        </div>
+
         <div class="input-box">
+          <input type="file" id="fileInput" hidden />
+          <button class="file-btn" onclick="abrirArchivo()">
+            <i class="fa fa-paperclip"></i>
+          </button>
+
           <input id="mensaje" placeholder="Escribe mensaje..." />
-          <button onclick="enviar()">Enviar</button>
+
+          <button onclick="enviar()">
+            <i class="fa fa-paper-plane"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -183,7 +212,7 @@
       let ticketActual = null;
       let ultimoMensajeId = 0;
 
-      /* ===== CARGAR TICKETS ===== */
+      /* ===== TICKETS ===== */
       function cargarTickets() {
         fetch(`/tickets/asesor/${usuario.email}`)
           .then((res) => res.json())
@@ -213,7 +242,7 @@
           });
       }
 
-      /* ===== CARGAR MENSAJES SIN PARPADEO ===== */
+      /* ===== MENSAJES ===== */
       function cargarMensajes(scroll = false) {
         if (!ticketActual) return;
 
@@ -234,19 +263,24 @@
                 div.classList.add("cliente");
               }
 
-              div.textContent = m.mensaje;
-              chat.appendChild(div);
+              // 🔥 ARCHIVO O TEXTO
+              if (m.mensaje.startsWith("/uploads/")) {
+                const img = document.createElement("img");
+                img.src = m.mensaje;
+                div.appendChild(img);
+              } else {
+                div.textContent = m.mensaje;
+              }
 
+              chat.appendChild(div);
               ultimoMensajeId = m.id;
             });
 
-            if (scroll) {
-              chat.scrollTop = chat.scrollHeight;
-            }
+            if (scroll) chat.scrollTop = chat.scrollHeight;
           });
       }
 
-      /* ===== ENVIAR MENSAJE ===== */
+      /* ===== MENSAJE TEXTO ===== */
       function enviar() {
         const input = document.getElementById("mensaje");
 
@@ -266,11 +300,42 @@
         });
       }
 
-      /* ENTER PARA ENVIAR */
+      /* ===== ARCHIVOS ===== */
+      function abrirArchivo() {
+        document.getElementById("fileInput").click();
+      }
+
+      document.getElementById("fileInput").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const preview = document.getElementById("previewBox");
+        const img = document.getElementById("previewImg");
+
+        img.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+
+        enviarArchivo(file);
+      });
+
+      async function enviarArchivo(file) {
+        const formData = new FormData();
+        formData.append("archivo", file);
+        formData.append("ticket_id", ticketActual);
+        formData.append("remitente", usuario.email);
+
+        await fetch("/chat/file", {
+          method: "POST",
+          body: formData,
+        });
+
+        document.getElementById("previewBox").style.display = "none";
+        cargarMensajes(true);
+      }
+
+      /* ENTER */
       document.getElementById("mensaje").addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          enviar();
-        }
+        if (e.key === "Enter") enviar();
       });
 
       /* AUTO REFRESH */

@@ -2,21 +2,34 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const db = require("./db");
-const multer = require("multer");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-// ===== multer
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+// CONFIG CLOUDINARY
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
+
+// STORAGE EN LA NUBE
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "tecnired",
+    resource_type: "auto", // acepta imágenes, pdf, audio, etc
   },
 });
 
 const upload = multer({ storage });
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
 // ===== CONFIGURACIÓN CORREO =====
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -357,5 +370,27 @@ app.post("/chat", (req, res) => {
     "INSERT INTO mensajes (ticket_id, remitente, mensaje) VALUES (?,?,?)",
     [ticket_id, remitente, mensaje],
     () => res.json({ ok: true }),
+  );
+});
+
+app.use("/uploads", express.static("uploads"));
+
+// ===== ENVIAR ARCHIVO =====
+app.post("/chat/file", upload.single("archivo"), (req, res) => {
+  const { ticket_id, remitente } = req.body;
+
+  if (!req.file) {
+    return res.json({ ok: false, message: "No hay archivo" });
+  }
+
+  // 🔥 AQUÍ ESTÁ LA CLAVE
+  const archivoUrl = req.file.secure_url || req.file.path;
+
+  db.query(
+    "INSERT INTO mensajes (ticket_id, remitente, mensaje) VALUES (?,?,?)",
+    [ticket_id, remitente, archivoUrl],
+    () => {
+      res.json({ ok: true });
+    },
   );
 });

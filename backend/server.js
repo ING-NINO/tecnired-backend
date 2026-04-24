@@ -33,7 +33,7 @@ const storage = new CloudinaryStorage({
     let tipo = "image";
 
     if (file.mimetype === "application/pdf") {
-      tipo = "raw";
+      tipo = "image"; // 🔥 FIX
     } else if (file.mimetype.startsWith("video")) {
       tipo = "video";
     }
@@ -41,13 +41,7 @@ const storage = new CloudinaryStorage({
     return {
       folder: "tecnired",
       resource_type: tipo,
-
-      // 🔥 CLAVE REAL (esto arregla el PDF)
-      format: file.mimetype === "application/pdf" ? "pdf" : undefined,
-
-      public_id: file.originalname
-        .replace(/\s+/g, "_") // 🔥 quita espacios
-        .replace(".pdf", ""), // limpia extensión,
+      public_id: file.originalname.replace(/\s+/g, "_"),
     };
   },
 });

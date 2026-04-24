@@ -33,7 +33,7 @@ const storage = new CloudinaryStorage({
     let tipo = "image";
 
     if (file.mimetype === "application/pdf") {
-      tipo = "raw"; // ✅ PDF BIEN
+      tipo = "raw";
     } else if (file.mimetype.startsWith("video")) {
       tipo = "video";
     }
@@ -41,10 +41,14 @@ const storage = new CloudinaryStorage({
     return {
       folder: "tecnired",
       resource_type: tipo,
+
+      // 🔥 CLAVE REAL (esto arregla el PDF)
+      format: file.mimetype === "application/pdf" ? "pdf" : undefined,
+
+      public_id: file.originalname.split(".")[0],
     };
   },
 });
-
 const upload = multer({ storage });
 
 // ===== EMAIL =====

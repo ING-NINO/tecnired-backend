@@ -5,6 +5,7 @@ const db = require("./db");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 const http = require("http");
+const crypto = require("crypto");
 const { Server } = require("socket.io");
 
 // ===== APP + SERVER =====
@@ -15,6 +16,7 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3000;
+const FIREBASE_API_KEY = "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0";
 
 // ===== EMAIL =====
 const transporter = nodemailer.createTransport({
@@ -32,6 +34,61 @@ const correosNivel = {
   2: "cs7256082@gmail.com",
   3: "cs7256082@gmail.com",
 };
+
+const PASSWORD_RULE =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+
+function validarPassword(password) {
+  return PASSWORD_RULE.test(String(password || ""));
+}
+
+function crearHashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto
+    .pbkdf2Sync(password, salt, 120000, 32, "sha256")
+    .toString("hex");
+  return `pbkdf2$120000$${salt}$${hash}`;
+}
+
+function verificarPassword(password, storedPassword) {
+  if (!storedPassword) return false;
+
+  if (!String(storedPassword).startsWith("pbkdf2$")) {
+    return password === storedPassword;
+  }
+
+  const [, iterations, salt, hash] = storedPassword.split("$");
+  if (!iterations || !salt || !hash) return false;
+
+  const candidate = crypto
+    .pbkdf2Sync(password, salt, Number(iterations), 32, "sha256")
+    .toString("hex");
+
+  if (candidate.length !== hash.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(candidate), Buffer.from(hash));
+}
+
+async function verificarFirebaseToken(idToken) {
+  const response = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    },
+  );
+
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  const firebaseUser = data.users?.[0];
+  if (!firebaseUser?.email || firebaseUser.emailVerified === false) return null;
+
+  return {
+    nombre: firebaseUser.displayName || "Cliente Google",
+    email: firebaseUser.email,
+  };
+}
 
 // ===== MIDDLEWARE =====
 app.use(cors());
@@ -69,6 +126,14 @@ app.post("/register", (req, res) => {
     return res.json({ status: "fail", message: "Campos obligatorios" });
   }
 
+  if (!validarPassword(password)) {
+    return res.json({
+      status: "fail",
+      message:
+        "La contrasena debe tener minimo 8 caracteres, mayuscula, minuscula, numero y simbolo.",
+    });
+  }
+
   db.query("SELECT email FROM usuarios WHERE email = ?", [email], (err, r) => {
     if (err) return res.json({ status: "fail" });
 
@@ -77,10 +142,10 @@ app.post("/register", (req, res) => {
 
     db.query(
       "INSERT INTO usuarios (nombre,email,password,telefono) VALUES (?,?,?,?)",
-      [nombre, email, password, telefono],
+      [nombre, email, crearHashPassword(password), telefono],
       (err) => {
         if (err) return res.json({ status: "fail" });
-        res.json({ status: "ok" });
+        res.json({ status: "ok", message: "Cuenta creada correctamente" });
       },
     );
   });
@@ -91,17 +156,65 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   db.query(
-    "SELECT id,nombre,email,rol FROM usuarios WHERE email=? AND password=?",
-    [email, password],
+    "SELECT id,nombre,email,rol,password FROM usuarios WHERE email=?",
+    [email],
     (err, rows) => {
       if (err) return res.json({ status: "fail" });
-      if (!rows.length)
+      if (!rows.length || !verificarPassword(password, rows[0].password))
         return res.json({
           status: "fail",
           message: "Credenciales incorrectas",
         });
 
-      res.json({ status: "ok", user: rows[0] });
+      const { password: _password, ...user } = rows[0];
+      res.json({ status: "ok", user });
+    },
+  );
+});
+
+// ===== GOOGLE AUTH =====
+app.post("/auth/google", async (req, res) => {
+  let googleUser;
+
+  try {
+    googleUser = await verificarFirebaseToken(req.body.idToken);
+  } catch (error) {
+    return res.json({ status: "fail", message: "No se pudo validar Google" });
+  }
+
+  if (!googleUser) {
+    return res.json({ status: "fail", message: "No se pudo validar Google" });
+  }
+
+  const { nombre, email } = googleUser;
+
+  db.query(
+    "SELECT id,nombre,email,rol FROM usuarios WHERE email=?",
+    [email],
+    (err, rows) => {
+      if (err) return res.json({ status: "fail" });
+
+      if (rows.length) {
+        return res.json({ status: "ok", user: rows[0] });
+      }
+
+      db.query(
+        "INSERT INTO usuarios (nombre,email,password,telefono) VALUES (?,?,?,?)",
+        [nombre, email, crearHashPassword(crypto.randomBytes(32).toString("hex")), "Google"],
+        (err, result) => {
+          if (err) return res.json({ status: "fail" });
+
+          res.json({
+            status: "ok",
+            user: {
+              id: result.insertId,
+              nombre,
+              email,
+              rol: "cliente",
+            },
+          });
+        },
+      );
     },
   );
 });

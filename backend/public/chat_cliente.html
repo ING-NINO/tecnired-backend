@@ -37,17 +37,25 @@
         font-family: "Segoe UI", sans-serif;
         background: #f1f5f9;
         color: #1e293b;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        scrollbar-color: #0ea5e9 #dbeafe;
+        scrollbar-width: thin;
       }
 
       .chat-container {
         max-width: 900px;
-        margin: 30px auto;
+        width: min(900px, 96vw);
         background: white;
         border-radius: 15px;
         display: flex;
         flex-direction: column;
-        height: 90vh;
+        height: min(92vh, 900px);
         border: 1px solid #e2e8f0;
+        min-height: 0;
       }
 
       /* HEADER */
@@ -86,6 +94,29 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+      }
+
+      .chat-area {
+        flex: 1;
+        min-height: 0;
+      }
+
+      .chat-box::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      .chat-box::-webkit-scrollbar-track {
+        background: #e2e8f0;
+        border-radius: 999px;
+      }
+
+      .chat-box::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+        border-radius: 999px;
+      }
+
+      .chat-box::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #7dd3fc, #38bdf8);
       }
 
       /* MENSAJES */
@@ -168,7 +199,9 @@
 
       <div id="progressBar"></div>
 
-      <div id="mensajes" class="chat-box"></div>
+      <div class="chat-area">
+        <div id="mensajes" class="chat-box"></div>
+      </div>
 
       <div class="chat-input">
         <div style="position: relative">
@@ -188,9 +221,7 @@
     </div>
 
     <script>
-      const socket = io("https://TU-APP.onrender.com", {
-        transports: ["websocket"],
-      });
+      const socket = io();
 
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       document.getElementById("usuario").textContent = usuario.nombre;
@@ -204,6 +235,28 @@
         `🎫 Ticket #${ticketId}`;
 
       let tipoArchivo = null;
+      const contenedorMensajes = document.getElementById("mensajes");
+
+      function estaCercaDelFinal() {
+        const gap =
+          contenedorMensajes.scrollHeight -
+          contenedorMensajes.scrollTop -
+          contenedorMensajes.clientHeight;
+        return gap < 32;
+      }
+
+      function actualizarBotonBajar() {
+        // función reservada para mantener la lógica de scroll actual
+        // sin mostrar flechas flotantes.
+        estaCercaDelFinal();
+      }
+
+      function irAbajo() {
+        contenedorMensajes.scrollTo({
+          top: contenedorMensajes.scrollHeight,
+          behavior: "smooth",
+        });
+      }
 
       /* MENU */
       function toggleMenu() {
@@ -224,16 +277,18 @@
         const res = await fetch(`/chat/${ticketId}`);
         const data = await res.json();
 
-        const contenedor = document.getElementById("mensajes");
-        contenedor.innerHTML = "";
+        contenedorMensajes.innerHTML = "";
 
         data.forEach(agregarMensaje);
+        irAbajo();
+        actualizarBotonBajar();
       }
 
       /* AGREGAR MENSAJE */
       function agregarMensaje(m) {
-        const contenedor = document.getElementById("mensajes");
+        const contenedor = contenedorMensajes;
         const div = document.createElement("div");
+        const cerca = estaCercaDelFinal();
 
         div.classList.add("mensaje");
         div.classList.add(m.remitente === usuario.email ? "cliente" : "asesor");
@@ -249,7 +304,10 @@
         }
 
         contenedor.appendChild(div);
-        contenedor.scrollTop = contenedor.scrollHeight;
+        if (cerca || m.remitente === usuario.email) {
+          contenedor.scrollTop = contenedor.scrollHeight;
+        }
+        actualizarBotonBajar();
       }
 
       /* SOCKET */
@@ -327,6 +385,7 @@
 
         subirArchivo(file);
       });
+      contenedorMensajes.addEventListener("scroll", actualizarBotonBajar);
 
       function volver() {
         window.location.href = "/user_cliente.html";

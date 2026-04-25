@@ -104,8 +104,20 @@ app.use((req, res, next) => {
 io.on("connection", (socket) => {
   console.log("🟢 Usuario conectado");
 
+  // Sala de ticket cliente/asesor
   socket.on("joinTicket", (ticketId) => {
     socket.join("ticket_" + ticketId);
+  });
+
+  // Sala del admin (para notificaciones y chat interno)
+  socket.on("joinAdmin", () => {
+    socket.join("admin_room");
+  });
+
+  // Chat interno admin <-> asesores
+  socket.on("mensajeInterno", (data) => {
+    // data: { remitente, texto, timestamp }
+    io.to("admin_room").emit("mensajeInterno", data);
   });
 
   socket.on("disconnect", () => {
@@ -285,14 +297,40 @@ app.put("/tickets/:id", (req, res) => {
   db.query(
     "UPDATE tickets SET estado=? WHERE id=?",
     [req.body.estado, req.params.id],
-    () => {
+    (err, result) => {
+      if (err) return res.json({ status: "fail" });
+
       if (req.body.estado === "Finalizado") {
+        // Notifica al cliente/asesor en la sala del ticket
         io.to("ticket_" + req.params.id).emit("ticketFinalizado", {
           ticket_id: req.params.id,
+        });
+        // Notifica al admin en tiempo real
+        io.to("admin_room").emit("ticketFinalizadoAdmin", {
+          ticket_id: req.params.id,
+          estado: "Finalizado",
         });
       }
 
       res.json({ status: "ok" });
+    },
+  );
+});
+
+// ===== TICKETS FINALIZADOS (ADMIN) =====
+app.get("/tickets/finalizados", (req, res) => {
+  db.query(
+    `SELECT t.id, t.nombre, t.email,
+    COALESCE(u.telefono,'No registrado') AS telefono,
+    t.categoria, t.descripcion, t.estado,
+    COALESCE(t.escala,'Seleccionar') AS escala, t.fecha
+    FROM tickets t
+    LEFT JOIN usuarios u ON t.email = u.email
+    WHERE t.estado = 'Finalizado'
+    ORDER BY t.id DESC`,
+    (err, rows) => {
+      if (err) return res.status(500).json([]);
+      res.json(rows);
     },
   );
 });

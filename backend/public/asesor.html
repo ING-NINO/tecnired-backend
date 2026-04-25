@@ -208,6 +208,46 @@
         color: white;
       }
 
+      /* MODAL FINALIZAR */
+      .modal-overlay {
+        display: none;
+        position: fixed; inset: 0; z-index: 999;
+        background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+        align-items: center; justify-content: center;
+      }
+      .modal-overlay.open { display: flex; }
+      .modal {
+        background: #0f172a; border: 1px solid rgba(56,189,248,0.25);
+        border-radius: 20px; padding: 32px; width: min(420px, 90vw);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      }
+      .modal h3 { margin: 0 0 8px; font-size: 1.1rem; }
+      .modal p { color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; }
+      .modal input {
+        width: 100%; padding: 12px 14px;
+        border: 1px solid var(--line); border-radius: 10px;
+        background: #0b1224; color: var(--text);
+        font-size: 0.95rem; margin-bottom: 16px;
+      }
+      .modal input:focus { outline: none; border-color: var(--primary); }
+      .modal-btns { display: flex; gap: 10px; }
+      .btn-confirm {
+        flex: 1; background: var(--danger); color: white;
+        border: none; border-radius: 10px; padding: 12px;
+        font-weight: 700; cursor: pointer; transition: 0.2s;
+      }
+      .btn-confirm:hover { background: #dc2626; }
+      .btn-cancel {
+        flex: 1; background: rgba(255,255,255,0.06); color: var(--text);
+        border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+        font-weight: 600; cursor: pointer; transition: 0.2s;
+      }
+      .btn-cancel:hover { background: rgba(255,255,255,0.1); }
+      .btn-finalizar {
+        background: var(--danger); color: white; font-size: 0.82rem;
+        padding: 8px 14px;
+      }
+
       .messages {
         overflow-y: auto;
         min-height: 0;
@@ -350,6 +390,18 @@
 
   <body>
     <div class="layout">
+      <!-- MODAL FINALIZAR TICKET -->
+      <div class="modal-overlay" id="modalFinalizar">
+        <div class="modal">
+          <h3>⚠️ Finalizar Ticket</h3>
+          <p>Escribe el número del ticket para confirmar el cierre. Esta acción cerrará el chat con el cliente.</p>
+          <input type="number" id="inputTicketFinalizar" placeholder="Número de ticket (ej: 42)" min="1" />
+          <div class="modal-btns">
+            <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-confirm" onclick="confirmarFinalizar()">Finalizar ticket</button>
+          </div>
+        </div>
+      </div>
       <aside class="sidebar">
         <h1 class="brand">🧑‍💻 Panel Asesor</h1>
 
@@ -385,6 +437,7 @@
 
           <div>
             <span class="muted" id="usuario"></span>
+            <button class="btn btn-finalizar" onclick="abrirModal()" style="margin-right:8px">🔒 Finalizar Ticket</button>
             <button class="btn btn-out" onclick="cerrarSesion()">Salir</button>
           </div>
         </header>
@@ -424,6 +477,7 @@
 
       const storage = getStorage(initializeApp(firebaseConfig));
       const socket = io();
+      socket.emit("joinAdmin"); // asesores también entran al canal interno
 
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       if (!usuario || !usuario.rol || !usuario.rol.startsWith("asesor")) {
@@ -646,6 +700,50 @@
         localStorage.removeItem("usuario");
         window.location.href = "/";
       };
+
+      // ===== MODAL FINALIZAR =====
+      window.abrirModal = function () {
+        document.getElementById("inputTicketFinalizar").value = ticketActual || "";
+        document.getElementById("modalFinalizar").classList.add("open");
+      };
+
+      window.cerrarModal = function () {
+        document.getElementById("modalFinalizar").classList.remove("open");
+      };
+
+      window.confirmarFinalizar = async function () {
+        const id = parseInt(document.getElementById("inputTicketFinalizar").value);
+        if (!id || isNaN(id)) {
+          alert("Ingresa un número de ticket válido.");
+          return;
+        }
+
+        const res = await fetch(`/tickets/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ estado: "Finalizado" }),
+        });
+
+        if (res.ok) {
+          cerrarModal();
+          // Actualiza el ticket en la lista local
+          tickets = tickets.map(t => t.id === id ? { ...t, estado: "Finalizado" } : t);
+          renderTicketList();
+          // Si era el ticket activo, muestra mensaje en el chat
+          if (ticketActual === id) {
+            const aviso = document.createElement("div");
+            aviso.style.cssText = "text-align:center;color:#ef4444;font-size:0.85rem;padding:12px;background:rgba(239,68,68,0.1);border-radius:10px;border:1px solid rgba(239,68,68,0.3)";
+            aviso.textContent = "✅ Ticket finalizado. El chat ha sido cerrado.";
+            ui.chat.appendChild(aviso);
+            ui.chat.scrollTop = ui.chat.scrollHeight;
+          }
+        } else {
+          alert("No se pudo finalizar el ticket. Verifica el número.");
+        }
+      };
+
+      // Cerrar modal con Escape
+      document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarModal(); });
 
       cargarTickets();
     </script>

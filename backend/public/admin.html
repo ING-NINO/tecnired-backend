@@ -80,11 +80,25 @@
     .notif-text span{font-size:0.72rem;color:var(--muted);}
     .notif-empty{padding:24px;text-align:center;color:var(--muted);font-size:0.85rem;}
 
-    /* LAYOUT */
-    .layout{display:grid;grid-template-columns:1fr 360px;flex:1;min-height:0;position:relative;z-index:1;}
+    /* LAYOUT — ocupa exactamente el espacio restante, nunca crece */
+    .layout{
+      display:grid;
+      grid-template-columns:1fr 360px;
+      flex:1;
+      min-height:0;        /* clave: permite que los hijos se encojan */
+      overflow:hidden;     /* evita que la tabla empuje el chat */
+      position:relative;
+      z-index:1;
+    }
 
     /* MAIN PANEL */
-    .main-panel{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line);}
+    .main-panel{
+      display:flex;
+      flex-direction:column;
+      min-height:0;        /* permite que table-wrap haga scroll interno */
+      overflow:hidden;
+      border-right:1px solid var(--line);
+    }
 
     /* TABS */
     .tabs{display:flex;gap:4px;padding:16px 20px 0;border-bottom:1px solid var(--line);background:rgba(2,6,23,0.6);flex-shrink:0;}
@@ -151,7 +165,10 @@
 
     /* CHAT INTERNO */
     .chat-panel{
-      display:flex;flex-direction:column;min-height:0;
+      display:flex;
+      flex-direction:column;
+      min-height:0;        /* permite que chat-messages haga scroll */
+      overflow:hidden;     /* nunca desborda */
       background:linear-gradient(180deg,rgba(5,10,25,0.95),rgba(2,6,23,0.98));
       border-left:1px solid var(--border);
     }

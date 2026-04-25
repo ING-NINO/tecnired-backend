@@ -114,10 +114,28 @@ io.on("connection", (socket) => {
     socket.join("admin_room");
   });
 
-  // Chat interno admin <-> asesores
+  // Chat interno admin <-> asesores — persiste en BD y retransmite
   socket.on("mensajeInterno", (data) => {
-    // data: { remitente, texto, timestamp }
-    io.to("admin_room").emit("mensajeInterno", data);
+    const { remitente, texto, hora } = data;
+    if (!remitente || !texto) return;
+
+    db.query(
+      "INSERT INTO chat_interno (remitente, texto, hora) VALUES (?, ?, NOW())",
+      [remitente, texto],
+      (err, result) => {
+        if (err) {
+          // Si la tabla no existe aún, igual retransmitimos en memoria
+          console.error("chat_interno insert error:", err.message);
+        }
+        // Emitir a todos en admin_room (admin + asesores)
+        io.to("admin_room").emit("mensajeInterno", {
+          id: result ? result.insertId : Date.now(),
+          remitente,
+          texto,
+          hora,
+        });
+      }
+    );
   });
 
   socket.on("disconnect", () => {
@@ -128,6 +146,30 @@ io.on("connection", (socket) => {
 // ===== ROOT =====
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
+});
+
+// ===== CREAR TABLA CHAT INTERNO SI NO EXISTE =====
+db.query(`
+  CREATE TABLE IF NOT EXISTS chat_interno (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    remitente VARCHAR(255) NOT NULL,
+    texto TEXT NOT NULL,
+    hora DATETIME DEFAULT NOW()
+  )
+`, (err) => {
+  if (err) console.error("No se pudo crear tabla chat_interno:", err.message);
+  else console.log("✅ Tabla chat_interno lista");
+});
+
+// ===== HISTORIAL CHAT INTERNO =====
+app.get("/chat-interno", (req, res) => {
+  db.query(
+    "SELECT * FROM chat_interno ORDER BY hora ASC LIMIT 200",
+    (err, rows) => {
+      if (err) return res.json([]);
+      res.json(rows);
+    }
+  );
 });
 
 // ===== REGISTER =====

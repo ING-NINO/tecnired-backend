@@ -443,15 +443,13 @@
       filtrarTickets();
     }
 
-    // LOAD
+    // LOAD — un solo fetch, separar en cliente
     async function cargarTickets() {
-      const [resActivos, resFinalizados] = await Promise.all([
-        fetch("/tickets"),
-        fetch("/tickets/finalizados")
-      ]);
-      const todos = await resActivos.json();
-      ticketsFinalizados = await resFinalizados.json();
+      const res = await fetch("/tickets");
+      const todos = await res.json();
+      // Separar correctamente sin duplicados
       ticketsActivos = todos.filter(t => t.estado !== "Finalizado");
+      ticketsFinalizados = todos.filter(t => t.estado === "Finalizado");
       document.getElementById("countActivos").textContent = ticketsActivos.length;
       document.getElementById("countFinalizados").textContent = ticketsFinalizados.length;
       filtrarTickets();
@@ -600,7 +598,22 @@
       }, 4500);
     }
 
-    // CHAT INTERNO
+    // CHAT INTERNO — cargar historial al conectar
+    async function cargarHistorialChat() {
+      try {
+        const res = await fetch("/chat-interno");
+        const msgs = await res.json();
+        if (msgs.length) {
+          const empty = document.getElementById("chatEmpty");
+          if (empty) empty.remove();
+          msgs.forEach(m => {
+            const hora = new Date(m.hora).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+            renderMensaje({ remitente: m.remitente, texto: m.texto, hora });
+          });
+        }
+      } catch (e) { /* tabla puede no existir aún */ }
+    }
+
     function renderMensaje(m) {
       const empty = document.getElementById("chatEmpty");
       if (empty) empty.remove();
@@ -625,12 +638,13 @@
       const m = {
         remitente: usuario.email,
         texto,
-        hora: new Date().toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"})
+        hora: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
       };
       socket.emit("mensajeInterno", m);
       input.value = "";
     }
 
+    // Solo renderizar mensajes que llegan del servidor (evita duplicados propios)
     socket.on("mensajeInterno", (m) => {
       renderMensaje(m);
     });
@@ -644,7 +658,10 @@
       window.location.href = "/";
     }
 
-    document.addEventListener("DOMContentLoaded", cargarTickets);
+    document.addEventListener("DOMContentLoaded", () => {
+      cargarTickets();
+      cargarHistorialChat();
+    });
   </script>
 </body>
 </html>

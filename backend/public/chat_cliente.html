@@ -42,6 +42,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        scrollbar-color: #0ea5e9 #dbeafe;
+        scrollbar-width: thin;
       }
 
       .chat-container {
@@ -95,44 +97,26 @@
       }
 
       .chat-area {
-        position: relative;
         flex: 1;
         min-height: 0;
       }
 
-      .scroll-down-btn {
-        position: absolute;
-        right: 16px;
-        bottom: 16px;
-        width: 40px;
-        height: 40px;
+      .chat-box::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      .chat-box::-webkit-scrollbar-track {
+        background: #e2e8f0;
         border-radius: 999px;
-        border: 1px solid #7dd3fc;
-        color: white;
-        background: rgba(14, 165, 233, 0.9);
-        cursor: pointer;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.5);
-        animation: floatArrow 1.2s ease-in-out infinite;
       }
 
-      .scroll-down-btn.visible {
-        display: flex;
+      .chat-box::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+        border-radius: 999px;
       }
 
-      @keyframes floatArrow {
-        0%,
-        100% {
-          transform: translateY(0);
-          box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.35);
-        }
-        50% {
-          transform: translateY(4px);
-          box-shadow: 0 0 0 8px rgba(14, 165, 233, 0);
-        }
+      .chat-box::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #7dd3fc, #38bdf8);
       }
 
       /* MENSAJES */
@@ -217,9 +201,6 @@
 
       <div class="chat-area">
         <div id="mensajes" class="chat-box"></div>
-        <button id="scrollDownBtn" class="scroll-down-btn" title="Ir abajo">
-          ↓
-        </button>
       </div>
 
       <div class="chat-input">
@@ -255,7 +236,6 @@
 
       let tipoArchivo = null;
       const contenedorMensajes = document.getElementById("mensajes");
-      const scrollDownBtn = document.getElementById("scrollDownBtn");
 
       function estaCercaDelFinal() {
         const gap =
@@ -266,8 +246,9 @@
       }
 
       function actualizarBotonBajar() {
-        if (estaCercaDelFinal()) scrollDownBtn.classList.remove("visible");
-        else scrollDownBtn.classList.add("visible");
+        // función reservada para mantener la lógica de scroll actual
+        // sin mostrar flechas flotantes.
+        estaCercaDelFinal();
       }
 
       function irAbajo() {
@@ -405,7 +386,6 @@
         subirArchivo(file);
       });
       contenedorMensajes.addEventListener("scroll", actualizarBotonBajar);
-      scrollDownBtn.addEventListener("click", irAbajo);
 
       function volver() {
         window.location.href = "/user_cliente.html";

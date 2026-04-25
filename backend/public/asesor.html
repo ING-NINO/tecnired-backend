@@ -175,6 +175,56 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        scroll-behavior: smooth;
+      }
+
+      .messages::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      .messages::-webkit-scrollbar-track {
+        background: #0b1224;
+        border-radius: 999px;
+      }
+
+      .messages::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #38bdf8, #0ea5e9);
+        border-radius: 999px;
+      }
+
+      .messages::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #67e8f9, #38bdf8);
+      }
+
+      .chat-wrap {
+        position: relative;
+        min-height: 0;
+      }
+
+      .scroll-controls {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .scroll-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 1px solid rgba(56, 189, 248, 0.6);
+        background: #08213b;
+        color: #7dd3fc;
+        font-size: 18px;
+        padding: 0;
+      }
+
+      .scroll-btn.down {
+        background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+        color: #06263a;
+        border-color: transparent;
       }
 
       .empty {
@@ -313,8 +363,15 @@
           </div>
         </header>
 
-        <section class="messages" id="chat">
-          <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+        <section class="chat-wrap">
+          <div class="messages" id="chat">
+            <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+          </div>
+
+          <div class="scroll-controls">
+            <button class="scroll-btn up" onclick="scrollChatArriba()">↑</button>
+            <button class="scroll-btn down" onclick="scrollChatAbajo()">↓</button>
+          </div>
         </section>
 
         <footer class="composer">
@@ -554,6 +611,14 @@
       window.cerrarSesion = function () {
         localStorage.removeItem("usuario");
         window.location.href = "/";
+      };
+
+      window.scrollChatArriba = function () {
+        ui.chat.scrollBy({ top: -260, behavior: "smooth" });
+      };
+
+      window.scrollChatAbajo = function () {
+        ui.chat.scrollBy({ top: 260, behavior: "smooth" });
       };
 
       cargarTickets();

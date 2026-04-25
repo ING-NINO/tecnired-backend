@@ -1,456 +1,436 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sobre Nosotros | TECNIRED</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nosotros | TECNIRED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #38bdf8; --primary-soft: #0ea5e9; --accent: #6366f1;
+      --dark: #020617; --light: #f1f5f9; --muted: #94a3b8;
+      --card-bg: rgba(15,23,42,0.7); --border: rgba(56,189,248,0.15);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:"Inter","Segoe UI",sans-serif; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--dark); color:var(--light); overflow-x:hidden; }
+    canvas#bg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
+    /* NAVBAR */
+    .navbar {
+      position:fixed; top:0; width:100%; z-index:999;
+      padding:16px 60px; display:flex; justify-content:space-between; align-items:center;
+      background:rgba(2,6,23,0.6); backdrop-filter:blur(20px);
+      border-bottom:1px solid transparent; transition:all 0.35s;
+    }
+    .navbar.scroll { background:rgba(2,6,23,0.95); border-bottom-color:var(--border); box-shadow:0 4px 30px rgba(0,0,0,0.4); }
+    .nav-brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .nav-brand img { width:36px; }
+    .nav-brand span { font-weight:800; color:var(--primary); font-size:1.05rem; letter-spacing:1px; }
+    .nav-links { list-style:none; display:flex; gap:32px; }
+    .nav-links a { text-decoration:none; color:var(--muted); font-weight:500; font-size:0.88rem; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--light); }
+    .btn-nav {
+      background:linear-gradient(135deg,var(--primary-soft),var(--primary));
+      padding:9px 20px; border-radius:10px; color:#06202c;
+      text-decoration:none; font-weight:700; font-size:0.85rem;
+      transition:all 0.3s; box-shadow:0 4px 15px rgba(56,189,248,0.3);
+    }
+    .btn-nav:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(56,189,248,0.5); }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:24px; height:2px; background:var(--light); border-radius:2px; transition:all 0.3s; }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
 
-    <style>
-      :root {
-        --primary: #4a8df5;
-        --secondary: #00c6ff;
-        --dark: #0b1629;
-        --light: #cbd5e1;
-      }
+    /* HERO */
+    .hero {
+      position:relative; min-height:60vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; padding:140px 60px 80px; overflow:hidden; z-index:1;
+    }
+    .hero-overlay {
+      position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% 40%, rgba(56,189,248,0.1) 0%, transparent 65%),
+                linear-gradient(180deg, rgba(2,6,23,0.2) 0%, rgba(2,6,23,0.8) 100%);
+    }
+    .hero-content { position:relative; z-index:2; max-width:720px; }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3);
+      padding:6px 16px; border-radius:999px; font-size:0.75rem;
+      color:var(--primary); font-weight:600; margin-bottom:24px;
+      animation:fadeDown 0.6s ease both;
+    }
+    .hero h1 {
+      font-size:clamp(2.2rem,5vw,3.8rem); font-weight:900; line-height:1.1;
+      margin-bottom:20px; animation:fadeUp 0.7s ease 0.1s both;
+    }
+    .hero h1 span { color:var(--primary); }
+    .hero p {
+      font-size:1.05rem; color:var(--muted); line-height:1.7;
+      animation:fadeUp 0.7s ease 0.2s both;
+    }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-      }
+    /* SECTIONS */
+    section { position:relative; z-index:1; padding:90px 60px; }
+    .section-label {
+      display:inline-block; font-size:0.72rem; font-weight:700;
+      color:var(--primary); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;
+    }
+    .section-title { font-size:clamp(1.7rem,3vw,2.4rem); font-weight:800; margin-bottom:12px; line-height:1.2; }
+    .section-sub { color:var(--muted); font-size:0.95rem; line-height:1.7; max-width:560px; }
+    .text-center { text-align:center; }
+    .text-center .section-sub { margin:0 auto; }
 
-      body {
-        background: var(--dark);
-        color: white;
-        overflow-x: hidden;
-      }
+    /* BRAND */
+    .brand-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;
+      max-width:1100px; margin:0 auto;
+    }
+    .brand-img-wrap {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:24px; padding:40px; display:flex; align-items:center; justify-content:center;
+      backdrop-filter:blur(16px); box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    }
+    .brand-img-wrap img { width:100%; max-width:280px; border-radius:12px; }
+    .brand-text .section-label { display:block; }
+    .brand-text p { color:var(--muted); font-size:0.95rem; line-height:1.8; margin-top:16px; }
+    .brand-values { display:flex; flex-direction:column; gap:14px; margin-top:28px; }
+    .brand-value {
+      display:flex; align-items:center; gap:14px;
+      background:rgba(56,189,248,0.05); border:1px solid var(--border);
+      border-radius:12px; padding:14px 18px;
+    }
+    .brand-value-icon {
+      width:38px; height:38px; border-radius:10px; flex-shrink:0;
+      background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(56,189,248,0.1));
+      border:1px solid rgba(56,189,248,0.2); display:grid; place-items:center;
+      color:var(--primary); font-size:0.95rem;
+    }
+    .brand-value strong { display:block; font-size:0.88rem; font-weight:700; margin-bottom:2px; }
+    .brand-value span { font-size:0.78rem; color:var(--muted); }
 
-      /* ===== PARTICULAS ===== */
-      #particles-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background: linear-gradient(135deg, #0b1629, #0f1e35);
-      }
+    /* MISION / VISION */
+    .mv-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:1000px; margin:48px auto 0; }
+    .mv-card {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:20px; padding:36px 32px; backdrop-filter:blur(16px);
+      transition:transform 0.35s, box-shadow 0.35s, border-color 0.35s;
+      position:relative; overflow:hidden;
+    }
+    .mv-card::before {
+      content:""; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,var(--primary-soft),var(--primary));
+      opacity:0; transition:opacity 0.35s;
+    }
+    .mv-card:hover { transform:translateY(-6px); box-shadow:0 24px 60px rgba(0,0,0,0.4); border-color:rgba(56,189,248,0.35); }
+    .mv-card:hover::before { opacity:1; }
+    .mv-icon {
+      width:52px; height:52px; border-radius:14px; margin-bottom:20px;
+      background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(56,189,248,0.1));
+      border:1px solid rgba(56,189,248,0.2); display:grid; place-items:center;
+      font-size:1.3rem; color:var(--primary);
+    }
+    .mv-card h3 { font-size:1.1rem; font-weight:800; margin-bottom:12px; }
+    .mv-card p { color:var(--muted); font-size:0.9rem; line-height:1.75; }
 
-      /* ===== NAVBAR ===== */
-      .navbar {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 8%;
-        background: rgba(11, 22, 41, 0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(0, 198, 255, 0.15);
-        z-index: 1000;
-      }
+    /* METRICS */
+    .metrics-bg { background:linear-gradient(180deg,var(--dark) 0%,#060d1f 100%); }
+    .metrics-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:24px; max-width:900px; margin:48px auto 0;
+    }
+    .metric-card {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:20px; padding:32px 24px; text-align:center;
+      backdrop-filter:blur(16px); transition:transform 0.3s;
+    }
+    .metric-card:hover { transform:translateY(-6px); }
+    .metric-icon {
+      width:48px; height:48px; border-radius:12px; margin:0 auto 16px;
+      background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(56,189,248,0.1));
+      border:1px solid rgba(56,189,248,0.2); display:grid; place-items:center;
+      font-size:1.1rem; color:var(--primary);
+    }
+    .metric-num { font-size:2.4rem; font-weight:900; color:var(--primary); line-height:1; }
+    .metric-label { font-size:0.82rem; color:var(--muted); margin-top:6px; }
 
-      .logo-nav {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+    /* TEAM */
+    .team-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:24px; max-width:900px; margin:48px auto 0;
+    }
+    .member {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:20px; padding:32px 24px; text-align:center;
+      backdrop-filter:blur(16px); transition:transform 0.35s, box-shadow 0.35s;
+    }
+    .member:hover { transform:translateY(-8px); box-shadow:0 24px 60px rgba(0,0,0,0.5); }
+    .member-avatar {
+      width:90px; height:90px; border-radius:50%; margin:0 auto 18px;
+      border:3px solid rgba(56,189,248,0.3); object-fit:cover;
+      background:#0b1224;
+    }
+    .member h4 { font-size:1rem; font-weight:700; margin-bottom:6px; }
+    .member p { font-size:0.82rem; color:var(--muted); line-height:1.5; margin-bottom:14px; }
+    .member-role-icon {
+      width:34px; height:34px; border-radius:8px; margin:0 auto;
+      background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(56,189,248,0.1));
+      border:1px solid rgba(56,189,248,0.2); display:grid; place-items:center;
+      color:var(--primary); font-size:0.85rem;
+    }
 
-      .logo-nav img {
-        width: 45px;
-      }
+    /* FOOTER */
+    footer {
+      position:relative; z-index:1;
+      background:#020617; border-top:1px solid var(--border);
+      padding:36px 60px; display:flex; justify-content:space-between;
+      align-items:center; flex-wrap:wrap; gap:16px;
+    }
+    .footer-brand { display:flex; align-items:center; gap:10px; }
+    .footer-brand img { width:28px; }
+    .footer-brand span { font-weight:700; color:var(--primary); font-size:0.95rem; }
+    footer p { color:var(--muted); font-size:0.8rem; }
+    .footer-links { display:flex; gap:20px; }
+    .footer-links a { color:var(--muted); text-decoration:none; font-size:0.8rem; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--primary); }
 
-      .logo-nav span {
-        font-weight: 700;
-        font-size: 20px;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
+    /* REVEAL */
+    .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,0.61,0.36,1); }
+    .reveal.active { opacity:1; transform:translateY(0); }
 
-      .nav-links {
-        list-style: none;
-        display: flex;
-        gap: 25px;
-      }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
 
-      .nav-links a {
-        text-decoration: none;
-        color: var(--light);
-        transition: 0.3s;
-      }
+    /* RESPONSIVE */
+    @media(max-width:900px) {
+      .navbar { padding:14px 24px; }
+      .nav-links { display:none; flex-direction:column; gap:0; position:absolute; top:100%; left:0; right:0; background:rgba(2,6,23,0.98); border-bottom:1px solid var(--border); padding:12px 0; }
+      .nav-links.open { display:flex; }
+      .nav-links li a { display:block; padding:12px 24px; }
+      .hamburger { display:flex; }
+      .btn-nav { display:none; }
+      section { padding:70px 24px; }
+      .hero { padding:120px 24px 60px; }
+      .brand-grid { grid-template-columns:1fr; gap:32px; }
+      .mv-grid { grid-template-columns:1fr; }
+      footer { padding:28px 24px; flex-direction:column; text-align:center; }
+      .footer-links { justify-content:center; }
+    }
+    @media(max-width:560px) {
+      .metrics-grid { grid-template-columns:1fr 1fr; }
+      .team-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
 
-      .nav-links a:hover {
-        color: var(--secondary);
-      }
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <img src="/img/TecniredLogo.png" alt="Logo" />
+      <span>TECNIRED</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="#mision">Misión</a></li>
+      <li><a href="#vision">Visión</a></li>
+      <li><a href="#equipo">Equipo</a></li>
+    </ul>
+    <a href="login.html" class="btn-nav">Ingresar</a>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </nav>
 
-      /* ===== HERO ===== */
-      .hero {
-        padding: 130px 8% 60px 8%;
-        text-align: center;
-      }
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><i class="fa-solid fa-building"></i> Quiénes somos</div>
+      <h1>Impulsando la<br /><span>Transformación Digital</span></h1>
+      <p>En TECNIRED brindamos soluciones profesionales en soporte técnico, redes y hardware con atención digital y presencial.</p>
+    </div>
+  </section>
 
-      .hero h1 {
-        font-size: 42px;
-        margin-bottom: 20px;
-        background: linear-gradient(90deg, #4a8df5, #00c6ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-
-      .hero p {
-        max-width: 700px;
-        margin: auto;
-        color: var(--light);
-      }
-
-      /* ===== BRAND ===== */
-      .brand-section {
-        padding: 70px 8%;
-      }
-
-      .brand-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 60px;
-        flex-wrap: wrap;
-      }
-
-      .brand-logo img {
-        width: 220px;
-        transition: 0.4s;
-      }
-
-      .brand-logo img:hover {
-        transform: scale(1.08);
-      }
-
-      .brand-text {
-        max-width: 500px;
-      }
-
-      .brand-text h2 {
-        font-size: 30px;
-        margin-bottom: 15px;
-        color: var(--secondary);
-      }
-
-      /* ===== SECTIONS ===== */
-      .section {
-        padding: 70px 8%;
-        text-align: center;
-      }
-
-      .section-title {
-        font-size: 30px;
-        margin-bottom: 30px;
-        color: var(--secondary);
-      }
-
-      .card {
-        max-width: 800px;
-        margin: auto;
-        padding: 35px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(0, 198, 255, 0.25);
-        color: var(--light);
-        line-height: 1.8;
-        transition: 0.4s;
-      }
-
-      .card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 10px 30px rgba(0, 198, 255, 0.2);
-      }
-
-      /* ===== METRICS ===== */
-      .metrics {
-        display: flex;
-        justify-content: center;
-        gap: 50px;
-        flex-wrap: wrap;
-      }
-
-      .metric {
-        text-align: center;
-      }
-
-      .metric i {
-        font-size: 28px;
-        color: var(--secondary);
-        margin-bottom: 10px;
-      }
-
-      .metric h2 {
-        font-size: 38px;
-        color: var(--secondary);
-      }
-
-      /* ===== TEAM ===== */
-      .team {
-        display: flex;
-        justify-content: center;
-        gap: 35px;
-        flex-wrap: wrap;
-      }
-
-      .member {
-        width: 260px;
-        padding: 25px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(0, 198, 255, 0.25);
-        transition: 0.4s;
-      }
-
-      .member:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-      }
-
-      .member img {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        margin-bottom: 15px;
-        object-fit: contain;
-        background-color: #0b1629; /* Para que no se vea vacío */
-      }
-
-      .member i {
-        font-size: 20px;
-        color: var(--secondary);
-        margin-top: 10px;
-      }
-
-      /* ===== FOOTER ===== */
-      footer {
-        text-align: center;
-        padding: 25px;
-        background: #08101f;
-        color: #94a3b8;
-      }
-
-      /* ===== ANIMACION SCROLL ===== */
-      .reveal {
-        opacity: 0;
-        transform: translateY(40px);
-        transition: 1s;
-      }
-
-      .reveal.active {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    </style>
-  </head>
-
-  <body>
-    <canvas id="particles-bg"></canvas>
-
-    <nav class="navbar">
-      <div class="logo-nav">
-        <img src="/img/TecniredLogo.png" alt="Logo TECNIRED" />
-        <span>TECNIRED</span>
+  <!-- IDENTIDAD -->
+  <section class="reveal">
+    <div class="brand-grid">
+      <div class="brand-img-wrap">
+        <img src="/img/68b4c743-d527-4819-8e0e-73543dc4f57e.jpg" alt="TECNIRED" />
       </div>
-      <ul class="nav-links">
-        <li><a href="index.html">Inicio</a></li>
-        <li><a href="#mision">Misión</a></li>
-        <li><a href="#vision">Visión</a></li>
-        <li><a href="#equipo">Equipo</a></li>
-      </ul>
-    </nav>
-
-    <section class="hero">
-      <h1>Impulsando la Transformación Digital</h1>
-      <p>
-        En TECNIRED brindamos soluciones profesionales en soporte técnico, redes
-        y hardware con atención digital y presencial.
-      </p>
-    </section>
-
-    <section class="brand-section reveal">
-      <div class="brand-container">
-        <div class="brand-logo">
-          <img src="/img/68b4c743-d527-4819-8e0e-73543dc4f57e.jpg" alt="Logo" />
-        </div>
-        <div class="brand-text">
-          <h2><i class="fas fa-building"></i> Identidad TECNIRED</h2>
-          <p>
-            Empresa tecnológica orientada a soporte técnico, mantenimiento
-            preventivo, administración de redes y soluciones digitales
-            eficientes.
-          </p>
+      <div class="brand-text">
+        <span class="section-label">Nuestra identidad</span>
+        <h2 class="section-title">Empresa tecnológica con propósito</h2>
+        <p>Somos una empresa orientada a soporte técnico, mantenimiento preventivo, administración de redes y soluciones digitales eficientes para hogares y empresas.</p>
+        <div class="brand-values">
+          <div class="brand-value">
+            <div class="brand-value-icon"><i class="fa-solid fa-bolt"></i></div>
+            <div><strong>Rapidez</strong><span>Respuesta en minutos, no en días</span></div>
+          </div>
+          <div class="brand-value">
+            <div class="brand-value-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div><strong>Confianza</strong><span>Datos y sistemas siempre protegidos</span></div>
+          </div>
+          <div class="brand-value">
+            <div class="brand-value-icon"><i class="fa-solid fa-star"></i></div>
+            <div><strong>Calidad</strong><span>Soluciones que realmente funcionan</span></div>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="section reveal" id="mision">
-      <h3 class="section-title">Nuestra Misión</h3>
-      <div class="card">
-        <i
-          class="fas fa-bullseye"
-          style="font-size: 30px; color: #00c6ff; margin-bottom: 15px"
-        ></i>
-        <p>
-          Brindar soluciones tecnológicas integrales mediante atención digital y
-          presencial, optimizando la infraestructura tecnológica de nuestros
-          clientes.
-        </p>
+  <!-- MISION / VISION -->
+  <section id="mision" class="text-center reveal">
+    <span class="section-label">Propósito</span>
+    <h2 class="section-title">Misión y Visión</h2>
+    <p class="section-sub">Los principios que guían cada decisión y cada solución que entregamos.</p>
+    <div class="mv-grid">
+      <div class="mv-card">
+        <div class="mv-icon"><i class="fa-solid fa-bullseye"></i></div>
+        <h3>Nuestra Misión</h3>
+        <p>Brindar soluciones tecnológicas integrales mediante atención digital y presencial, optimizando la infraestructura tecnológica de nuestros clientes con rapidez, calidad y compromiso.</p>
       </div>
-    </section>
-
-    <section class="section reveal" id="vision">
-      <h3 class="section-title">Nuestra Visión</h3>
-      <div class="card">
-        <i
-          class="fas fa-eye"
-          style="font-size: 30px; color: #00c6ff; margin-bottom: 15px"
-        ></i>
-        <p>
-          Ser una empresa líder en soluciones TIC reconocida por excelencia
-          técnica, innovación constante y compromiso digital.
-        </p>
+      <div class="mv-card" id="vision">
+        <div class="mv-icon"><i class="fa-solid fa-eye"></i></div>
+        <h3>Nuestra Visión</h3>
+        <p>Ser una empresa líder en soluciones TIC reconocida por excelencia técnica, innovación constante y compromiso digital, expandiendo nuestra presencia a nivel nacional.</p>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="section reveal">
-      <h3 class="section-title">Nuestro Impacto</h3>
-      <div class="metrics">
-        <div class="metric">
-          <i class="fas fa-users"></i>
-          <h2 id="counter1">0</h2>
-          <p>Clientes Atendidos</p>
-        </div>
-        <div class="metric">
-          <i class="fas fa-laptop-medical"></i>
-          <h2 id="counter2">0</h2>
-          <p>Equipos Reparados</p>
-        </div>
-        <div class="metric">
-          <i class="fas fa-network-wired"></i>
-          <h2 id="counter3">0</h2>
-          <p>Redes Instaladas</p>
-        </div>
+  <!-- MÉTRICAS -->
+  <section class="metrics-bg text-center reveal">
+    <span class="section-label">Impacto</span>
+    <h2 class="section-title">Nuestros números</h2>
+    <p class="section-sub">Resultados reales que reflejan el compromiso con nuestros clientes.</p>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-users"></i></div>
+        <div class="metric-num" id="c1">0</div>
+        <div class="metric-label">Clientes atendidos</div>
       </div>
-    </section>
-
-    <section class="section reveal" id="equipo">
-      <h3 class="section-title">Nuestro Equipo</h3>
-      <div class="team">
-        <div class="member">
-          <img src="/img/WhatsApp Image 2026-02-12 at 5.40.51 PM.jpeg" alt="" />
-          <h4>Juan Camilo Sánchez Rojas</h4>
-          <p>Tecnólogo TIC - Desarrollo y Soporte Técnico</p>
-          <i class="fas fa-code"></i>
-        </div>
-
-        <div class="member">
-          <img src="/img/julieth.jpg" alt="" />
-          <h4>Julieth Monroy</h4>
-          <p>Aprendiz SENA - Soporte y Mantenimiento</p>
-          <i class="fas fa-tools"></i>
-        </div>
-
-        <div class="member">
-          <img src="./img/Fabiola.jpeg" alt="" />
-          <h4>Fabiola Triana</h4>
-          <p>Aprendiz SENA - Redes y Seguridad</p>
-          <i class="fas fa-shield-halved"></i>
-        </div>
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-laptop-medical"></i></div>
+        <div class="metric-num" id="c2">0</div>
+        <div class="metric-label">Equipos reparados</div>
       </div>
-    </section>
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-network-wired"></i></div>
+        <div class="metric-num" id="c3">0</div>
+        <div class="metric-label">Redes instaladas</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon"><i class="fa-solid fa-ticket"></i></div>
+        <div class="metric-num" id="c4">0</div>
+        <div class="metric-label">Tickets resueltos</div>
+      </div>
+    </div>
+  </section>
 
-    <footer>© 2025 TECNIRED | Innovación y Soporte Tecnológico</footer>
+  <!-- EQUIPO -->
+  <section id="equipo" class="text-center reveal">
+    <span class="section-label">Personas</span>
+    <h2 class="section-title">Nuestro equipo</h2>
+    <p class="section-sub">Profesionales apasionados por la tecnología y el servicio al cliente.</p>
+    <div class="team-grid">
+      <div class="member">
+        <img class="member-avatar" src="/img/WhatsApp Image 2026-02-12 at 5.40.51 PM.jpeg" alt="Juan Camilo" />
+        <h4>Juan Camilo Sánchez Rojas</h4>
+        <p>Tecnólogo TIC — Desarrollo y Soporte Técnico</p>
+        <div class="member-role-icon"><i class="fa-solid fa-code"></i></div>
+      </div>
+      <div class="member">
+        <img class="member-avatar" src="/img/julieth.jpg" alt="Julieth" />
+        <h4>Julieth Monroy</h4>
+        <p>Aprendiz SENA — Soporte y Mantenimiento</p>
+        <div class="member-role-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+      </div>
+      <div class="member">
+        <img class="member-avatar" src="/img/Fabiola.jpeg" alt="Fabiola" />
+        <h4>Fabiola Triana</h4>
+        <p>Aprendiz SENA — Redes y Seguridad</p>
+        <div class="member-role-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-      const reveals = document.querySelectorAll(".reveal");
-      window.addEventListener("scroll", () => {
-        reveals.forEach((el) => {
-          if (el.getBoundingClientRect().top < window.innerHeight - 100) {
-            el.classList.add("active");
-          }
-        });
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <img src="/img/TecniredLogo.png" alt="Logo" />
+      <span>TECNIRED</span>
+    </div>
+    <p>&copy; 2025 TECNIRED — Innovación y Soporte Tecnológico</p>
+    <div class="footer-links">
+      <a href="index.html">Inicio</a>
+      <a href="herramientas.html">Herramientas</a>
+      <a href="login.html">Ingresar</a>
+    </div>
+  </footer>
+
+  <script>
+    // NAVBAR
+    const navbar = document.getElementById("navbar");
+    const hamburger = document.getElementById("hamburger");
+    const navLinks = document.getElementById("navLinks");
+    window.addEventListener("scroll", () => navbar.classList.toggle("scroll", window.scrollY > 50));
+    hamburger.addEventListener("click", () => { hamburger.classList.toggle("open"); navLinks.classList.toggle("open"); });
+    navLinks.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { hamburger.classList.remove("open"); navLinks.classList.remove("open"); }));
+
+    // CANVAS
+    const canvas = document.getElementById("bg");
+    const ctx = canvas.getContext("2d");
+    let pts = [];
+    function resizeCanvas() {
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight; pts = [];
+      const n = Math.min(80, Math.floor(window.innerWidth / 16));
+      for (let i = 0; i < n; i++) pts.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4 });
+    }
+    function drawCanvas() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      pts.forEach((p,i) => {
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>canvas.width) p.vx*=-1;
+        if(p.y<0||p.y>canvas.height) p.vy*=-1;
+        ctx.fillStyle="rgba(56,189,248,0.5)";
+        ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,Math.PI*2); ctx.fill();
+        for(let j=i+1;j<pts.length;j++){
+          const o=pts[j],dx=p.x-o.x,dy=p.y-o.y,d=dx*dx+dy*dy;
+          if(d<10000){ ctx.strokeStyle=`rgba(56,189,248,${0.4-d/25000})`; ctx.lineWidth=0.4; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(o.x,o.y); ctx.stroke(); }
+        }
       });
+      requestAnimationFrame(drawCanvas);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); drawCanvas();
 
-      function animateCounter(id, target) {
-        let count = 0;
-        const element = document.getElementById(id);
-        const interval = setInterval(() => {
-          count++;
-          element.textContent = count;
-          if (count >= target) clearInterval(interval);
-        }, 20);
+    // REVEAL
+    const observer = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add("active"); observer.unobserve(e.target); } }), { threshold:0.1 });
+    document.querySelectorAll(".reveal").forEach(r => observer.observe(r));
+
+    // COUNTERS
+    function animateCounter(id, target, suffix) {
+      const el = document.getElementById(id);
+      let count = 0;
+      const step = Math.ceil(target / 60);
+      const interval = setInterval(() => {
+        count = Math.min(count + step, target);
+        el.textContent = count + (suffix || "");
+        if (count >= target) clearInterval(interval);
+      }, 25);
+    }
+    const metricsSection = document.querySelector(".metrics-bg");
+    const metricsObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        animateCounter("c1", 120, "+");
+        animateCounter("c2", 350, "+");
+        animateCounter("c3", 80, "+");
+        animateCounter("c4", 500, "+");
+        metricsObserver.disconnect();
       }
-      animateCounter("counter1", 120);
-      animateCounter("counter2", 350);
-      animateCounter("counter3", 80);
-
-      /* PARTICULAS */
-      const canvas = document.getElementById("particles-bg");
-      const ctx = canvas.getContext("2d");
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      let particles = [];
-      window.addEventListener("resize", () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        init();
-      });
-
-      class Particle {
-        constructor() {
-          this.x = Math.random() * canvas.width;
-          this.y = Math.random() * canvas.height;
-          this.size = Math.random() * 2 + 1;
-          this.speedX = (Math.random() - 0.5) * 0.5;
-          this.speedY = (Math.random() - 0.5) * 0.5;
-        }
-        update() {
-          this.x += this.speedX;
-          this.y += this.speedY;
-          if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-          if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
-          this.draw();
-        }
-        draw() {
-          ctx.fillStyle = "rgba(0,198,255,0.7)";
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      function init() {
-        particles = [];
-        let number = (canvas.width * canvas.height) / 15000;
-        for (let i = 0; i < number; i++) {
-          particles.push(new Particle());
-        }
-      }
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach((p) => p.update());
-        requestAnimationFrame(animate);
-      }
-
-      init();
-      animate();
-    </script>
-  </body>
+    }, { threshold: 0.3 });
+    metricsObserver.observe(metricsSection);
+  </script>
+</body>
 </html>

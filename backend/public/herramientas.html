@@ -1,313 +1,468 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Descargas TecniRed</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Herramientas | TECNIRED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #38bdf8; --primary-soft: #0ea5e9; --accent: #6366f1;
+      --dark: #020617; --light: #f1f5f9; --muted: #94a3b8;
+      --card-bg: rgba(15,23,42,0.7); --border: rgba(56,189,248,0.15);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:"Inter","Segoe UI",sans-serif; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--dark); color:var(--light); overflow-x:hidden; min-height:100vh; }
+    canvas#bg { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
-    <style>
-      /* GLOBAL */
-      * {
-        box-sizing: border-box;
-      }
+    /* NAVBAR */
+    .navbar {
+      position:fixed; top:0; width:100%; z-index:999;
+      padding:16px 60px; display:flex; justify-content:space-between; align-items:center;
+      background:rgba(2,6,23,0.6); backdrop-filter:blur(20px);
+      border-bottom:1px solid transparent; transition:all 0.35s;
+    }
+    .navbar.scroll { background:rgba(2,6,23,0.95); border-bottom-color:var(--border); box-shadow:0 4px 30px rgba(0,0,0,0.4); }
+    .nav-brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .nav-brand img { width:36px; }
+    .nav-brand span { font-weight:800; color:var(--primary); font-size:1.05rem; letter-spacing:1px; }
+    .nav-links { list-style:none; display:flex; gap:32px; }
+    .nav-links a { text-decoration:none; color:var(--muted); font-weight:500; font-size:0.88rem; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--light); }
+    .btn-nav {
+      background:linear-gradient(135deg,var(--primary-soft),var(--primary));
+      padding:9px 20px; border-radius:10px; color:#06202c;
+      text-decoration:none; font-weight:700; font-size:0.85rem;
+      transition:all 0.3s; box-shadow:0 4px 15px rgba(56,189,248,0.3);
+    }
+    .btn-nav:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(56,189,248,0.5); }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:24px; height:2px; background:var(--light); border-radius:2px; transition:all 0.3s; }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
 
-      body {
-        margin: 0;
-        font-family: Arial;
-        background: #0f172a;
-        color: white;
-        overflow-x: hidden;
-      }
+    /* HERO */
+    .hero {
+      position:relative; z-index:1;
+      padding:140px 60px 70px; text-align:center;
+    }
+    .hero-overlay {
+      position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% 40%, rgba(56,189,248,0.08) 0%, transparent 65%);
+      pointer-events:none;
+    }
+    .hero-content { position:relative; z-index:2; max-width:680px; margin:0 auto; }
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3);
+      padding:6px 16px; border-radius:999px; font-size:0.75rem;
+      color:var(--primary); font-weight:600; margin-bottom:20px;
+      animation:fadeDown 0.6s ease both;
+    }
+    .hero h1 {
+      font-size:clamp(2rem,4.5vw,3.2rem); font-weight:900; line-height:1.1;
+      margin-bottom:16px; animation:fadeUp 0.7s ease 0.1s both;
+    }
+    .hero h1 span { color:var(--primary); }
+    .hero p { font-size:1rem; color:var(--muted); line-height:1.7; animation:fadeUp 0.7s ease 0.2s both; }
 
-      /* FONDO */
-      body::before {
-        content: "";
-        position: fixed;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, #3b82f6 1px, transparent 1px);
-        background-size: 50px 50px;
-        animation: move 40s linear infinite;
-        opacity: 0.15;
-        pointer-events: none; /* 🔥 evita bloquear clicks */
-        z-index: 0;
-      }
+    /* SEARCH */
+    .search-wrap {
+      position:relative; z-index:1;
+      max-width:520px; margin:36px auto 0;
+      animation:fadeUp 0.7s ease 0.3s both;
+    }
+    .search-wrap i {
+      position:absolute; left:18px; top:50%; transform:translateY(-50%);
+      color:var(--muted); font-size:0.9rem; pointer-events:none;
+    }
+    .search-wrap input {
+      width:100%; padding:14px 18px 14px 46px;
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:14px; color:var(--light); font-size:0.9rem;
+      outline:none; backdrop-filter:blur(16px);
+      transition:border-color 0.2s, box-shadow 0.2s;
+      font-family:inherit;
+    }
+    .search-wrap input::placeholder { color:var(--muted); }
+    .search-wrap input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(56,189,248,0.12); }
 
-      @keyframes move {
-        from {
-          transform: translate(0, 0);
-        }
-        to {
-          transform: translate(-200px, -200px);
-        }
-      }
+    /* CATEGORIES */
+    .categories {
+      position:relative; z-index:1;
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+      padding:0 60px; margin-top:28px;
+      animation:fadeUp 0.7s ease 0.4s both;
+    }
+    .cat-btn {
+      padding:8px 18px; border-radius:999px; font-size:0.8rem; font-weight:600;
+      border:1px solid var(--border); background:rgba(255,255,255,0.04);
+      color:var(--muted); cursor:pointer; transition:all 0.25s;
+    }
+    .cat-btn:hover, .cat-btn.active {
+      background:rgba(56,189,248,0.12); border-color:var(--primary); color:var(--primary);
+    }
 
-      /* NAVBAR */
-      .navbar {
-        position: sticky;
-        top: 0;
-        width: 100%;
-        background: rgba(30, 41, 59, 0.9);
-        backdrop-filter: blur(10px);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        z-index: 100;
-      }
+    /* GRID */
+    .grid-wrap {
+      position:relative; z-index:1;
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+      gap:20px; padding:48px 60px 80px; max-width:1300px; margin:0 auto;
+    }
 
-      .logo {
-        font-weight: bold;
-        color: #3b82f6;
-        font-size: 18px;
-      }
+    /* CARD */
+    .tool-card {
+      background:var(--card-bg); border:1px solid var(--border);
+      border-radius:20px; padding:28px 24px;
+      backdrop-filter:blur(16px); position:relative; overflow:hidden;
+      transition:transform 0.35s, box-shadow 0.35s, border-color 0.35s;
+      display:flex; flex-direction:column; gap:12px;
+    }
+    .tool-card::before {
+      content:""; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,var(--primary-soft),var(--primary));
+      opacity:0; transition:opacity 0.35s;
+    }
+    .tool-card:hover { transform:translateY(-6px); box-shadow:0 24px 60px rgba(0,0,0,0.45); border-color:rgba(56,189,248,0.35); }
+    .tool-card:hover::before { opacity:1; }
+    .tool-card.hidden { display:none; }
 
-      /* MENU */
-      .nav-links {
-        display: flex;
-        gap: 15px;
-      }
+    .card-tag {
+      position:absolute; top:14px; right:14px;
+      font-size:0.65rem; font-weight:700; padding:3px 9px; border-radius:6px;
+    }
+    .tag-popular { background:rgba(56,189,248,0.15); color:var(--primary); }
+    .tag-free { background:rgba(34,197,94,0.15); color:#22c55e; }
+    .tag-pro { background:rgba(99,102,241,0.15); color:#818cf8; }
 
-      .nav-links a {
-        color: white;
-        text-decoration: none;
-        padding: 8px;
-        border-radius: 6px;
-        transition: 0.3s;
-      }
+    .tool-icon {
+      width:52px; height:52px; border-radius:14px;
+      background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(56,189,248,0.1));
+      border:1px solid rgba(56,189,248,0.2); display:grid; place-items:center;
+      font-size:1.4rem;
+    }
+    .tool-card h3 { font-size:1rem; font-weight:700; }
+    .tool-card p { font-size:0.82rem; color:var(--muted); line-height:1.55; flex:1; }
+    .tool-meta { display:flex; align-items:center; gap:8px; }
+    .tool-cat-badge {
+      font-size:0.68rem; font-weight:600; padding:3px 8px; border-radius:6px;
+      background:rgba(255,255,255,0.06); color:var(--muted);
+    }
+    .btn-download {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:11px; border-radius:12px; font-weight:700; font-size:0.85rem;
+      text-decoration:none; transition:all 0.3s; margin-top:4px;
+      background:linear-gradient(135deg,var(--primary-soft),var(--primary));
+      color:#06202c; box-shadow:0 4px 14px rgba(56,189,248,0.25);
+      border:none; cursor:pointer; width:100%; font-family:inherit;
+    }
+    .btn-download:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(56,189,248,0.45); }
 
-      .nav-links a:hover {
-        background: #3b82f6;
-      }
+    /* NO RESULTS */
+    .no-results {
+      display:none; grid-column:1/-1; text-align:center;
+      padding:60px 20px; color:var(--muted);
+    }
+    .no-results i { font-size:2.5rem; margin-bottom:16px; display:block; color:var(--border); }
 
-      /* BOTON MENU */
-      .menu-btn {
-        display: none;
-        font-size: 22px;
-        cursor: pointer;
-      }
-      .navbar,
-      .hero,
-      .grid,
-      .footer {
-        position: relative;
-        z-index: 1;
-      }
-      /* HERO */
-      .hero {
-        text-align: center;
-        padding: 30px 20px;
-      }
+    /* FOOTER */
+    footer {
+      position:relative; z-index:1;
+      background:#020617; border-top:1px solid var(--border);
+      padding:36px 60px; display:flex; justify-content:space-between;
+      align-items:center; flex-wrap:wrap; gap:16px;
+    }
+    .footer-brand { display:flex; align-items:center; gap:10px; }
+    .footer-brand img { width:28px; }
+    .footer-brand span { font-weight:700; color:var(--primary); font-size:0.95rem; }
+    footer p { color:var(--muted); font-size:0.8rem; }
+    .footer-links { display:flex; gap:20px; }
+    .footer-links a { color:var(--muted); text-decoration:none; font-size:0.8rem; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--primary); }
 
-      .hero h1 {
-        margin-bottom: 10px;
-      }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
 
-      .hero p {
-        color: #94a3b8;
-      }
+    @media(max-width:900px) {
+      .navbar { padding:14px 24px; }
+      .nav-links { display:none; flex-direction:column; gap:0; position:absolute; top:100%; left:0; right:0; background:rgba(2,6,23,0.98); border-bottom:1px solid var(--border); padding:12px 0; }
+      .nav-links.open { display:flex; }
+      .nav-links li a { display:block; padding:12px 24px; }
+      .hamburger { display:flex; }
+      .btn-nav { display:none; }
+      .hero { padding:120px 24px 50px; }
+      .categories { padding:0 24px; }
+      .grid-wrap { padding:36px 24px 60px; }
+      footer { padding:28px 24px; flex-direction:column; text-align:center; }
+      .footer-links { justify-content:center; }
+    }
+    @media(max-width:560px) {
+      .grid-wrap { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
 
-      /* BUSCADOR */
-      .search input {
-        width: 90%;
-        max-width: 400px;
-        padding: 12px;
-        border-radius: 10px;
-        border: none;
-        margin-top: 10px;
-      }
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <img src="/img/TecniredLogo.png" alt="Logo" />
+      <span>TECNIRED</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="Sobre_Nosotros.html">Nosotros</a></li>
+      <li><a href="login.html">Portal</a></li>
+    </ul>
+    <a href="login.html" class="btn-nav">Ingresar</a>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </nav>
 
-      /* GRID */
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        padding: 20px;
-      }
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><i class="fa-solid fa-toolbox"></i> Centro de herramientas</div>
+      <h1>Herramientas para<br /><span>soporte técnico</span></h1>
+      <p>Descarga las mejores utilidades profesionales para diagnóstico, acceso remoto, seguridad y mantenimiento.</p>
+    </div>
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchInput" placeholder="Buscar herramienta..." />
+    </div>
+  </div>
 
-      /* CARD */
-      .card {
-        background: #1e293b;
-        padding: 20px;
-        border-radius: 15px;
-        text-align: center;
-        transition: 0.3s;
-        position: relative;
-      }
+  <!-- CATEGORÍAS -->
+  <div class="categories" id="categories">
+    <button class="cat-btn active" data-cat="all">Todas</button>
+    <button class="cat-btn" data-cat="remoto">Acceso Remoto</button>
+    <button class="cat-btn" data-cat="red">Redes</button>
+    <button class="cat-btn" data-cat="hardware">Hardware</button>
+    <button class="cat-btn" data-cat="seguridad">Seguridad</button>
+    <button class="cat-btn" data-cat="utilidad">Utilidades</button>
+  </div>
 
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-      }
+  <!-- GRID -->
+  <div class="grid-wrap" id="toolGrid">
 
-      .icon {
-        font-size: 35px;
-        margin-bottom: 10px;
-      }
-
-      button {
-        background: #3b82f6;
-        border: none;
-        padding: 10px;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
-        margin-top: 10px;
-        transition: 0.3s;
-      }
-
-      button:hover {
-        background: #2563eb;
-      }
-
-      /* TAG */
-      .tag {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: #22c55e;
-        padding: 3px 7px;
-        border-radius: 5px;
-        font-size: 11px;
-      }
-
-      /* FOOTER */
-      .footer {
-        text-align: center;
-        padding: 20px;
-        background: #1e293b;
-      }
-
-      /* RESPONSIVE */
-      @media (max-width: 768px) {
-        .nav-links {
-          display: none;
-          flex-direction: column;
-          position: absolute;
-          top: 60px;
-          right: 10px;
-          width: 200px;
-          background: rgba(30, 41, 59, 0.95);
-          padding: 10px;
-          border-radius: 10px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        .nav-links a {
-          display: block;
-          width: 100%;
-        }
-
-        .nav-links.active {
-          display: flex;
-        }
-
-        .menu-btn {
-          display: block;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <header class="navbar">
-      <div class="logo">🛠️ TecniRed</div>
-
-      <div class="menu-btn" onclick="toggleMenu()">☰</div>
-
-      <nav class="nav-links" id="menu">
-        <a href="index.html">Inicio</a>
-      </nav>
-    </header>
-
-    <div class="hero">
-      <h1>Centro de Descargas</h1>
-      <p>Herramientas profesionales para soporte técnico</p>
-
-      <div class="search">
-        <input
-          type="text"
-          id="search"
-          placeholder="Buscar herramienta..."
-          onkeyup="filter()"
-        />
-      </div>
+    <div class="tool-card" data-name="anydesk" data-cat="remoto">
+      <div class="card-tag tag-popular">Popular</div>
+      <div class="tool-icon">🖥️</div>
+      <h3>AnyDesk</h3>
+      <p>Acceso remoto ultrarrápido con baja latencia. Ideal para soporte técnico en tiempo real.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Acceso Remoto</span></div>
+      <button class="btn-download" onclick="openLink('https://anydesk.com/es/downloads')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="tag">Popular</div>
-        <div class="icon">🖥️</div>
-        <h3>AnyDesk</h3>
-        <p>Acceso remoto rápido</p>
-        <button onclick="openLink('https://anydesk.com')">Descargar</button>
-      </div>
-
-      <div class="card">
-        <div class="icon">🔗</div>
-        <h3>TeamViewer</h3>
-        <p>Control remoto seguro</p>
-        <button onclick="openLink('https://teamviewer.com')">Descargar</button>
-      </div>
-
-      <div class="card">
-        <div class="tag">Libre</div>
-        <div class="icon">🧩</div>
-        <h3>RustDesk</h3>
-        <p>Open source</p>
-        <button onclick="openLink('https://rustdesk.com')">Descargar</button>
-      </div>
-
-      <div class="card">
-        <div class="icon">🌐</div>
-        <h3>Wireshark</h3>
-        <p>Análisis de red</p>
-        <button onclick="openLink('https://wireshark.org')">Descargar</button>
-      </div>
-
-      <div class="card">
-        <div class="icon">⚙️</div>
-        <h3>CPU-Z</h3>
-        <p>Información del sistema</p>
-        <button onclick="openLink('https://cpuid.com')">Descargar</button>
-      </div>
-
-      <div class="card">
-        <div class="icon">💾</div>
-        <h3>CrystalDiskInfo</h3>
-        <p>Estado del disco</p>
-        <button onclick="openLink('https://crystalmark.info')">
-          Descargar
-        </button>
-      </div>
+    <div class="tool-card" data-name="teamviewer" data-cat="remoto">
+      <div class="tool-icon">🔗</div>
+      <h3>TeamViewer</h3>
+      <p>Control remoto seguro y colaboración en tiempo real. Estándar de la industria.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Acceso Remoto</span></div>
+      <button class="btn-download" onclick="openLink('https://www.teamviewer.com/es/descarga/')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
     </div>
 
-    <div class="footer">© 2026 TecniRed | Plataforma de soporte técnico</div>
+    <div class="tool-card" data-name="rustdesk" data-cat="remoto">
+      <div class="card-tag tag-free">Libre</div>
+      <div class="tool-icon">🧩</div>
+      <h3>RustDesk</h3>
+      <p>Alternativa open source a TeamViewer. Autoalojable, privado y sin límites.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Acceso Remoto</span></div>
+      <button class="btn-download" onclick="openLink('https://rustdesk.com')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
 
-    <script>
-      function openLink(url) {
-        window.open(url, "_blank");
-      }
+    <div class="tool-card" data-name="wireshark" data-cat="red">
+      <div class="card-tag tag-free">Libre</div>
+      <div class="tool-icon">🌐</div>
+      <h3>Wireshark</h3>
+      <p>Analizador de protocolos de red. Captura y analiza tráfico en tiempo real.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Redes</span></div>
+      <button class="btn-download" onclick="openLink('https://www.wireshark.org/download.html')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
 
-      function filter() {
-        const input = document.getElementById("search").value.toLowerCase();
-        const cards = document.querySelectorAll(".card");
+    <div class="tool-card" data-name="nmap" data-cat="red">
+      <div class="card-tag tag-free">Libre</div>
+      <div class="tool-icon">📡</div>
+      <h3>Nmap</h3>
+      <p>Escáner de red y auditoría de seguridad. Descubre hosts y servicios activos.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Redes</span></div>
+      <button class="btn-download" onclick="openLink('https://nmap.org/download.html')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
 
-        cards.forEach((card) => {
-          const title = card.querySelector("h3").innerText.toLowerCase();
-          const desc = card.querySelector("p").innerText.toLowerCase();
+    <div class="tool-card" data-name="cpu-z" data-cat="hardware">
+      <div class="tool-icon">⚙️</div>
+      <h3>CPU-Z</h3>
+      <p>Información detallada del procesador, memoria RAM, placa base y GPU.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Hardware</span></div>
+      <button class="btn-download" onclick="openLink('https://www.cpuid.com/softwares/cpu-z.html')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
 
-          if (title.includes(input) || desc.includes(input)) {
-            card.style.display = "";
-          } else {
-            card.style.display = "none";
-          }
-        });
-      }
+    <div class="tool-card" data-name="crystaldiskinfo" data-cat="hardware">
+      <div class="tool-icon">💾</div>
+      <h3>CrystalDiskInfo</h3>
+      <p>Monitorea la salud de discos duros y SSD con datos S.M.A.R.T. en tiempo real.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Hardware</span></div>
+      <button class="btn-download" onclick="openLink('https://crystalmark.info/en/software/crystaldiskinfo/')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
 
-      function toggleMenu() {
-        document.getElementById("menu").classList.toggle("active");
-      }
-    </script>
-  </body>
+    <div class="tool-card" data-name="hwmonitor" data-cat="hardware">
+      <div class="card-tag tag-popular">Popular</div>
+      <div class="tool-icon">🌡️</div>
+      <h3>HWMonitor</h3>
+      <p>Monitoreo de temperaturas, voltajes y velocidades de ventiladores en tiempo real.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Hardware</span></div>
+      <button class="btn-download" onclick="openLink('https://www.cpuid.com/softwares/hwmonitor.html')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
+
+    <div class="tool-card" data-name="malwarebytes" data-cat="seguridad">
+      <div class="card-tag tag-popular">Popular</div>
+      <div class="tool-icon">🛡️</div>
+      <h3>Malwarebytes</h3>
+      <p>Detección y eliminación de malware, ransomware y spyware. Versión gratuita disponible.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Seguridad</span></div>
+      <button class="btn-download" onclick="openLink('https://www.malwarebytes.com/mwb-download')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
+
+    <div class="tool-card" data-name="veracrypt" data-cat="seguridad">
+      <div class="card-tag tag-free">Libre</div>
+      <div class="tool-icon">🔐</div>
+      <h3>VeraCrypt</h3>
+      <p>Cifrado de discos y particiones de alto nivel. Sucesor de TrueCrypt, open source.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Seguridad</span></div>
+      <button class="btn-download" onclick="openLink('https://www.veracrypt.fr/en/Downloads.html')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
+
+    <div class="tool-card" data-name="ccleaner" data-cat="utilidad">
+      <div class="tool-icon">🧹</div>
+      <h3>CCleaner</h3>
+      <p>Limpieza de archivos temporales, registro de Windows y optimización del sistema.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Utilidades</span></div>
+      <button class="btn-download" onclick="openLink('https://www.ccleaner.com/ccleaner/download')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
+
+    <div class="tool-card" data-name="7zip" data-cat="utilidad">
+      <div class="card-tag tag-free">Libre</div>
+      <div class="tool-icon">📦</div>
+      <h3>7-Zip</h3>
+      <p>Compresor y descompresor de archivos open source con soporte para múltiples formatos.</p>
+      <div class="tool-meta"><span class="tool-cat-badge">Utilidades</span></div>
+      <button class="btn-download" onclick="openLink('https://www.7-zip.org/download.html')">
+        <i class="fa-solid fa-download"></i> Descargar
+      </button>
+    </div>
+
+    <div class="no-results" id="noResults">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <p>No se encontraron herramientas para tu búsqueda.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <img src="/img/TecniredLogo.png" alt="Logo" />
+      <span>TECNIRED</span>
+    </div>
+    <p>&copy; 2025 TECNIRED — Innovación y Soporte Tecnológico</p>
+    <div class="footer-links">
+      <a href="index.html">Inicio</a>
+      <a href="Sobre_Nosotros.html">Nosotros</a>
+      <a href="login.html">Ingresar</a>
+    </div>
+  </footer>
+
+  <script>
+    // NAVBAR
+    const navbar = document.getElementById("navbar");
+    const hamburger = document.getElementById("hamburger");
+    const navLinks = document.getElementById("navLinks");
+    window.addEventListener("scroll", () => navbar.classList.toggle("scroll", window.scrollY > 50));
+    hamburger.addEventListener("click", () => { hamburger.classList.toggle("open"); navLinks.classList.toggle("open"); });
+    navLinks.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { hamburger.classList.remove("open"); navLinks.classList.remove("open"); }));
+
+    // CANVAS
+    const canvas = document.getElementById("bg");
+    const ctx = canvas.getContext("2d");
+    let pts = [];
+    function resizeCanvas() {
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight; pts = [];
+      const n = Math.min(80, Math.floor(window.innerWidth / 16));
+      for (let i = 0; i < n; i++) pts.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4 });
+    }
+    function drawCanvas() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      pts.forEach((p,i) => {
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>canvas.width) p.vx*=-1;
+        if(p.y<0||p.y>canvas.height) p.vy*=-1;
+        ctx.fillStyle="rgba(56,189,248,0.5)";
+        ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,Math.PI*2); ctx.fill();
+        for(let j=i+1;j<pts.length;j++){
+          const o=pts[j],dx=p.x-o.x,dy=p.y-o.y,d=dx*dx+dy*dy;
+          if(d<10000){ ctx.strokeStyle=`rgba(56,189,248,${0.4-d/25000})`; ctx.lineWidth=0.4; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(o.x,o.y); ctx.stroke(); }
+        }
+      });
+      requestAnimationFrame(drawCanvas);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); drawCanvas();
+
+    // SEARCH + FILTER
+    let currentCat = "all";
+
+    function filterCards() {
+      const query = document.getElementById("searchInput").value.toLowerCase().trim();
+      const cards = document.querySelectorAll(".tool-card");
+      let visible = 0;
+      cards.forEach(card => {
+        const name = card.dataset.name || "";
+        const cat = card.dataset.cat || "";
+        const text = card.innerText.toLowerCase();
+        const matchSearch = !query || name.includes(query) || text.includes(query);
+        const matchCat = currentCat === "all" || cat === currentCat;
+        if (matchSearch && matchCat) { card.classList.remove("hidden"); visible++; }
+        else { card.classList.add("hidden"); }
+      });
+      document.getElementById("noResults").style.display = visible === 0 ? "block" : "none";
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filterCards);
+
+    document.querySelectorAll(".cat-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentCat = btn.dataset.cat;
+        filterCards();
+      });
+    });
+
+    function openLink(url) { window.open(url, "_blank"); }
+  </script>
+</body>
 </html>

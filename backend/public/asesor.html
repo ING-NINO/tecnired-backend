@@ -2,11 +2,382 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Panel Asesor | TecniRed</title>
 
     <script src="/socket.io/socket.io.js"></script>
 
-    <!-- 🔥 FIREBASE -->
+    <style>
+      :root {
+        --bg: #020617;
+        --bg-soft: #0b1224;
+        --panel: #0f172a;
+        --panel-soft: #111c34;
+        --line: #1e293b;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --primary: #38bdf8;
+        --primary-soft: #0ea5e9;
+        --danger: #ef4444;
+        --ok: #22c55e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: radial-gradient(circle at top, #0b1730 0%, var(--bg) 45%);
+        color: var(--text);
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--line);
+        background: rgba(2, 6, 23, 0.82);
+        backdrop-filter: blur(6px);
+        padding: 20px;
+      }
+
+      .brand {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0 0 16px;
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      .meta-card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        padding: 10px;
+      }
+
+      .meta-card small {
+        color: var(--muted);
+        display: block;
+      }
+
+      .meta-card strong {
+        font-size: 1.15rem;
+      }
+
+      .search {
+        width: 100%;
+        margin-bottom: 12px;
+        padding: 11px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+      }
+
+      .tickets {
+        max-height: calc(100vh - 240px);
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .ticket {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        padding: 12px;
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+
+      .ticket:hover {
+        border-color: #334155;
+        transform: translateY(-1px);
+      }
+
+      .ticket.active {
+        border-color: var(--primary);
+        background: #0b2135;
+      }
+
+      .ticket h4 {
+        margin: 0 0 6px;
+        font-size: 0.95rem;
+      }
+
+      .ticket p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .badge {
+        margin-top: 8px;
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        border: 1px solid #334155;
+      }
+
+      .main {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 0;
+      }
+
+      .chat-area {
+        position: relative;
+        min-height: 0;
+      }
+
+      .topbar {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(2, 6, 23, 0.85);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .topbar h2 {
+        margin: 0;
+        font-size: 1.05rem;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-out {
+        background: var(--danger);
+        color: white;
+      }
+
+      .messages {
+        overflow-y: auto;
+        padding: 18px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.65), #090f1f);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 0;
+      }
+
+      .scroll-down-btn {
+        position: absolute;
+        right: 18px;
+        bottom: 18px;
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(56, 189, 248, 0.7);
+        color: white;
+        background: rgba(2, 6, 23, 0.92);
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.5);
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        animation: floatArrow 1.2s ease-in-out infinite;
+      }
+
+      .scroll-down-btn.visible {
+        display: flex;
+      }
+
+      @keyframes floatArrow {
+        0%,
+        100% {
+          transform: translateY(0);
+          box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.35);
+        }
+        50% {
+          transform: translateY(4px);
+          box-shadow: 0 0 0 8px rgba(56, 189, 248, 0);
+        }
+      }
+
+      .empty {
+        margin: auto;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      .bubble {
+        max-width: min(75%, 620px);
+        padding: 12px;
+        border-radius: 12px;
+        line-height: 1.35;
+        word-break: break-word;
+      }
+
+      .mine {
+        align-self: flex-end;
+        background: linear-gradient(135deg, var(--primary-soft), var(--primary));
+        color: #06202c;
+      }
+
+      .other {
+        align-self: flex-start;
+        background: #1e293b;
+      }
+
+      .bubble img {
+        max-width: 100%;
+        border-radius: 10px;
+      }
+
+      .composer {
+        border-top: 1px solid var(--line);
+        padding: 14px;
+        background: rgba(2, 6, 23, 0.9);
+      }
+
+      .composer-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+      }
+
+      .composer input[type="text"] {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        background: var(--panel);
+        color: var(--text);
+      }
+
+      .btn-file {
+        background: #1d4ed8;
+        color: white;
+      }
+
+      .btn-send {
+        background: var(--ok);
+        color: #04250f;
+      }
+
+      #fileInput {
+        display: none;
+      }
+
+      #progressWrap {
+        margin-top: 10px;
+        width: 100%;
+        height: 6px;
+        border-radius: 10px;
+        background: #0b1224;
+        overflow: hidden;
+        display: none;
+      }
+
+      #progressBar {
+        height: 100%;
+        width: 0;
+        background: var(--primary);
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          max-height: 38vh;
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+        .tickets {
+          max-height: 23vh;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <h1 class="brand">🧑‍💻 Panel Asesor</h1>
+
+        <div class="meta">
+          <div class="meta-card">
+            <small>Tickets</small>
+            <strong id="totalTickets">0</strong>
+          </div>
+          <div class="meta-card">
+            <small>Seleccionado</small>
+            <strong id="ticketSeleccionado">-</strong>
+          </div>
+        </div>
+
+        <input
+          class="search"
+          id="buscarTicket"
+          placeholder="Buscar por #ticket, cliente o categoría"
+        />
+
+        <div id="tickets" class="tickets"></div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h2 id="encabezado">Sin ticket seleccionado</h2>
+            <div class="muted" id="subencabezado">
+              Elige un ticket del panel izquierdo.
+            </div>
+          </div>
+
+          <div>
+            <span class="muted" id="usuario"></span>
+            <button class="btn btn-out" onclick="cerrarSesion()">Salir</button>
+          </div>
+        </header>
+
+        <section class="chat-area">
+          <div class="messages" id="chat">
+            <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+          </div>
+          <button id="scrollDownBtn" class="scroll-down-btn" title="Ir abajo">
+            ↓
+          </button>
+        </section>
+
+        <footer class="composer">
+          <div class="composer-row">
+            <button class="btn btn-file" onclick="adjuntarArchivo()">📎 Archivo</button>
+            <input id="mensaje" type="text" placeholder="Escribe un mensaje..." />
+            <button class="btn btn-send" onclick="enviarTexto()">Enviar</button>
+          </div>
+          <input id="fileInput" type="file" accept="image/*,.pdf" />
+          <div id="progressWrap"><div id="progressBar"></div></div>
+        </footer>
+      </main>
+    </div>
+
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
@@ -24,341 +395,248 @@
         appId: "1:247442670329:web:8a3215d5aeed054bd69828",
       };
 
-      const app = initializeApp(firebaseConfig);
-      window.storage = getStorage(app);
-      window.ref = ref;
-      window.uploadBytesResumable = uploadBytesResumable;
-      window.getDownloadURL = getDownloadURL;
-    </script>
-
-    <style>
-      body {
-        margin: 0;
-        font-family: "Segoe UI";
-        background: linear-gradient(135deg, #0b1629, #020617);
-        color: white;
-      }
-
-      .container {
-        display: flex;
-        height: 100vh;
-      }
-
-      /* SIDEBAR */
-      .sidebar {
-        width: 260px;
-        background: #020617;
-        padding: 20px;
-      }
-
-      .ticket {
-        padding: 12px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        background: #0f172a;
-      }
-
-      .ticket:hover {
-        background: #1e293b;
-      }
-
-      /* CHAT */
-      .chat {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .topbar {
-        padding: 15px;
-        background: #020617;
-        display: flex;
-        justify-content: space-between;
-      }
-
-      .messages {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .msg {
-        max-width: 65%;
-        padding: 12px;
-        border-radius: 15px;
-      }
-
-      .asesor {
-        align-self: flex-end;
-        background: linear-gradient(135deg, #4a8df5, #00c6ff);
-      }
-
-      .cliente {
-        align-self: flex-start;
-        background: #334155;
-      }
-
-      .msg img {
-        max-width: 200px;
-        border-radius: 10px;
-      }
-
-      /* INPUT */
-      .input-box {
-        display: flex;
-        gap: 10px;
-        padding: 15px;
-        background: #020617;
-      }
-
-      .input-box input {
-        flex: 1;
-        padding: 10px;
-        border-radius: 10px;
-        border: none;
-      }
-
-      button {
-        background: #00c6ff;
-        border: none;
-        padding: 10px;
-        border-radius: 10px;
-        cursor: pointer;
-      }
-
-      /* MENU */
-      #menuAdjuntos {
-        display: none;
-        position: absolute;
-        bottom: 40px;
-        background: #020617;
-        padding: 10px;
-        border-radius: 10px;
-      }
-
-      /* PROGRESS */
-      #progressBar {
-        height: 4px;
-        width: 0%;
-        background: #00c6ff;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <div class="sidebar">
-        <h2>📂 Tickets</h2>
-        <div id="tickets"></div>
-      </div>
-
-      <div class="chat">
-        <div class="topbar">
-          <span id="usuario"></span>
-          <button onclick="logout()">Salir</button>
-        </div>
-
-        <div id="progressBar"></div>
-
-        <div class="messages" id="chat"></div>
-
-        <div class="input-box">
-          <div style="position: relative">
-            <button onclick="toggleMenu()">📎</button>
-            <div id="menuAdjuntos">
-              <button onclick="seleccionarArchivo('pdf')">PDF</button>
-              <button onclick="seleccionarArchivo('img')">Imagen</button>
-            </div>
-          </div>
-
-          <input type="file" id="fileInput" hidden />
-
-          <input id="mensaje" placeholder="Escribe mensaje..." />
-          <button onclick="enviar()">➤</button>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      const socket = io("https://TU-APP.onrender.com", {
-        transports: ["websocket"],
-      });
+      const storage = getStorage(initializeApp(firebaseConfig));
+      const socket = io();
 
       const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!usuario || !usuario.rol || !usuario.rol.startsWith("asesor")) {
+        window.location.href = "/";
+      }
+
       document.getElementById("usuario").textContent = usuario.email;
 
+      const ui = {
+        tickets: document.getElementById("tickets"),
+        chat: document.getElementById("chat"),
+        emptyChat: document.getElementById("emptyChat"),
+        buscarTicket: document.getElementById("buscarTicket"),
+        totalTickets: document.getElementById("totalTickets"),
+        ticketSeleccionado: document.getElementById("ticketSeleccionado"),
+        encabezado: document.getElementById("encabezado"),
+        subencabezado: document.getElementById("subencabezado"),
+        mensaje: document.getElementById("mensaje"),
+        fileInput: document.getElementById("fileInput"),
+        progressWrap: document.getElementById("progressWrap"),
+        progressBar: document.getElementById("progressBar"),
+        scrollDownBtn: document.getElementById("scrollDownBtn"),
+      };
+
+      let tickets = [];
       let ticketActual = null;
-      let tipoArchivo = null;
 
-      /* MENU */
-      function toggleMenu() {
-        const m = document.getElementById("menuAdjuntos");
-        m.style.display = m.style.display === "none" ? "block" : "none";
+      function estaCercaDelFinal() {
+        const gap = ui.chat.scrollHeight - ui.chat.scrollTop - ui.chat.clientHeight;
+        return gap < 32;
       }
 
-      function seleccionarArchivo(tipo) {
-        tipoArchivo = tipo;
-        const input = document.getElementById("fileInput");
-        input.accept = tipo === "pdf" ? ".pdf" : "image/*";
-        input.click();
-        document.getElementById("menuAdjuntos").style.display = "none";
-      }
-
-      /* 🔥 HISTORIAL */
-      function cargarMensajes() {
-        fetch(`/chat/${ticketActual}`)
-          .then((r) => r.json())
-          .then((data) => {
-            const chat = document.getElementById("chat");
-            chat.innerHTML = "";
-            data.forEach(agregarMensaje);
-            chat.scrollTop = chat.scrollHeight;
-          });
-      }
-
-      /* SUBIDA */
-      async function subirArchivo(file) {
-        const nombre = Date.now() + "_" + file.name;
-        const storageRef = ref(storage, "tecnired/" + nombre);
-
-        const uploadTask = uploadBytesResumable(storageRef, file);
-
-        uploadTask.on(
-          "state_changed",
-          (snap) => {
-            const progress = (snap.bytesTransferred / snap.totalBytes) * 100;
-            document.getElementById("progressBar").style.width = progress + "%";
-          },
-          console.log,
-          async () => {
-            const url = await getDownloadURL(uploadTask.snapshot.ref);
-
-            await fetch("/chat", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ticket_id: ticketActual,
-                remitente: usuario.email,
-                mensaje: url,
-              }),
-            });
-
-            // 🔥 MOSTRAR SIN RECARGAR
-            agregarMensaje({
-              ticket_id: ticketActual,
-              remitente: usuario.email,
-              mensaje: url,
-            });
-
-            document.getElementById("progressBar").style.width = "0%";
-          },
-        );
-      }
-
-      document.getElementById("fileInput").addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (tipoArchivo === "pdf" && file.type !== "application/pdf") {
-          alert("Solo PDF");
+      function actualizarBotonBajar() {
+        if (!ticketActual) {
+          ui.scrollDownBtn.classList.remove("visible");
           return;
         }
-
-        if (tipoArchivo === "img" && !file.type.startsWith("image/")) {
-          alert("Solo imagen");
-          return;
-        }
-
-        subirArchivo(file);
-      });
-
-      /* MENSAJES */
-      function agregarMensaje(m) {
-        const chat = document.getElementById("chat");
-        const div = document.createElement("div");
-        div.classList.add("msg");
-
-        if (m.remitente === usuario.email) div.classList.add("asesor");
-        else div.classList.add("cliente");
-
-        const mensaje = m.mensaje.toLowerCase();
-
-        if (mensaje.includes(".pdf")) {
-          let url = m.mensaje;
-          if (!url.includes("alt=media")) {
-            url += url.includes("?") ? "&alt=media" : "?alt=media";
-          }
-          div.innerHTML = `<a href="${url}" target="_blank">📄 Ver PDF</a>`;
-        } else if (mensaje.match(/\.(jpg|png|jpeg|gif|webp)/)) {
-          div.innerHTML = `<img src="${m.mensaje}">`;
+        if (estaCercaDelFinal()) {
+          ui.scrollDownBtn.classList.remove("visible");
         } else {
-          div.textContent = m.mensaje;
+          ui.scrollDownBtn.classList.add("visible");
+        }
+      }
+
+      function irAbajo() {
+        ui.chat.scrollTo({ top: ui.chat.scrollHeight, behavior: "smooth" });
+      }
+
+      function renderTicketList() {
+        const q = ui.buscarTicket.value.trim().toLowerCase();
+
+        const filtrados = tickets.filter((t) => {
+          const texto = `${t.id} ${t.nombre || ""} ${t.categoria || ""}`.toLowerCase();
+          return texto.includes(q);
+        });
+
+        ui.tickets.innerHTML = "";
+
+        filtrados.forEach((t) => {
+          const item = document.createElement("article");
+          item.className = "ticket" + (ticketActual === t.id ? " active" : "");
+          item.innerHTML = `
+            <h4>#${t.id} · ${t.categoria || "Sin categoría"}</h4>
+            <p>${t.nombre || "Cliente"} · ${t.email || "Sin correo"}</p>
+            <span class="badge">${t.estado || "Sin estado"}</span>
+          `;
+
+          item.addEventListener("click", () => seleccionarTicket(t));
+          ui.tickets.appendChild(item);
+        });
+
+        if (!filtrados.length) {
+          ui.tickets.innerHTML =
+            '<p class="muted">No hay tickets para mostrar en este momento.</p>';
         }
 
-        chat.appendChild(div);
-        chat.scrollTop = chat.scrollHeight;
+        ui.totalTickets.textContent = tickets.length;
       }
 
-      socket.on("nuevoMensaje", (m) => {
-        if (m.ticket_id == ticketActual) agregarMensaje(m);
-      });
+      function pintarMensaje(m) {
+        const cerca = estaCercaDelFinal();
+        const bubble = document.createElement("div");
+        bubble.className =
+          "bubble " + (m.remitente === usuario.email ? "mine" : "other");
 
-      /* TICKETS */
-      function cargarTickets() {
-        fetch(`/tickets/asesor/${usuario.email}`)
-          .then((r) => r.json())
-          .then((data) => {
-            const cont = document.getElementById("tickets");
-            cont.innerHTML = "";
+        const lower = String(m.mensaje || "").toLowerCase();
 
-            data.forEach((t) => {
-              const div = document.createElement("div");
-              div.className = "ticket";
-              div.innerHTML = `#${t.id}<br>${t.categoria}`;
+        if (lower.includes(".pdf")) {
+          const link = document.createElement("a");
+          link.href = m.mensaje;
+          link.target = "_blank";
+          link.textContent = "📄 Ver PDF";
+          link.style.color = "inherit";
+          link.style.fontWeight = "700";
+          bubble.appendChild(link);
+        } else if (lower.match(/\.(jpg|png|jpeg|gif|webp)/)) {
+          const img = document.createElement("img");
+          img.src = m.mensaje;
+          img.alt = "Adjunto";
+          bubble.appendChild(img);
+        } else {
+          bubble.textContent = m.mensaje;
+        }
 
-              div.onclick = () => {
-                ticketActual = t.id;
-                socket.emit("joinTicket", ticketActual);
-                cargarMensajes(); // 🔥 CLAVE
-              };
-
-              cont.appendChild(div);
-            });
-          });
+        ui.chat.appendChild(bubble);
+        if (cerca || m.remitente === usuario.email) {
+          ui.chat.scrollTop = ui.chat.scrollHeight;
+        }
+        actualizarBotonBajar();
       }
 
-      /* ENVIAR TEXTO */
-      function enviar() {
-        const input = document.getElementById("mensaje");
-        if (!input.value || !ticketActual) return;
+      async function cargarMensajes() {
+        if (!ticketActual) return;
 
-        fetch("/chat", {
+        const res = await fetch(`/chat/${ticketActual}`);
+        const data = await res.json();
+
+        ui.chat.innerHTML = "";
+
+        if (!data.length) {
+          ui.chat.innerHTML = '<p class="empty">Aún no hay mensajes.</p>';
+          actualizarBotonBajar();
+          return;
+        }
+
+        data.forEach(pintarMensaje);
+        irAbajo();
+        actualizarBotonBajar();
+      }
+
+      function seleccionarTicket(t) {
+        ticketActual = t.id;
+        socket.emit("joinTicket", ticketActual);
+
+        ui.ticketSeleccionado.textContent = `#${t.id}`;
+        ui.encabezado.textContent = `Ticket #${t.id} · ${t.categoria || "Sin categoría"}`;
+        ui.subencabezado.textContent = `${t.nombre || "Cliente"} · ${t.email || "Sin correo"}`;
+
+        renderTicketList();
+        cargarMensajes();
+      }
+
+      async function cargarTickets() {
+        try {
+          const res = await fetch(`/tickets/asesor/${usuario.email}`);
+          tickets = await res.json();
+          renderTicketList();
+
+          // auto-selección del primer ticket para que el asesor pueda iniciar de inmediato
+          if (!ticketActual && tickets.length) {
+            seleccionarTicket(tickets[0]);
+          }
+        } catch (e) {
+          ui.tickets.innerHTML =
+            '<p class="muted">No se pudo cargar la lista de tickets.</p>';
+        }
+      }
+
+      async function enviarMensaje(mensaje) {
+        if (!ticketActual || !mensaje) return;
+
+        await fetch("/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ticket_id: ticketActual,
             remitente: usuario.email,
-            mensaje: input.value,
+            mensaje,
           }),
         });
-
-        agregarMensaje({
-          ticket_id: ticketActual,
-          remitente: usuario.email,
-          mensaje: input.value,
-        });
-
-        input.value = "";
       }
 
-      function logout() {
+      window.enviarTexto = async function () {
+        const texto = ui.mensaje.value.trim();
+        if (!texto || !ticketActual) return;
+
+        await enviarMensaje(texto);
+        ui.mensaje.value = "";
+      };
+
+      window.adjuntarArchivo = function () {
+        if (!ticketActual) {
+          alert("Primero selecciona un ticket.");
+          return;
+        }
+        ui.fileInput.click();
+      };
+
+      ui.fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const nombre = `${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, `tecnired/${nombre}`);
+        const task = uploadBytesResumable(storageRef, file);
+
+        ui.progressWrap.style.display = "block";
+
+        task.on(
+          "state_changed",
+          (snap) => {
+            const progress = (snap.bytesTransferred / snap.totalBytes) * 100;
+            ui.progressBar.style.width = `${progress}%`;
+          },
+          () => {
+            alert("No fue posible subir el archivo.");
+            ui.progressWrap.style.display = "none";
+            ui.progressBar.style.width = "0%";
+          },
+          async () => {
+            const url = await getDownloadURL(task.snapshot.ref);
+            await enviarMensaje(url);
+            ui.progressWrap.style.display = "none";
+            ui.progressBar.style.width = "0%";
+            ui.fileInput.value = "";
+          },
+        );
+      });
+
+      ui.mensaje.addEventListener("keydown", async (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          await window.enviarTexto();
+        }
+      });
+
+      ui.buscarTicket.addEventListener("input", renderTicketList);
+      ui.chat.addEventListener("scroll", actualizarBotonBajar);
+      ui.scrollDownBtn.addEventListener("click", irAbajo);
+
+      socket.on("nuevoMensaje", (m) => {
+        if (Number(m.ticket_id) !== Number(ticketActual)) return;
+        if (ui.emptyChat) ui.emptyChat.remove();
+        pintarMensaje(m);
+      });
+
+      window.cerrarSesion = function () {
         localStorage.removeItem("usuario");
-        location.href = "/";
-      }
+        window.location.href = "/";
+      };
 
       cargarTickets();
     </script>

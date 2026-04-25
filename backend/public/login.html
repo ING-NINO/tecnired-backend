@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Acceso | TecniRed</title>
-
     <style>
       :root {
         --bg: #020617;
@@ -19,26 +18,15 @@
         --ok: #22c55e;
         --warning: #f59e0b;
       }
-
-      * {
-        box-sizing: border-box;
-      }
-
+      * { box-sizing: border-box; }
       body {
         margin: 0;
-        min-height: 100vh;
         font-family: "Segoe UI", Arial, sans-serif;
         background: radial-gradient(circle at top, #0b1730 0%, var(--bg) 48%);
         color: var(--text);
-        overflow: hidden;
+        overflow-y: auto;
       }
-
-      canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-      }
-
+      canvas { position: fixed; inset: 0; z-index: 0; }
       .page {
         position: relative;
         z-index: 1;
@@ -47,137 +35,56 @@
         place-items: center;
         padding: 28px;
       }
-
       .shell {
         width: min(1080px, 100%);
-        min-height: min(720px, calc(100vh - 56px));
+        height: min(720px, calc(100vh - 56px));
         display: grid;
         grid-template-columns: 1fr 440px;
-        border: 1px solid rgba(56, 189, 248, 0.18);
+        border: 1px solid rgba(56,189,248,0.18);
         border-radius: 24px;
-        background: rgba(2, 6, 23, 0.78);
-        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+        background: rgba(2,6,23,0.78);
+        box-shadow: 0 30px 90px rgba(0,0,0,0.45);
         overflow: hidden;
         backdrop-filter: blur(16px);
       }
-
       .hero {
         position: relative;
         padding: 44px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        background:
-          linear-gradient(135deg, rgba(14, 165, 233, 0.18), transparent 45%),
-          linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.95));
+        background: linear-gradient(135deg, rgba(14,165,233,0.18), transparent 45%), linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.95));
+        overflow: hidden;
       }
-
-      .brand {
-        font-size: 1rem;
-        font-weight: 800;
-        letter-spacing: 0;
-      }
-
-      .hero-copy {
-        max-width: 560px;
-      }
-
-      .hero-copy h1 {
-        margin: 0 0 16px;
-        font-size: clamp(2.1rem, 5vw, 4.2rem);
-        line-height: 1;
-        letter-spacing: 0;
-      }
-
-      .hero-copy p {
-        margin: 0;
-        max-width: 520px;
-        color: var(--muted);
-        font-size: 1rem;
-        line-height: 1.6;
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        max-width: 520px;
-      }
-
-      .stat {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 12px;
-        background: rgba(15, 23, 42, 0.74);
-      }
-
-      .stat strong {
-        display: block;
-        font-size: 1.25rem;
-      }
-
-      .stat span {
-        color: var(--muted);
-        font-size: 0.78rem;
-      }
-
+      .brand { font-size: 1rem; font-weight: 800; }
+      .hero-copy { max-width: 560px; }
+      .hero-copy h1 { margin: 0 0 16px; font-size: clamp(2.1rem, 5vw, 4.2rem); line-height: 1; }
+      .hero-copy p { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+      .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; max-width: 520px; }
+      .stat { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: rgba(15,23,42,0.74); }
+      .stat strong { display: block; font-size: 1.25rem; }
+      .stat span { color: var(--muted); font-size: 0.78rem; }
+      /* Panel: scrollable so register form never overflows */
       .panel {
         position: relative;
-        min-height: 0;
-        padding: 28px;
+        padding: 28px 28px 28px;
         border-left: 1px solid var(--line);
-        background: rgba(15, 23, 42, 0.94);
+        background: rgba(15,23,42,0.94);
         overflow-y: auto;
+        max-height: 100%;
+        height: 100%;
+        scrollbar-width: thin;
+        scrollbar-color: var(--line) transparent;
       }
-
-      .form-card {
-        display: none;
-        animation: enter 0.42s ease both;
-      }
-
-      .form-card.active {
-        display: block;
-      }
-
-      @keyframes enter {
-        from {
-          opacity: 0;
-          transform: translateY(14px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      h2 {
-        margin: 0 0 8px;
-        font-size: 1.55rem;
-      }
-
-      .lead {
-        margin: 0 0 22px;
-        color: var(--muted);
-        line-height: 1.45;
-      }
-
-      .input-group {
-        margin-bottom: 14px;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 7px;
-        color: var(--muted);
-        font-size: 0.85rem;
-        font-weight: 600;
-      }
-
-      .field {
-        position: relative;
-      }
-
-      input {
+      .form-card { display: none; animation: enter 0.42s ease both; }
+      .form-card.active { display: block; }
+      @keyframes enter { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+      h2 { margin: 0 0 8px; font-size: 1.55rem; }
+      .lead { margin: 0 0 22px; color: var(--muted); line-height: 1.45; font-size: 0.9rem; }
+      .input-group { margin-bottom: 14px; }
+      label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+      .field { position: relative; }
+      input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
         width: 100%;
         min-height: 46px;
         padding: 12px 14px;
@@ -186,318 +93,190 @@
         background: #0b1224;
         color: var(--text);
         outline: none;
-        transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease,
-          transform 0.2s ease;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
       }
-
-      input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
-      }
-
-      .toggle-pass {
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        width: auto;
-        min-width: 72px;
-        padding: 7px 9px;
-        margin: 0;
-        transform: translateY(-50%);
-        background: transparent;
-        color: var(--primary);
-        box-shadow: none;
-      }
-
-      .toggle-pass:hover {
-        transform: translateY(-50%);
-        box-shadow: none;
-      }
-
-      .password-rules {
-        display: grid;
-        gap: 6px;
-        margin: 10px 0 2px;
-        color: var(--muted);
-        font-size: 0.78rem;
-      }
-
-      .rule.ok {
-        color: var(--ok);
-      }
-
-      .strength {
-        height: 6px;
-        margin-top: 10px;
-        border-radius: 999px;
-        background: #0b1224;
-        overflow: hidden;
-      }
-
-      .strength span {
-        display: block;
-        height: 100%;
-        width: 0;
-        border-radius: inherit;
-        background: var(--danger);
-        transition: 0.25s ease;
-      }
-
+      input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(56,189,248,0.14); }
+      /* Base button styles */
       button {
         width: 100%;
-        min-height: 46px;
+        height: 46px;
         border: none;
         border-radius: 12px;
-        padding: 12px 14px;
+        padding: 0 14px;
         background: linear-gradient(135deg, var(--primary-soft), var(--primary));
         color: #06202c;
         font-weight: 800;
+        font-size: 0.95rem;
         cursor: pointer;
-        transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease,
-          opacity 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
       }
-
-      button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 34px rgba(14, 165, 233, 0.3);
+      button:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(14,165,233,0.3); }
+      button:disabled { opacity: 0.65; cursor: wait; }
+      /* Toggle password button — must override all button defaults */
+      .toggle-pass {
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: auto !important;
+        min-height: auto !important;
+        min-width: 60px;
+        height: auto !important;
+        padding: 6px 10px !important;
+        background: transparent !important;
+        color: var(--primary) !important;
+        box-shadow: none !important;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
       }
-
-      button:disabled {
-        opacity: 0.65;
-        cursor: wait;
+      .toggle-pass:hover {
+        background: rgba(56,189,248,0.1) !important;
+        transform: translateY(-50%) !important;
+        box-shadow: none !important;
       }
-
+      .password-rules { display: grid; gap: 5px; margin: 10px 0 2px; color: var(--muted); font-size: 0.75rem; }
+      .rule.ok { color: var(--ok); }
+      .strength { height: 5px; margin-top: 8px; border-radius: 999px; background: #0b1224; overflow: hidden; }
+      .strength span { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--danger); transition: 0.25s ease; }
+      /* Google button */
       .google {
-        margin-top: 12px;
-        background: #f8fafc;
-        color: #0f172a;
-        display: flex;
+        margin-top: 10px;
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        display: flex !important;
         align-items: center;
         justify-content: center;
         gap: 10px;
+        width: 100%;
+        height: 46px !important;
+        min-height: unset !important;
+        font-weight: 700;
       }
-
+      .google:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important; }
       .google-mark {
-        width: 20px;
-        height: 20px;
-        display: grid;
-        place-items: center;
+        width: 20px; height: 20px;
+        display: grid; place-items: center;
         border-radius: 50%;
         background: conic-gradient(#4285f4, #34a853, #fbbc05, #ea4335, #4285f4);
-        color: white;
-        font-size: 0.8rem;
-        font-weight: 800;
+        color: white; font-size: 0.8rem; font-weight: 800;
+        flex-shrink: 0;
       }
-
       .divider {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 12px;
-        margin: 18px 0;
-        color: var(--muted);
-        font-size: 0.78rem;
+        display: grid; grid-template-columns: 1fr auto 1fr;
+        align-items: center; gap: 12px;
+        margin: 16px 0; color: var(--muted); font-size: 0.78rem;
       }
-
-      .divider::before,
-      .divider::after {
-        content: "";
-        height: 1px;
-        background: var(--line);
-      }
-
-      .message {
-        min-height: 22px;
-        margin: 12px 0 0;
-        text-align: center;
+      .divider::before, .divider::after { content: ""; height: 1px; background: var(--line); }
+      .message { min-height: 20px; margin: 10px 0 0; text-align: center; font-weight: 700; font-size: 0.85rem; }
+      .message.ok { color: var(--ok); }
+      .message.error { color: #f87171; }
+      /* Switch button — must override all button defaults */
+      .switch { margin-top: 16px; color: var(--muted); text-align: center; font-size: 0.88rem; }
+      .switch button {
+        width: auto !important;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 0 4px !important;
+        margin: 0;
+        background: transparent !important;
+        color: var(--primary) !important;
+        box-shadow: none !important;
         font-weight: 700;
         font-size: 0.88rem;
+        display: inline !important;
+        vertical-align: baseline;
+        border: none;
       }
-
-      .message.ok {
-        color: var(--ok);
-      }
-
-      .message.error {
-        color: #f87171;
-      }
-
-      .switch {
-        margin-top: 18px;
-        color: var(--muted);
-        text-align: center;
-        font-size: 0.9rem;
-      }
-
-      .switch button {
-        width: auto;
-        min-height: auto;
-        padding: 0;
-        margin: 0;
-        background: transparent;
-        color: var(--primary);
-        box-shadow: none;
-      }
-
-      .switch button:hover {
-        transform: none;
-        box-shadow: none;
-      }
-
+      .switch button:hover { transform: none !important; box-shadow: none !important; text-decoration: underline; }
       @media (max-width: 900px) {
-        body {
-          overflow-y: auto;
-        }
-
-        .page {
-          min-height: auto;
-        }
-
         .shell {
-          min-height: auto;
+          height: auto;
           grid-template-columns: 1fr;
         }
-
-        .hero {
-          min-height: 330px;
-          padding: 28px;
-        }
-
+        .hero { min-height: 280px; padding: 28px; }
         .panel {
           border-left: none;
           border-top: 1px solid var(--line);
+          height: auto;
+          max-height: none;
+          overflow-y: visible;
+          padding-bottom: 20px;
         }
+        .stats { grid-template-columns: repeat(3,1fr); }
       }
-
       @media (max-width: 560px) {
-        .page {
-          padding: 0;
-        }
-
-        .shell {
-          border-radius: 0;
-          border-left: none;
-          border-right: none;
-        }
-
-        .stats {
-          grid-template-columns: 1fr;
-        }
-
-        .panel,
-        .hero {
-          padding: 22px;
-        }
+        .page { padding: 12px; }
+        .shell { border-radius: 16px; }
+        .stats { grid-template-columns: 1fr 1fr; }
+        .panel, .hero { padding: 20px; }
+        .panel { padding-bottom: 20px; }
       }
     </style>
   </head>
-
   <body>
     <canvas id="network"></canvas>
-
     <main class="page">
       <section class="shell">
         <aside class="hero">
           <div class="brand">TecniRed</div>
           <div class="hero-copy">
             <h1>Soporte tecnico sin friccion.</h1>
-            <p>
-              Ingresa a tu portal, crea tickets y conversa con asesores en una
-              experiencia segura, rapida y clara.
-            </p>
+            <p>Ingresa a tu portal, crea tickets y conversa con asesores en una experiencia segura, rapida y clara.</p>
           </div>
           <div class="stats">
-            <div class="stat">
-              <strong>24/7</strong>
-              <span>Seguimiento</span>
-            </div>
-            <div class="stat">
-              <strong>N1-N3</strong>
-              <span>Escalamiento</span>
-            </div>
-            <div class="stat">
-              <strong>Live</strong>
-              <span>Chat en tiempo real</span>
-            </div>
+            <div class="stat"><strong>24/7</strong><span>Seguimiento</span></div>
+            <div class="stat"><strong>N1-N3</strong><span>Escalamiento</span></div>
+            <div class="stat"><strong>Live</strong><span>Chat en tiempo real</span></div>
           </div>
         </aside>
-
         <section class="panel">
           <form class="form-card active" id="loginForm">
             <h2>Bienvenido de nuevo</h2>
             <p class="lead">Accede con tu correo o continua con Google.</p>
-
             <div class="input-group">
               <label for="login-email">Correo electronico</label>
               <input id="login-email" type="email" autocomplete="email" required />
             </div>
-
             <div class="input-group">
               <label for="login-pass">Contrasena</label>
               <div class="field">
-                <input
-                  id="login-pass"
-                  type="password"
-                  autocomplete="current-password"
-                  required
-                />
-                <button class="toggle-pass" type="button" data-target="login-pass">
-                  Ver
-                </button>
+                <input id="login-pass" type="password" autocomplete="current-password" required />
+                <button class="toggle-pass" type="button" data-target="login-pass">Ver</button>
               </div>
             </div>
-
             <button id="loginBtn" type="submit">Iniciar sesion</button>
-
             <div class="divider">o</div>
             <button class="google" id="googleLoginBtn" type="button">
               <span class="google-mark">G</span>
               Continuar con Google
             </button>
-
             <p class="message" id="loginMessage"></p>
-
-            <p class="switch">
-              No tienes cuenta?
-              <button type="button" onclick="mostrarRegistro()">Crear cuenta</button>
-            </p>
+            <p class="switch">No tienes cuenta? <button type="button" onclick="mostrarRegistro()">Crear cuenta</button></p>
           </form>
-
           <form class="form-card" id="registerForm">
             <h2>Crea tu cuenta</h2>
             <p class="lead">Usa una contrasena fuerte para proteger tus tickets.</p>
-
             <div class="input-group">
               <label for="nombre">Nombre completo</label>
               <input id="nombre" type="text" autocomplete="name" required />
             </div>
-
             <div class="input-group">
               <label for="email">Correo electronico</label>
               <input id="email" type="email" autocomplete="email" required />
             </div>
-
             <div class="input-group">
               <label for="telefono">Numero de telefono</label>
               <input id="telefono" type="tel" autocomplete="tel" required />
             </div>
-
             <div class="input-group">
               <label for="password">Contrasena</label>
               <div class="field">
-                <input
-                  id="password"
-                  type="password"
-                  autocomplete="new-password"
-                  required
-                />
-                <button class="toggle-pass" type="button" data-target="password">
-                  Ver
-                </button>
+                <input id="password" type="password" autocomplete="new-password" required />
+                <button class="toggle-pass" type="button" data-target="password">Ver</button>
               </div>
               <div class="strength"><span id="strengthBar"></span></div>
               <div class="password-rules">
@@ -508,34 +287,21 @@
                 <span class="rule" data-rule="symbol">Un simbolo</span>
               </div>
             </div>
-
             <button id="registerBtn" type="submit">Registrar</button>
-
             <div class="divider">o</div>
             <button class="google" id="googleRegisterBtn" type="button">
               <span class="google-mark">G</span>
               Registrarme con Google
             </button>
-
             <p class="message" id="registerMessage"></p>
-
-            <p class="switch">
-              Ya tienes cuenta?
-              <button type="button" onclick="mostrarLogin()">Inicia sesion</button>
-            </p>
+            <p class="switch">Ya tienes cuenta? <button type="button" onclick="mostrarLogin()">Inicia sesion</button></p>
           </form>
         </section>
       </section>
     </main>
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-      import {
-        getAuth,
-        GoogleAuthProvider,
-        signInWithPopup,
-      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
+      import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
       const firebaseConfig = {
         apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
         authDomain: "tecnired-221e0.firebaseapp.com",
@@ -543,195 +309,97 @@
         storageBucket: "tecnired-221e0.firebasestorage.app",
         appId: "1:247442670329:web:8a3215d5aeed054bd69828",
       };
-
       const auth = getAuth(initializeApp(firebaseConfig));
       const googleProvider = new GoogleAuthProvider();
-
       const loginForm = document.getElementById("loginForm");
       const registerForm = document.getElementById("registerForm");
       const loginMessage = document.getElementById("loginMessage");
       const registerMessage = document.getElementById("registerMessage");
       const passwordInput = document.getElementById("password");
       const strengthBar = document.getElementById("strengthBar");
-
       const passwordRules = {
-        length: (value) => value.length >= 8,
-        lower: (value) => /[a-z]/.test(value),
-        upper: (value) => /[A-Z]/.test(value),
-        number: (value) => /\d/.test(value),
-        symbol: (value) => /[^A-Za-z\d]/.test(value),
+        length: (v) => v.length >= 8,
+        lower: (v) => /[a-z]/.test(v),
+        upper: (v) => /[A-Z]/.test(v),
+        number: (v) => /\d/.test(v),
+        symbol: (v) => /[^A-Za-z\d]/.test(v),
       };
-
-      function setMessage(element, text, type = "error") {
-        element.textContent = text || "";
-        element.className = `message ${text ? type : ""}`;
-      }
-
+      function setMessage(el, text, type = "error") { el.textContent = text || ""; el.className = `message ${text ? type : ""}`; }
       function redirectByRole(user) {
         localStorage.setItem("usuario", JSON.stringify(user));
-
-        if (user.rol === "admin") {
-          window.location.href = "/admin.html";
-        } else if (user.rol && user.rol.startsWith("asesor")) {
-          window.location.href = "/asesor.html";
-        } else {
-          window.location.href = "/user_cliente.html";
-        }
+        if (user.rol === "admin") window.location.href = "/admin.html";
+        else if (user.rol && user.rol.startsWith("asesor")) window.location.href = "/asesor.html";
+        else window.location.href = "/user_cliente.html";
       }
-
-      function validarPassword(value) {
-        return Object.values(passwordRules).every((rule) => rule(value));
-      }
-
+      function validarPassword(v) { return Object.values(passwordRules).every(r => r(v)); }
       function updatePasswordStrength() {
-        const value = passwordInput.value;
-        const passed = Object.entries(passwordRules).filter(([key, rule]) => {
-          const ok = rule(value);
-          document.querySelector(`[data-rule="${key}"]`).classList.toggle("ok", ok);
+        const v = passwordInput.value;
+        const passed = Object.entries(passwordRules).filter(([k, r]) => {
+          const ok = r(v);
+          document.querySelector(`[data-rule="${k}"]`).classList.toggle("ok", ok);
           return ok;
         }).length;
-
         const width = (passed / Object.keys(passwordRules).length) * 100;
         strengthBar.style.width = `${width}%`;
-        strengthBar.style.background =
-          passed <= 2 ? "var(--danger)" : passed < 5 ? "var(--warning)" : "var(--ok)";
+        strengthBar.style.background = passed <= 2 ? "var(--danger)" : passed < 5 ? "var(--warning)" : "var(--ok)";
       }
-
       async function postJson(url, payload) {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+        const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         return res.json();
       }
-
       async function login() {
         const btn = document.getElementById("loginBtn");
         const email = document.getElementById("login-email").value.trim();
         const password = document.getElementById("login-pass").value;
-
-        setMessage(loginMessage, "");
-        btn.disabled = true;
-
+        setMessage(loginMessage, ""); btn.disabled = true;
         try {
           const data = await postJson("/login", { email, password });
-          if (data.status === "ok") {
-            redirectByRole(data.user);
-            return;
-          }
-
+          if (data.status === "ok") { redirectByRole(data.user); return; }
           setMessage(loginMessage, data.message || "No se pudo iniciar sesion");
-        } catch {
-          setMessage(loginMessage, "Error conectando con el servidor");
-        } finally {
-          btn.disabled = false;
-        }
+        } catch { setMessage(loginMessage, "Error conectando con el servidor"); }
+        finally { btn.disabled = false; }
       }
-
       async function register() {
         const btn = document.getElementById("registerBtn");
         const nombre = document.getElementById("nombre").value.trim();
         const email = document.getElementById("email").value.trim();
         const telefono = document.getElementById("telefono").value.trim();
         const password = passwordInput.value;
-
         setMessage(registerMessage, "");
-
-        if (!validarPassword(password)) {
-          setMessage(
-            registerMessage,
-            "La contrasena debe cumplir todos los requisitos.",
-          );
-          return;
-        }
-
+        if (!validarPassword(password)) { setMessage(registerMessage, "La contrasena debe cumplir todos los requisitos."); return; }
         btn.disabled = true;
-
         try {
-          const data = await postJson("/register", {
-            nombre,
-            email,
-            password,
-            telefono,
-          });
-
+          const data = await postJson("/register", { nombre, email, password, telefono });
           if (data.status === "ok") {
             setMessage(registerMessage, data.message || "Cuenta creada", "ok");
-            setTimeout(() => {
-              mostrarLogin();
-              setMessage(registerMessage, "");
-            }, 1200);
+            setTimeout(() => { mostrarLogin(); setMessage(registerMessage, ""); }, 1200);
             return;
           }
-
           setMessage(registerMessage, data.message || "No se pudo registrar");
-        } catch {
-          setMessage(registerMessage, "Error conectando con el servidor");
-        } finally {
-          btn.disabled = false;
-        }
+        } catch { setMessage(registerMessage, "Error conectando con el servidor"); }
+        finally { btn.disabled = false; }
       }
-
       async function continuarConGoogle(messageElement) {
         setMessage(messageElement, "");
-
         try {
           const result = await signInWithPopup(auth, googleProvider);
           const googleUser = result.user;
           const idToken = await googleUser.getIdToken();
-          const data = await postJson("/auth/google", {
-            idToken,
-          });
-
-          if (data.status === "ok") {
-            redirectByRole(data.user);
-            return;
-          }
-
+          const data = await postJson("/auth/google", { idToken });
+          if (data.status === "ok") { redirectByRole(data.user); return; }
           setMessage(messageElement, data.message || "No se pudo entrar con Google");
         } catch (error) {
-          const blocked =
-            error.code === "auth/popup-blocked" ||
-            error.code === "auth/popup-closed-by-user";
-          setMessage(
-            messageElement,
-            blocked
-              ? "Completa la ventana de Google para continuar."
-              : "Google no esta disponible. Revisa Firebase Auth.",
-          );
+          const blocked = error.code === "auth/popup-blocked" || error.code === "auth/popup-closed-by-user";
+          setMessage(messageElement, blocked ? "Completa la ventana de Google para continuar." : "Google no esta disponible. Revisa Firebase Auth.");
         }
       }
-
-      window.mostrarRegistro = function () {
-        loginForm.classList.remove("active");
-        registerForm.classList.add("active");
-      };
-
-      window.mostrarLogin = function () {
-        registerForm.classList.remove("active");
-        loginForm.classList.add("active");
-      };
-
-      loginForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        login();
-      });
-
-      registerForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        register();
-      });
-
-      document.getElementById("googleLoginBtn").addEventListener("click", () => {
-        continuarConGoogle(loginMessage);
-      });
-
-      document.getElementById("googleRegisterBtn").addEventListener("click", () => {
-        continuarConGoogle(registerMessage);
-      });
-
-      document.querySelectorAll(".toggle-pass").forEach((button) => {
+      window.mostrarRegistro = function () { loginForm.classList.remove("active"); registerForm.classList.add("active"); };
+      window.mostrarLogin = function () { registerForm.classList.remove("active"); loginForm.classList.add("active"); };
+      loginForm.addEventListener("submit", e => { e.preventDefault(); login(); });
+      registerForm.addEventListener("submit", e => { e.preventDefault(); register(); });
+      document.getElementById("googleLoginBtn").addEventListener("click", () => continuarConGoogle(loginMessage));
+      document.getElementById("googleRegisterBtn").addEventListener("click", () => continuarConGoogle(registerMessage));
+      document.querySelectorAll(".toggle-pass").forEach(button => {
         button.addEventListener("click", () => {
           const input = document.getElementById(button.dataset.target);
           const visible = input.type === "text";
@@ -739,90 +407,51 @@
           button.textContent = visible ? "Ver" : "Ocultar";
         });
       });
-
       passwordInput.addEventListener("input", updatePasswordStrength);
       updatePasswordStrength();
     </script>
-
     <script>
       const canvas = document.getElementById("network");
       const ctx = canvas.getContext("2d");
       const points = [];
       const mouse = { x: null, y: null };
-
       function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        points.length = 0;
-
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight; points.length = 0;
         const total = Math.min(120, Math.floor(window.innerWidth / 12));
-        for (let i = 0; i < total; i++) {
-          points.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 0.45,
-            vy: (Math.random() - 0.5) * 0.45,
-          });
-        }
+        for (let i = 0; i < total; i++) points.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.45, vy: (Math.random() - 0.5) * 0.45 });
       }
-
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         points.forEach((point, index) => {
-          point.x += point.vx;
-          point.y += point.vy;
-
+          point.x += point.vx; point.y += point.vy;
           if (point.x < 0 || point.x > canvas.width) point.vx *= -1;
           if (point.y < 0 || point.y > canvas.height) point.vy *= -1;
-
           ctx.fillStyle = "rgba(56,189,248,0.75)";
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
-          ctx.fill();
-
+          ctx.beginPath(); ctx.arc(point.x, point.y, 2, 0, Math.PI * 2); ctx.fill();
           for (let j = index + 1; j < points.length; j++) {
             const other = points[j];
-            const dx = point.x - other.x;
-            const dy = point.y - other.y;
+            const dx = point.x - other.x, dy = point.y - other.y;
             const distance = dx * dx + dy * dy;
-
             if (distance < 11000) {
               ctx.strokeStyle = `rgba(56,189,248,${1 - distance / 11000})`;
               ctx.lineWidth = 0.45;
-              ctx.beginPath();
-              ctx.moveTo(point.x, point.y);
-              ctx.lineTo(other.x, other.y);
-              ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(point.x, point.y); ctx.lineTo(other.x, other.y); ctx.stroke();
             }
           }
-
           if (mouse.x && mouse.y) {
-            const dx = point.x - mouse.x;
-            const dy = point.y - mouse.y;
+            const dx = point.x - mouse.x, dy = point.y - mouse.y;
             const distance = dx * dx + dy * dy;
-
             if (distance < 16000) {
               ctx.strokeStyle = "rgba(226,232,240,0.26)";
-              ctx.beginPath();
-              ctx.moveTo(point.x, point.y);
-              ctx.lineTo(mouse.x, mouse.y);
-              ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(point.x, point.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
             }
           }
         });
-
         requestAnimationFrame(draw);
       }
-
       window.addEventListener("resize", resize);
-      window.addEventListener("mousemove", (event) => {
-        mouse.x = event.clientX;
-        mouse.y = event.clientY;
-      });
-
-      resize();
-      draw();
+      window.addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+      resize(); draw();
     </script>
   </body>
 </html>

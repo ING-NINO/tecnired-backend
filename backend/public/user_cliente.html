@@ -229,6 +229,22 @@
         background: #4caf50;
       }
 
+      .chat-btn {
+        border: none;
+        border-radius: 8px;
+        padding: 8px 10px;
+        background: var(--primary);
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .chat-btn:disabled {
+        background: #64748b;
+        cursor: not-allowed;
+        opacity: 0.75;
+      }
+
       .reveal {
         opacity: 0;
         transform: translateY(40px);
@@ -345,6 +361,7 @@
       // ===== USUARIO =====
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       if (!usuario) window.location.href = "/";
+      let ticketsCache = [];
 
       document.getElementById("bienvenida").textContent =
         `Bienvenido, ${usuario.nombre}`;
@@ -361,6 +378,7 @@
           if (!res.ok) throw new Error("Error obteniendo tickets");
 
           const tickets = await res.json();
+          ticketsCache = tickets;
 
           console.log("Tickets recibidos:", tickets);
 
@@ -382,6 +400,7 @@
 
           tickets.forEach((t, i) => {
             const fila = document.createElement("tr");
+            const finalizado = t.estado === "Finalizado";
             fila.innerHTML = `
   <td>${t.id}</td>
   <td>${t.categoria}</td>
@@ -391,7 +410,9 @@
   </td>
   <td>${t.fecha ? new Date(t.fecha).toLocaleString("es-CO") : ""}</td>
   <td>
-    <button onclick="abrirChat(${t.id})">💬</button>
+    <button class="chat-btn" onclick="abrirChat(${t.id})" ${finalizado ? "disabled" : ""}>
+      ${finalizado ? "Cerrado" : "Chat"}
+    </button>
   </td>
 `;
             fila.style.opacity = 0;
@@ -467,6 +488,11 @@
       }
 
       function abrirChat(id) {
+        const ticket = ticketsCache.find((t) => Number(t.id) === Number(id));
+        if (ticket?.estado === "Finalizado") {
+          alert("Este caso ya fue finalizado. El chat está cerrado.");
+          return;
+        }
         window.location.href = `/chat_cliente.html?ticket=${id}`;
       }
     </script>

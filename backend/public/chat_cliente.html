@@ -32,73 +32,96 @@
     </script>
 
     <style>
+      :root {
+        --bg: #020617;
+        --panel: #0f172a;
+        --line: #1e293b;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --primary: #38bdf8;
+        --primary-soft: #0ea5e9;
+        --danger: #ef4444;
+        --ok: #22c55e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         margin: 0;
-        font-family: "Segoe UI", sans-serif;
-        background: #f1f5f9;
-        color: #1e293b;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: radial-gradient(circle at top, #0b1730 0%, var(--bg) 45%);
+        color: var(--text);
         height: 100vh;
         overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        scrollbar-color: #0ea5e9 #dbeafe;
+        scrollbar-color: #38bdf8 #0b1224;
         scrollbar-width: thin;
       }
 
       .chat-container {
-        max-width: 900px;
-        width: min(900px, 96vw);
-        background: white;
-        border-radius: 15px;
-        display: flex;
-        flex-direction: column;
-        height: min(92vh, 900px);
-        border: 1px solid #e2e8f0;
+        width: 100%;
+        height: 100vh;
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
         min-height: 0;
       }
 
-      /* HEADER */
       header {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(2, 6, 23, 0.85);
         display: flex;
         justify-content: space-between;
-        padding: 15px;
-        border-bottom: 1px solid #e2e8f0;
+        align-items: center;
+        gap: 12px;
       }
 
       header span {
-        font-weight: bold;
+        font-weight: 700;
       }
 
-      header button {
-        background: #ef4444;
-        color: white;
+      .btn,
+      header button,
+      .chat-input button {
         border: none;
-        padding: 8px 12px;
-        border-radius: 8px;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-weight: 600;
         cursor: pointer;
       }
 
-      /* INFO */
-      .info-ticket {
-        padding: 10px 15px;
-        font-size: 14px;
-        color: #64748b;
+      header button {
+        background: var(--danger);
+        color: white;
       }
 
-      /* CHAT */
-      .chat-box {
-        flex: 1;
-        padding: 15px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+      .info-ticket {
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(15, 23, 42, 0.72);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .info-ticket strong {
+        color: var(--text);
       }
 
       .chat-area {
-        flex: 1;
         min-height: 0;
+      }
+
+      .chat-box {
+        height: 100%;
+        min-height: 0;
+        padding: 18px;
+        overflow-y: auto;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.65), #090f1f);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        scroll-behavior: smooth;
       }
 
       .chat-box::-webkit-scrollbar {
@@ -106,7 +129,7 @@
       }
 
       .chat-box::-webkit-scrollbar-track {
-        background: #e2e8f0;
+        background: #0b1224;
         border-radius: 999px;
       }
 
@@ -116,74 +139,122 @@
       }
 
       .chat-box::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #7dd3fc, #38bdf8);
+        background: linear-gradient(180deg, #67e8f9, #38bdf8);
       }
 
-      /* MENSAJES */
       .mensaje {
-        max-width: 65%;
-        padding: 10px;
+        max-width: min(75%, 620px);
+        padding: 12px;
         border-radius: 12px;
+        line-height: 1.35;
+        word-break: break-word;
       }
 
       .cliente {
         align-self: flex-end;
-        background: #0ea5e9;
-        color: white;
+        background: linear-gradient(135deg, var(--primary-soft), var(--primary));
+        color: #06202c;
       }
 
       .asesor {
         align-self: flex-start;
-        background: #e2e8f0;
+        background: #1e293b;
       }
 
       .mensaje img {
-        max-width: 220px;
+        max-width: min(100%, 360px);
         border-radius: 10px;
       }
 
-      /* INPUT */
       .chat-input {
-        display: flex;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
         gap: 10px;
-        padding: 15px;
-        border-top: 1px solid #e2e8f0;
+        padding: 14px;
+        border-top: 1px solid var(--line);
+        background: rgba(2, 6, 23, 0.9);
       }
 
-      /* INPUT TEXT */
       .chat-input input {
-        flex: 1;
-        padding: 10px;
+        width: 100%;
+        min-width: 0;
+        padding: 12px;
         border-radius: 10px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
       }
 
-      /* BOTONES */
+      .chat-input input:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
       .chat-input button {
-        background: #0ea5e9;
-        color: white;
-        border: none;
-        padding: 10px;
-        border-radius: 10px;
-        cursor: pointer;
+        background: var(--ok);
+        color: #04250f;
       }
 
-      /* MENU */
+      .chat-input > div > button {
+        background: #1d4ed8;
+        color: white;
+      }
+
+      .chat-input button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
       #menuAdjuntos {
         display: none;
         position: absolute;
         bottom: 50px;
-        background: white;
-        border: 1px solid #e2e8f0;
+        left: 0;
+        min-width: 135px;
+        background: var(--panel);
+        border: 1px solid var(--line);
         border-radius: 10px;
-        padding: 10px;
+        padding: 8px;
+        z-index: 2;
       }
 
-      /* PROGRESS */
+      #menuAdjuntos button {
+        width: 100%;
+        margin-bottom: 6px;
+        background: #1d4ed8;
+        color: white;
+      }
+
+      #menuAdjuntos button:last-child {
+        margin-bottom: 0;
+      }
+
       #progressBar {
-        height: 4px;
+        height: 6px;
         width: 0%;
-        background: #0ea5e9;
+        background: var(--primary);
+      }
+
+      .closed-notice {
+        margin: auto;
+        max-width: 520px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      @media (max-width: 640px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .chat-input {
+          grid-template-columns: auto 1fr;
+        }
+
+        .chat-input > button {
+          grid-column: 1 / -1;
+        }
       }
     </style>
   </head>
@@ -192,7 +263,7 @@
     <div class="chat-container">
       <header>
         <span id="usuario"></span>
-        <button onclick="volver()">⬅ Volver</button>
+        <button onclick="volver()">Volver</button>
       </header>
 
       <div id="infoTicket" class="info-ticket"></div>
@@ -205,18 +276,18 @@
 
       <div class="chat-input">
         <div style="position: relative">
-          <button onclick="toggleMenu()">📎</button>
+          <button id="btnAdjuntar" onclick="toggleMenu()">Archivo</button>
 
           <div id="menuAdjuntos">
-            <button onclick="seleccionarArchivo('pdf')">📄 PDF</button>
-            <button onclick="seleccionarArchivo('img')">🖼️ Imagen</button>
+            <button onclick="seleccionarArchivo('pdf')">PDF</button>
+            <button onclick="seleccionarArchivo('img')">Imagen</button>
           </div>
         </div>
 
         <input type="file" id="fileInput" hidden />
 
         <input id="mensajeInput" placeholder="Escribe mensaje..." />
-        <button onclick="enviarMensaje()">Enviar</button>
+        <button id="btnEnviar" onclick="enviarMensaje()">Enviar</button>
       </div>
     </div>
 
@@ -224,18 +295,60 @@
       const socket = io();
 
       const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!usuario) window.location.href = "/";
+
       document.getElementById("usuario").textContent = usuario.nombre;
 
       const params = new URLSearchParams(window.location.search);
       const ticketId = params.get("ticket");
-
-      socket.emit("joinTicket", ticketId);
-
-      document.getElementById("infoTicket").innerHTML =
-        `🎫 Ticket #${ticketId}`;
+      if (!ticketId) window.location.href = "/user_cliente.html";
 
       let tipoArchivo = null;
+      let chatCerrado = false;
       const contenedorMensajes = document.getElementById("mensajes");
+      const mensajeInput = document.getElementById("mensajeInput");
+      const btnAdjuntar = document.getElementById("btnAdjuntar");
+      const btnEnviar = document.getElementById("btnEnviar");
+      const infoTicket = document.getElementById("infoTicket");
+
+      function bloquearChat(mensaje = "Este caso ya fue finalizado.") {
+        chatCerrado = true;
+        mensajeInput.disabled = true;
+        btnAdjuntar.disabled = true;
+        btnEnviar.disabled = true;
+        mensajeInput.placeholder = "Chat finalizado";
+        document.getElementById("menuAdjuntos").style.display = "none";
+        contenedorMensajes.innerHTML = `<div class="closed-notice">${mensaje}</div>`;
+      }
+
+      async function cargarTicket() {
+        const res = await fetch(`/tickets/detalle/${ticketId}`);
+
+        if (!res.ok) {
+          bloquearChat("No se pudo abrir este ticket.");
+          return false;
+        }
+
+        const ticket = await res.json();
+
+        if (ticket.email && ticket.email !== usuario.email) {
+          bloquearChat("Este ticket no pertenece a tu cuenta.");
+          return false;
+        }
+
+        infoTicket.innerHTML = `
+          <strong>Ticket #${ticket.id}</strong> · ${ticket.categoria || "Sin categoría"} ·
+          Estado: ${ticket.estado || "Nuevo"}
+        `;
+
+        if (ticket.estado === "Finalizado") {
+          bloquearChat("Este caso ya fue finalizado. El chat está cerrado.");
+          return false;
+        }
+
+        socket.emit("joinTicket", ticketId);
+        return true;
+      }
 
       function estaCercaDelFinal() {
         const gap =
@@ -260,11 +373,13 @@
 
       /* MENU */
       function toggleMenu() {
+        if (chatCerrado) return;
         const m = document.getElementById("menuAdjuntos");
         m.style.display = m.style.display === "none" ? "block" : "none";
       }
 
       function seleccionarArchivo(tipo) {
+        if (chatCerrado) return;
         tipoArchivo = tipo;
         const input = document.getElementById("fileInput");
         input.accept = tipo === "pdf" ? ".pdf" : "image/*";
@@ -275,6 +390,10 @@
       /* HISTORIAL */
       async function cargarMensajes() {
         const res = await fetch(`/chat/${ticketId}`);
+        if (res.status === 403) {
+          bloquearChat("Este caso ya fue finalizado. El chat está cerrado.");
+          return;
+        }
         const data = await res.json();
 
         contenedorMensajes.innerHTML = "";
@@ -317,12 +436,20 @@
         }
       });
 
+      socket.on("ticketFinalizado", (data) => {
+        if (Number(data.ticket_id) === Number(ticketId)) {
+          infoTicket.innerHTML += " · Estado: Finalizado";
+          bloquearChat("Este caso acaba de ser finalizado. El chat está cerrado.");
+        }
+      });
+
       /* ENVIAR TEXTO */
       async function enviarMensaje() {
-        const input = document.getElementById("mensajeInput");
+        if (chatCerrado) return;
+        const input = mensajeInput;
         if (!input.value.trim()) return;
 
-        await fetch("/chat", {
+        const res = await fetch("/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -331,6 +458,11 @@
             mensaje: input.value,
           }),
         });
+
+        if (res.status === 403) {
+          bloquearChat("Este caso ya fue finalizado. El chat está cerrado.");
+          return;
+        }
 
         agregarMensaje({
           ticket_id: ticketId,
@@ -343,6 +475,7 @@
 
       /* SUBIR ARCHIVO */
       async function subirArchivo(file) {
+        if (chatCerrado) return;
         const nombre = Date.now() + "_" + file.name;
         const storageRef = ref(storage, "tecnired/" + nombre);
 
@@ -358,7 +491,7 @@
           async () => {
             const url = await getDownloadURL(uploadTask.snapshot.ref);
 
-            await fetch("/chat", {
+            const res = await fetch("/chat", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -367,6 +500,11 @@
                 mensaje: url,
               }),
             });
+
+            if (res.status === 403) {
+              bloquearChat("Este caso ya fue finalizado. El chat está cerrado.");
+              return;
+            }
 
             agregarMensaje({
               ticket_id: ticketId,
@@ -391,7 +529,9 @@
         window.location.href = "/user_cliente.html";
       }
 
-      cargarMensajes();
+      cargarTicket().then((puedeAbrir) => {
+        if (puedeAbrir) cargarMensajes();
+      });
     </script>
   </body>
 </html>

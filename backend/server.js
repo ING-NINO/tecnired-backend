@@ -156,11 +156,31 @@ app.get("/tickets", (req, res) => {
 });
 
 // ===== CAMBIAR ESTADO =====
+app.get("/tickets/detalle/:id", (req, res) => {
+  db.query(
+    "SELECT * FROM tickets WHERE id=?",
+    [req.params.id],
+    (err, rows) => {
+      if (err) return res.status(500).json({ status: "fail" });
+      if (!rows.length) return res.status(404).json({ status: "not_found" });
+      res.json(rows[0]);
+    },
+  );
+});
+
 app.put("/tickets/:id", (req, res) => {
   db.query(
     "UPDATE tickets SET estado=? WHERE id=?",
     [req.body.estado, req.params.id],
-    () => res.json({ status: "ok" }),
+    () => {
+      if (req.body.estado === "Finalizado") {
+        io.to("ticket_" + req.params.id).emit("ticketFinalizado", {
+          ticket_id: req.params.id,
+        });
+      }
+
+      res.json({ status: "ok" });
+    },
   );
 });
 
@@ -238,6 +258,25 @@ app.get("/chat/:ticket", (req, res) => {
 });
 
 // ===== MENSAJE (🔥 CLAVE FINAL) =====
+app.post("/chat", (req, res, next) => {
+  db.query(
+    "SELECT estado FROM tickets WHERE id=?",
+    [req.body.ticket_id],
+    (err, rows) => {
+      if (err) return res.status(500).json({ ok: false });
+      if (!rows.length) return res.status(404).json({ ok: false });
+      if (rows[0].estado === "Finalizado") {
+        return res.status(403).json({
+          ok: false,
+          message: "El ticket ya fue finalizado",
+        });
+      }
+
+      next();
+    },
+  );
+});
+
 app.post("/chat", (req, res) => {
   const { ticket_id, remitente, mensaje } = req.body;
 

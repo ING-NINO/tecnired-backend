@@ -201,18 +201,26 @@ app.get("/tickets/asesor/:email", (req, res) => {
     "SELECT rol FROM usuarios WHERE email=?",
     [req.params.email],
     (err, user) => {
-      if (!user.length) return res.json([]);
+      if (err || !user.length) return res.json([]);
 
-      const nivel = user[0].rol.replace("asesor", "");
+      const rol = String(user[0].rol || "")
+        .toLowerCase()
+        .trim();
+      const nivel = rol.match(/\d+/)?.[0];
 
-      db.query(
-        "SELECT * FROM tickets WHERE escala=? ORDER BY fecha DESC",
-        [nivel],
-        (err, rows) => {
-          if (err) return res.json([]);
-          res.json(rows);
-        },
-      );
+      // Si el rol viene como "asesor1", "asesor 1" o "asesor_n1" se filtra por nivel.
+      // Si el rol es "asesor" sin nivel, se listan todos los tickets escalados.
+      const sql = nivel
+        ? "SELECT * FROM tickets WHERE escala=? ORDER BY fecha DESC"
+        : `SELECT * FROM tickets
+           WHERE escala IN ('1','2','3')
+           ORDER BY fecha DESC`;
+      const params = nivel ? [nivel] : [];
+
+      db.query(sql, params, (err, rows) => {
+        if (err) return res.json([]);
+        res.json(rows);
+      });
     },
   );
 });

@@ -31,8 +31,10 @@
         font-family: "Segoe UI", Arial, sans-serif;
         background: radial-gradient(circle at top, #0b1730 0%, var(--bg) 45%);
         color: var(--text);
+
         height: 100vh;
         overflow: hidden;
+
       }
 
       .layout {
@@ -135,12 +137,14 @@
       .main {
         display: grid;
         grid-template-rows: auto 1fr auto;
+
         min-height: 0;
       }
 
       .chat-area {
         position: relative;
         min-height: 0;
+
       }
 
       .topbar {
@@ -186,6 +190,7 @@
         min-height: 0;
       }
 
+
       .scroll-down-btn {
         position: absolute;
         right: 18px;
@@ -220,6 +225,7 @@
           box-shadow: 0 0 0 8px rgba(56, 189, 248, 0);
         }
       }
+
 
       .empty {
         margin: auto;
@@ -274,12 +280,22 @@
       .btn-file {
         background: #1d4ed8;
         color: white;
+
       }
 
       .btn-send {
         background: var(--ok);
         color: #04250f;
       }
+
+
+      }
+
+      .btn-send {
+        background: var(--ok);
+        color: #04250f;
+      }
+
 
       #fileInput {
         display: none;
@@ -357,6 +373,7 @@
           </div>
         </header>
 
+
         <section class="chat-area">
           <div class="messages" id="chat">
             <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
@@ -365,6 +382,13 @@
             ↓
           </button>
         </section>
+
+
+
+        <section class="messages" id="chat">
+          <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+        </section>
+
 
         <footer class="composer">
           <div class="composer-row">
@@ -386,6 +410,7 @@
         uploadBytesResumable,
         getDownloadURL,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
 
       const firebaseConfig = {
         apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
@@ -468,6 +493,67 @@
           ui.tickets.appendChild(item);
         });
 
+
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
+        authDomain: "tecnired-221e0.firebaseapp.com",
+        projectId: "tecnired-221e0",
+        storageBucket: "tecnired-221e0.firebasestorage.app",
+        appId: "1:247442670329:web:8a3215d5aeed054bd69828",
+      };
+
+      const storage = getStorage(initializeApp(firebaseConfig));
+      const socket = io();
+
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (!usuario || !usuario.rol || !usuario.rol.startsWith("asesor")) {
+        window.location.href = "/";
+      }
+
+      document.getElementById("usuario").textContent = usuario.email;
+
+      const ui = {
+        tickets: document.getElementById("tickets"),
+        chat: document.getElementById("chat"),
+        emptyChat: document.getElementById("emptyChat"),
+        buscarTicket: document.getElementById("buscarTicket"),
+        totalTickets: document.getElementById("totalTickets"),
+        ticketSeleccionado: document.getElementById("ticketSeleccionado"),
+        encabezado: document.getElementById("encabezado"),
+        subencabezado: document.getElementById("subencabezado"),
+        mensaje: document.getElementById("mensaje"),
+        fileInput: document.getElementById("fileInput"),
+        progressWrap: document.getElementById("progressWrap"),
+        progressBar: document.getElementById("progressBar"),
+      };
+
+      let tickets = [];
+      let ticketActual = null;
+
+      function renderTicketList() {
+        const q = ui.buscarTicket.value.trim().toLowerCase();
+
+        const filtrados = tickets.filter((t) => {
+          const texto = `${t.id} ${t.nombre || ""} ${t.categoria || ""}`.toLowerCase();
+          return texto.includes(q);
+        });
+
+        ui.tickets.innerHTML = "";
+
+        filtrados.forEach((t) => {
+          const item = document.createElement("article");
+          item.className = "ticket" + (ticketActual === t.id ? " active" : "");
+          item.innerHTML = `
+            <h4>#${t.id} · ${t.categoria || "Sin categoría"}</h4>
+            <p>${t.nombre || "Cliente"} · ${t.email || "Sin correo"}</p>
+            <span class="badge">${t.estado || "Sin estado"}</span>
+          `;
+
+          item.addEventListener("click", () => seleccionarTicket(t));
+          ui.tickets.appendChild(item);
+        });
+
         if (!filtrados.length) {
           ui.tickets.innerHTML = '<p class="muted">No hay tickets para mostrar.</p>';
         }
@@ -477,6 +563,8 @@
 
       function pintarMensaje(m) {
         const cerca = estaCercaDelFinal();
+
+
         const bubble = document.createElement("div");
         bubble.className =
           "bubble " + (m.remitente === usuario.email ? "mine" : "other");
@@ -501,10 +589,14 @@
         }
 
         ui.chat.appendChild(bubble);
+
         if (cerca || m.remitente === usuario.email) {
           ui.chat.scrollTop = ui.chat.scrollHeight;
         }
         actualizarBotonBajar();
+
+        ui.chat.scrollTop = ui.chat.scrollHeight;
+
       }
 
       async function cargarMensajes() {
@@ -517,18 +609,32 @@
 
         if (!data.length) {
           ui.chat.innerHTML = '<p class="empty">Aún no hay mensajes.</p>';
+
           actualizarBotonBajar();
+
           return;
         }
 
         data.forEach(pintarMensaje);
         irAbajo();
         actualizarBotonBajar();
+
       }
 
       function seleccionarTicket(t) {
         ticketActual = t.id;
         socket.emit("joinTicket", ticketActual);
+
+
+        ui.ticketSeleccionado.textContent = `#${t.id}`;
+        ui.encabezado.textContent = `Ticket #${t.id} · ${t.categoria || "Sin categoría"}`;
+        ui.subencabezado.textContent = `${t.nombre || "Cliente"} · ${t.email || "Sin correo"}`;
+
+        renderTicketList();
+        cargarMensajes();
+      }
+
+
 
         ui.ticketSeleccionado.textContent = `#${t.id}`;
         ui.encabezado.textContent = `Ticket #${t.id} · ${t.categoria || "Sin categoría"}`;
@@ -574,6 +680,12 @@
         ui.fileInput.click();
       };
 
+
+      ui.fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+
       ui.fileInput.addEventListener("change", async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -613,8 +725,10 @@
       });
 
       ui.buscarTicket.addEventListener("input", renderTicketList);
+
       ui.chat.addEventListener("scroll", actualizarBotonBajar);
       ui.scrollDownBtn.addEventListener("click", irAbajo);
+
 
       socket.on("nuevoMensaje", (m) => {
         if (Number(m.ticket_id) !== Number(ticketActual)) return;

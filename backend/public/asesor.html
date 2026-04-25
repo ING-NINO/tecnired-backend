@@ -31,21 +31,6 @@
         font-family: "Segoe UI", Arial, sans-serif;
         background: radial-gradient(circle at top, #0b1730 0%, var(--bg) 45%);
         color: var(--text);
-        scrollbar-color: #38bdf8 #0b1224;
-        scrollbar-width: thin;
-      }
-
-      body::-webkit-scrollbar {
-        width: 10px;
-      }
-
-      body::-webkit-scrollbar-track {
-        background: #050b18;
-      }
-
-      body::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #1d4ed8, #38bdf8);
-        border-radius: 999px;
       }
 
       .layout {
@@ -211,18 +196,35 @@
         background: linear-gradient(180deg, #67e8f9, #38bdf8);
       }
 
-      .tickets::-webkit-scrollbar {
-        width: 8px;
+      .chat-wrap {
+        position: relative;
+        min-height: 0;
       }
 
-      .tickets::-webkit-scrollbar-track {
-        background: #060d1b;
-        border-radius: 999px;
+      .scroll-controls {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
-      .tickets::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #1e3a8a, #0ea5e9);
-        border-radius: 999px;
+      .scroll-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 1px solid rgba(56, 189, 248, 0.6);
+        background: #08213b;
+        color: #7dd3fc;
+        font-size: 18px;
+        padding: 0;
+      }
+
+      .scroll-btn.down {
+        background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+        color: #06263a;
+        border-color: transparent;
       }
 
       .empty {
@@ -361,8 +363,15 @@
           </div>
         </header>
 
-        <section class="messages" id="chat">
-          <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+        <section class="chat-wrap">
+          <div class="messages" id="chat">
+            <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+          </div>
+
+          <div class="scroll-controls">
+            <button class="scroll-btn up" onclick="scrollChatArriba()">↑</button>
+            <button class="scroll-btn down" onclick="scrollChatAbajo()">↓</button>
+          </div>
         </section>
 
         <footer class="composer">
@@ -602,6 +611,14 @@
       window.cerrarSesion = function () {
         localStorage.removeItem("usuario");
         window.location.href = "/";
+      };
+
+      window.scrollChatArriba = function () {
+        ui.chat.scrollBy({ top: -260, behavior: "smooth" });
+      };
+
+      window.scrollChatAbajo = function () {
+        ui.chat.scrollBy({ top: 260, behavior: "smooth" });
       };
 
       cargarTickets();

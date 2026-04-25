@@ -34,6 +34,12 @@
 
         height: 100vh;
         overflow: hidden;
+      }
+
+
+
+        height: 100vh;
+        overflow: hidden;
 
       }
 
@@ -188,6 +194,29 @@
         flex-direction: column;
         gap: 10px;
         min-height: 0;
+
+      }
+
+      .scroll-down-btn {
+        position: absolute;
+        right: 18px;
+        bottom: 18px;
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(56, 189, 248, 0.7);
+        color: white;
+        background: rgba(2, 6, 23, 0.92);
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.5);
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        animation: floatArrow 1.2s ease-in-out infinite;
+      }
+
+
       }
 
 
@@ -209,6 +238,7 @@
         font-size: 18px;
         animation: floatArrow 1.2s ease-in-out infinite;
       }
+
 
       .scroll-down-btn.visible {
         display: flex;
@@ -283,6 +313,10 @@
 
       }
 
+
+
+      }
+
       .btn-send {
         background: var(--ok);
         color: #04250f;
@@ -290,6 +324,7 @@
 
 
       }
+
 
       .btn-send {
         background: var(--ok);
@@ -365,6 +400,7 @@
             <div class="muted" id="subencabezado">
               Elige un ticket del panel izquierdo.
             </div>
+
           </div>
 
           <div>
@@ -377,11 +413,29 @@
         <section class="chat-area">
           <div class="messages" id="chat">
             <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+
           </div>
           <button id="scrollDownBtn" class="scroll-down-btn" title="Ir abajo">
             ↓
           </button>
         </section>
+
+
+          <div>
+            <span class="muted" id="usuario"></span>
+            <button class="btn btn-out" onclick="cerrarSesion()">Salir</button>
+          </div>
+        </header>
+
+        <section class="chat-area">
+          <div class="messages" id="chat">
+            <div class="empty" id="emptyChat">Selecciona un ticket para iniciar.</div>
+          </div>
+          <button id="scrollDownBtn" class="scroll-down-btn" title="Ir abajo">
+            ↓
+          </button>
+        </section>
+
 
 
 
@@ -410,7 +464,6 @@
         uploadBytesResumable,
         getDownloadURL,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
 
       const firebaseConfig = {
         apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
@@ -479,6 +532,73 @@
         });
 
         ui.tickets.innerHTML = "";
+
+        filtrados.forEach((t) => {
+          const item = document.createElement("article");
+          item.className = "ticket" + (ticketActual === t.id ? " active" : "");
+          item.innerHTML = `
+            <h4>#${t.id} · ${t.categoria || "Sin categoría"}</h4>
+            <p>${t.nombre || "Cliente"} · ${t.email || "Sin correo"}</p>
+            <span class="badge">${t.estado || "Sin estado"}</span>
+          `;
+
+          item.addEventListener("click", () => seleccionarTicket(t));
+          ui.tickets.appendChild(item);
+        });
+
+        if (!filtrados.length) {
+          ui.tickets.innerHTML =
+            '<p class="muted">No hay tickets para mostrar en este momento.</p>';
+        }
+
+        ui.totalTickets.textContent = tickets.length;
+      }
+
+      function pintarMensaje(m) {
+        const cerca = estaCercaDelFinal();
+        const bubble = document.createElement("div");
+        bubble.className =
+          "bubble " + (m.remitente === usuario.email ? "mine" : "other");
+
+        const lower = String(m.mensaje || "").toLowerCase();
+
+        if (lower.includes(".pdf")) {
+          const link = document.createElement("a");
+          link.href = m.mensaje;
+          link.target = "_blank";
+          link.textContent = "📄 Ver PDF";
+          link.style.color = "inherit";
+          link.style.fontWeight = "700";
+          bubble.appendChild(link);
+        } else if (lower.match(/\.(jpg|png|jpeg|gif|webp)/)) {
+          const img = document.createElement("img");
+          img.src = m.mensaje;
+          img.alt = "Adjunto";
+          bubble.appendChild(img);
+        } else {
+          bubble.textContent = m.mensaje;
+        }
+
+        ui.chat.appendChild(bubble);
+        if (cerca || m.remitente === usuario.email) {
+          ui.chat.scrollTop = ui.chat.scrollHeight;
+        }
+        actualizarBotonBajar();
+      }
+
+      async function cargarMensajes() {
+        if (!ticketActual) return;
+
+        const res = await fetch(`/chat/${ticketActual}`);
+        const data = await res.json();
+
+        ui.chat.innerHTML = "";
+
+        if (!data.length) {
+          ui.chat.innerHTML = '<p class="empty">Aún no hay mensajes.</p>';
+          actualizarBotonBajar();
+          return;
+
 
         filtrados.forEach((t) => {
           const item = document.createElement("article");
@@ -592,10 +712,49 @@
 
         if (cerca || m.remitente === usuario.email) {
           ui.chat.scrollTop = ui.chat.scrollHeight;
+
         }
         actualizarBotonBajar();
 
         ui.chat.scrollTop = ui.chat.scrollHeight;
+
+
+        data.forEach(pintarMensaje);
+        irAbajo();
+        actualizarBotonBajar();
+      }
+
+      function seleccionarTicket(t) {
+        ticketActual = t.id;
+        socket.emit("joinTicket", ticketActual);
+
+        ui.ticketSeleccionado.textContent = `#${t.id}`;
+        ui.encabezado.textContent = `Ticket #${t.id} · ${t.categoria || "Sin categoría"}`;
+        ui.subencabezado.textContent = `${t.nombre || "Cliente"} · ${t.email || "Sin correo"}`;
+
+        renderTicketList();
+        cargarMensajes();
+      }
+
+      async function cargarTickets() {
+        try {
+          const res = await fetch(`/tickets/asesor/${usuario.email}`);
+          tickets = await res.json();
+          renderTicketList();
+
+          // auto-selección del primer ticket para que el asesor pueda iniciar de inmediato
+          if (!ticketActual && tickets.length) {
+            seleccionarTicket(tickets[0]);
+          }
+        } catch (e) {
+          ui.tickets.innerHTML =
+            '<p class="muted">No se pudo cargar la lista de tickets.</p>';
+        }
+      }
+
+      async function enviarMensaje(mensaje) {
+        if (!ticketActual || !mensaje) return;
+
 
       }
 
@@ -681,6 +840,7 @@
       };
 
 
+
       ui.fileInput.addEventListener("change", async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -725,6 +885,11 @@
       });
 
       ui.buscarTicket.addEventListener("input", renderTicketList);
+
+      ui.chat.addEventListener("scroll", actualizarBotonBajar);
+      ui.scrollDownBtn.addEventListener("click", irAbajo);
+
+
 
       ui.chat.addEventListener("scroll", actualizarBotonBajar);
       ui.scrollDownBtn.addEventListener("click", irAbajo);

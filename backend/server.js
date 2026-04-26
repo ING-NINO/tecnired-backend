@@ -496,3 +496,134 @@ app.post("/chat", (req, res) => {
 server.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
+
+// ===== MERCADOPAGO =====
+const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
+
+const mpClient = new MercadoPagoConfig({
+  accessToken: process.env.MP_ACCESS_TOKEN,
+});
+
+const PLANES = {
+  basico:   { nombre: "Plan Básico TecniRed",   precio: 30000,  descripcion: "Soporte remoto básico, 1 equipo, diagnóstico mensual" },
+  estandar: { nombre: "Plan Estándar TecniRed", precio: 60000,  descripcion: "Soporte ilimitado, hasta 3 equipos, seguridad antivirus" },
+  premium:  { nombre: "Plan Premium TecniRed",  precio: 100000, descripcion: "Soporte prioritario, equipos ilimitados, asesor dedicado" },
+};
+
+// Crear preferencia de pago
+app.post("/pago/crear", async (req, res) => {
+  const { plan, email } = req.body;
+  const planInfo = PLANES[plan];
+  if (!planInfo) return res.status(400).json({ status: "fail", message: "Plan no válido" });
+
+  try {
+    const preference = new Preference(mpClient);
+    const response = await preference.create({
+      body: {
+        items: [{
+          id: plan,
+          title: planInfo.nombre,
+          description: planInfo.descripcion,
+          quantity: 1,
+          currency_id: "COP",
+          unit_price: planInfo.precio,
+        }],
+        payer: { email: email || undefined },
+        back_urls: {
+          success: `${process.env.APP_URL}/pago/exito`,
+          failure: `${process.env.APP_URL}/pago/fallo`,
+          pending: `${process.env.APP_URL}/pago/pendiente`,
+        },
+        auto_return: "approved",
+        notification_url: `${process.env.APP_URL}/pago/webhook`,
+        metadata: { plan, email: email || "" },
+        statement_descriptor: "TECNIRED",
+      },
+    });
+
+    res.json({
+      status: "ok",
+      init_point: response.init_point,
+      sandbox_init_point: response.sandbox_init_point,
+    });
+  } catch (err) {
+    console.error("MP error:", err);
+    res.status(500).json({ status: "fail", message: "No se pudo crear el pago" });
+  }
+});
+
+// Webhook — MercadoPago notifica aquí cuando hay un pago
+app.post("/pago/webhook", async (req, res) => {
+  const { type, data } = req.query;
+
+  // Verificar firma del webhook con la clave secreta
+  const xSignature = req.headers["x-signature"];
+  const xRequestId = req.headers["x-request-id"];
+
+  if (xSignature && process.env.MP_WEBHOOK_SECRET) {
+    const [tsPart, v1Part] = xSignature.split(",");
+    const ts = tsPart?.split("=")[1];
+    const v1 = v1Part?.split("=")[1];
+    const manifest = `id:${data?.id};request-id:${xRequestId};ts:${ts};`;
+    const hmac = crypto.createHmac("sha256", process.env.MP_WEBHOOK_SECRET)
+      .update(manifest)
+      .digest("hex");
+    if (hmac !== v1) {
+      console.warn("⚠️ Webhook con firma inválida rechazado");
+      return res.sendStatus(400);
+    }
+  }
+
+  if (type !== "payment") return res.sendStatus(200);
+
+  try {
+    const payment = new Payment(mpClient);
+    const pago = await payment.get({ id: data.id });
+
+    if (pago.status === "approved") {
+      const { plan, email } = pago.metadata || {};
+      if (plan && email) {
+        db.query(
+          `INSERT INTO pagos (email, plan, monto, mp_payment_id, estado, fecha)
+           VALUES (?, ?, ?, ?, 'aprobado', NOW())
+           ON DUPLICATE KEY UPDATE estado='aprobado', fecha=NOW()`,
+          [email, plan, pago.transaction_amount, String(pago.id)],
+          (err) => { if (err) console.error("Error guardando pago:", err.message); }
+        );
+        db.query(
+          "UPDATE usuarios SET plan=? WHERE email=?",
+          [plan, email],
+          (err) => {
+            if (err) console.error("Error actualizando plan:", err.message);
+            else console.log(`✅ Plan ${plan} activado para ${email}`);
+          }
+        );
+      }
+    }
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Webhook error:", err);
+    res.sendStatus(500);
+  }
+});
+
+// Páginas de retorno
+app.get("/pago/exito",     (req, res) => res.sendFile(path.join(__dirname, "public/pago_exito.html")));
+app.get("/pago/fallo",     (req, res) => res.sendFile(path.join(__dirname, "public/pago_fallo.html")));
+app.get("/pago/pendiente", (req, res) => res.sendFile(path.join(__dirname, "public/pago_pendiente.html")));
+
+// Crear tabla pagos si no existe
+db.query(`
+  CREATE TABLE IF NOT EXISTS pagos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    plan VARCHAR(50) NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    mp_payment_id VARCHAR(100) UNIQUE,
+    estado VARCHAR(50) DEFAULT 'pendiente',
+    fecha DATETIME DEFAULT NOW()
+  )
+`, (err) => {
+  if (err) console.error("Error creando tabla pagos:", err.message);
+  else console.log("✅ Tabla pagos lista");
+});

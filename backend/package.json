@@ -9,14 +9,15 @@
   "author": "Juan Camilo Sanchez Rojas",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
-    "mysql2": "^3.15.3",
-    "nodemailer": "^6.10.1",
-    "cloudinary": "^1.41.3",
+    "express": "^4.19.2",
+    "mercadopago": "2.0.15",
     "multer": "^2.1.1",
     "multer-storage-cloudinary": "^4.0.0",
+    "mysql2": "^3.15.3",
+    "nodemailer": "^6.10.1",
     "socket.io": "^4.8.3"
   }
 }

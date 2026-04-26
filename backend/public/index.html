@@ -504,9 +504,9 @@
             <li><i class="fa-solid fa-check"></i> Diagnóstico mensual</li>
             <li><i class="fa-solid fa-check"></i> Tickets ilimitados</li>
           </ul>
-          <a href="login.html" class="btn-plan btn-plan-outline">Elegir Plan</a>
-        </div>
-        <div class="plan-card destacado reveal">
+          <a href="login.html" class="btn-plan btn-plan-outline" onclick="event.preventDefault(); pagar('basico')">
+            <i class="fa-solid fa-credit-card"></i> Elegir Plan
+          </a>
           <div class="plan-badge">Más elegido</div>
           <h3>Estándar</h3>
           <div class="plan-price">$60.000<span> / mes</span></div>
@@ -518,7 +518,9 @@
             <li><i class="fa-solid fa-check"></i> Optimización mensual</li>
             <li><i class="fa-solid fa-check"></i> Chat en tiempo real</li>
           </ul>
-          <a href="login.html" class="btn-plan btn-plan-fill">Elegir Plan</a>
+          <a href="login.html" class="btn-plan btn-plan-fill" onclick="event.preventDefault(); pagar('estandar')">
+            <i class="fa-solid fa-credit-card"></i> Elegir Plan
+          </a>
         </div>
         <div class="plan-card reveal">
           <h3>Premium</h3>
@@ -531,10 +533,9 @@
             <li><i class="fa-solid fa-check"></i> Monitoreo constante</li>
             <li><i class="fa-solid fa-check"></i> Asesor dedicado</li>
           </ul>
-          <a href="login.html" class="btn-plan btn-plan-outline">Elegir Plan</a>
-        </div>
-      </div>
-    </section>
+          <a href="login.html" class="btn-plan btn-plan-outline" onclick="event.preventDefault(); pagar('premium')">
+            <i class="fa-solid fa-credit-card"></i> Elegir Plan
+          </a>
 
     <!-- TESTIMONIOS -->
     <section id="testimonios">
@@ -697,6 +698,41 @@
         btn.style.background = "linear-gradient(135deg,#22c55e,#16a34a)";
         setTimeout(() => { btn.innerHTML = 'Enviar mensaje <i class="fa-solid fa-paper-plane"></i>'; btn.style.background = ""; }, 3000);
       });
+
+      // PAGO MERCADOPAGO
+      async function pagar(plan) {
+        const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+        const email = usuario ? usuario.email : null;
+
+        // Mostrar loading en el botón
+        const btn = event.currentTarget;
+        const textoOriginal = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+        btn.style.pointerEvents = "none";
+
+        try {
+          const res = await fetch("/pago/crear", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan, email }),
+          });
+          const data = await res.json();
+
+          if (data.status === "ok") {
+            // Redirigir a MercadoPago
+            window.location.href = data.init_point;
+          } else {
+            alert("No se pudo iniciar el pago. Intenta de nuevo.");
+            btn.innerHTML = textoOriginal;
+            btn.style.pointerEvents = "";
+          }
+        } catch (err) {
+          alert("Error de conexión. Intenta de nuevo.");
+          btn.innerHTML = textoOriginal;
+          btn.style.pointerEvents = "";
+        }
+      }
+      window.pagar = pagar;
     </script>
   </body>
 </html>

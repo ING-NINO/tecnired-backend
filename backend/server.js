@@ -505,9 +505,8 @@ const mpClient = new MercadoPagoConfig({
 });
 
 const PLANES = {
-  basico:   { nombre: "Plan Básico TecniRed",   precio: 30000,  descripcion: "Soporte remoto básico, 1 equipo, diagnóstico mensual" },
-  estandar: { nombre: "Plan Estándar TecniRed", precio: 60000,  descripcion: "Soporte ilimitado, hasta 3 equipos, seguridad antivirus" },
-  premium:  { nombre: "Plan Premium TecniRed",  precio: 100000, descripcion: "Soporte prioritario, equipos ilimitados, asesor dedicado" },
+  estandar: { nombre: "Plan Estándar TecniRed", precio: 60000,  descripcion: "Soporte ilimitado, hasta 3 equipos, seguridad antivirus, chat en tiempo real" },
+  premium:  { nombre: "Plan Premium TecniRed",  precio: 100000, descripcion: "Soporte prioritario, equipos ilimitados, asesor dedicado, monitoreo constante" },
 };
 
 // Crear preferencia de pago

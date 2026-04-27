@@ -353,13 +353,14 @@
             <th>ID</th>
             <th>Nombre</th>
             <th>Email</th>
+            <th>Plan</th>
             <th>Teléfono</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="clientesTable">
           <tr>
-            <td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">
+            <td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">
               Cargando clientes...
             </td>
           </tr>
@@ -376,13 +377,14 @@
             <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
+            <th>Plan</th>
             <th>Teléfono</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="asesoresTable">
           <tr>
-            <td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">
+            <td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">
               Cargando asesores...
             </td>
           </tr>
@@ -508,14 +510,20 @@
       if (clientesData.length > 0) {
         tbody.innerHTML = clientesData.map(u => {
           const puedeEliminar = u.id !== 1;
+          const planClass = u.plan === 'premium' ? 'badge-admin' : u.plan === 'estandar' ? 'badge-asesor' : 'badge-cliente';
+          const planNombre = u.plan === 'premium' ? 'Premium' : u.plan === 'estandar' ? 'Estándar' : 'Gratis';
           
           return `
             <tr>
               <td><strong>#${u.id}</strong></td>
               <td>${u.nombre}</td>
               <td>${u.email}</td>
+              <td><span class="badge ${planClass}">${planNombre}</span></td>
               <td>${u.telefono || "N/A"}</td>
               <td>
+                <button class="btn-action btn-edit" onclick="cambiarPlan(${u.id}, '${u.plan || 'gratis'}')">
+                  <i class="fa-solid fa-crown"></i> Plan
+                </button>
                 <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
                   <i class="fa-solid fa-pen"></i> Rol
                 </button>
@@ -529,7 +537,7 @@
           `;
         }).join("");
       } else {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">No hay clientes registrados</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">No hay clientes registrados</td></tr>';
       }
       
       // Actualizar contador
@@ -544,6 +552,8 @@
         tbody.innerHTML = asesoresData.map(u => {
           const rolClass = u.rol === "admin" ? "badge-admin" : "badge-asesor";
           const puedeEliminar = u.id !== 1;
+          const planClass = u.plan === 'premium' ? 'badge-admin' : u.plan === 'estandar' ? 'badge-asesor' : 'badge-cliente';
+          const planNombre = u.plan === 'premium' ? 'Premium' : u.plan === 'estandar' ? 'Estándar' : 'Gratis';
           
           return `
             <tr>
@@ -551,8 +561,12 @@
               <td>${u.nombre}</td>
               <td>${u.email}</td>
               <td><span class="badge ${rolClass}">${u.rol}</span></td>
+              <td><span class="badge ${planClass}">${planNombre}</span></td>
               <td>${u.telefono || "N/A"}</td>
               <td>
+                <button class="btn-action btn-edit" onclick="cambiarPlan(${u.id}, '${u.plan || 'gratis'}')">
+                  <i class="fa-solid fa-crown"></i> Plan
+                </button>
                 <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
                   <i class="fa-solid fa-pen"></i> Rol
                 </button>
@@ -566,7 +580,7 @@
           `;
         }).join("");
       } else {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">No hay asesores registrados</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No hay asesores registrados</td></tr>';
       }
       
       // Actualizar contador
@@ -684,6 +698,53 @@
           cargarUsuarios();
         } else {
           alert(data.message || "Error al actualizar rol");
+        }
+      } catch (err) {
+        alert("Error de conexión");
+      }
+    }
+
+    // Cambiar plan
+    async function cambiarPlan(id, planActual) {
+      const planNombres = {
+        'gratis': 'Gratis (1 ticket/mes)',
+        'estandar': 'Estándar (5 tickets/mes)',
+        'premium': 'Premium (ilimitado)'
+      };
+      
+      const planActualNombre = planNombres[planActual] || 'Gratis';
+      
+      const nuevoPlan = prompt(
+        `Cambiar plan del usuario (actual: ${planActualNombre})\n\n` +
+        `Opciones:\n` +
+        `- gratis (1 ticket/mes, respuesta 72h)\n` +
+        `- estandar (5 tickets/mes, respuesta 24h, escalamiento N1-N2)\n` +
+        `- premium (ilimitado, respuesta 4h, asesor dedicado)`,
+        planActual
+      );
+
+      if (!nuevoPlan || nuevoPlan === planActual) return;
+
+      const planesValidos = ['gratis', 'estandar', 'premium'];
+      if (!planesValidos.includes(nuevoPlan)) {
+        alert('Plan no válido. Debe ser: gratis, estandar o premium');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/admin/usuarios/${id}/plan`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan: nuevoPlan })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          alert(`Plan actualizado correctamente a: ${planNombres[nuevoPlan]}`);
+          cargarUsuarios();
+        } else {
+          alert(data.message || "Error al actualizar plan");
         }
       } catch (err) {
         alert("Error de conexión");

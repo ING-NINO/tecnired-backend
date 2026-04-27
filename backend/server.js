@@ -1087,6 +1087,29 @@ app.put("/admin/usuarios/:id/rol", (req, res) => {
   });
 });
 
+// Cambiar plan de usuario
+app.put("/admin/usuarios/:id/plan", (req, res) => {
+  const { plan } = req.body;
+  const userId = req.params.id;
+
+  const planesValidos = ["gratis", "estandar", "premium"];
+  if (!planesValidos.includes(plan)) {
+    return res.status(400).json({ status: "fail", message: "Plan no válido" });
+  }
+
+  db.query("UPDATE usuarios SET plan = ? WHERE id = ?", [plan, userId], (err, result) => {
+    if (err) {
+      console.error("Error actualizando plan:", err.message);
+      return res.status(500).json({ status: "fail", message: "Error al actualizar plan" });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ status: "fail", message: "Usuario no encontrado" });
+    }
+    console.log(`✅ Plan actualizado: Usuario ${userId} → ${plan}`);
+    res.json({ status: "ok", message: "Plan actualizado correctamente" });
+  });
+});
+
 // ===== REABRIR TICKETS =====
 
 // Reabrir un ticket finalizado

@@ -1,8 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+require("dotenv").config(); // 👈 CARGAR PRIMERO
 const db = require("./db");
-require("dotenv").config();
 const nodemailer = require("nodemailer");
 const http = require("http");
 const crypto = require("crypto");
@@ -912,10 +912,17 @@ app.get("/feedback", (req, res) => {
 
 // Listar todos los usuarios
 app.get("/admin/usuarios", (req, res) => {
+  console.log("📋 Consultando usuarios...");
+  
+  // Consulta sin la columna 'plan' que no existe
   db.query(
-    "SELECT id, nombre, email, rol, telefono, plan, DATE_FORMAT(fecha_registro, '%Y-%m-%d') as fecha_registro FROM usuarios ORDER BY id DESC",
+    "SELECT id, nombre, email, rol, telefono FROM usuarios ORDER BY id DESC",
     (err, rows) => {
-      if (err) return res.status(500).json({ status: "fail" });
+      if (err) {
+        console.error("❌ Error consultando usuarios:", err.message);
+        return res.status(500).json({ status: "fail", error: err.message });
+      }
+      console.log(`✅ Usuarios encontrados: ${rows.length}`);
       res.json({ status: "ok", usuarios: rows });
     }
   );

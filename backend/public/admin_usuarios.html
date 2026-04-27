@@ -353,15 +353,13 @@
             <th>ID</th>
             <th>Nombre</th>
             <th>Email</th>
-            <th>Plan</th>
             <th>Teléfono</th>
-            <th>Registro</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="clientesTable">
           <tr>
-            <td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">
+            <td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">
               Cargando clientes...
             </td>
           </tr>
@@ -379,13 +377,12 @@
             <th>Email</th>
             <th>Rol</th>
             <th>Teléfono</th>
-            <th>Registro</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="asesoresTable">
           <tr>
-            <td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">
+            <td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">
               Cargando asesores...
             </td>
           </tr>
@@ -517,9 +514,7 @@
               <td><strong>#${u.id}</strong></td>
               <td>${u.nombre}</td>
               <td>${u.email}</td>
-              <td><span class="badge badge-cliente">${u.plan || "gratis"}</span></td>
               <td>${u.telefono || "N/A"}</td>
-              <td>${u.fecha_registro || "N/A"}</td>
               <td>
                 <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
                   <i class="fa-solid fa-pen"></i> Rol
@@ -534,7 +529,7 @@
           `;
         }).join("");
       } else {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No hay clientes registrados</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">No hay clientes registrados</td></tr>';
       }
       
       // Actualizar contador
@@ -557,7 +552,6 @@
               <td>${u.email}</td>
               <td><span class="badge ${rolClass}">${u.rol}</span></td>
               <td>${u.telefono || "N/A"}</td>
-              <td>${u.fecha_registro || "N/A"}</td>
               <td>
                 <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
                   <i class="fa-solid fa-pen"></i> Rol
@@ -572,7 +566,7 @@
           `;
         }).join("");
       } else {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No hay asesores registrados</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">No hay asesores registrados</td></tr>';
       }
       
       // Actualizar contador

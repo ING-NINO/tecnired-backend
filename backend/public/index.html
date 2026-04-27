@@ -469,9 +469,7 @@
         <li><a href="#servicios">Servicios</a></li>
         <li><a href="#planes">Planes</a></li>
         <li><a href="#testimonios">Testimonios</a></li>
-        <li><a href="#contacto">Contacto</a></li>
         <li><a href="Sobre_Nosotros.html">Nosotros</a></li>
-        <li><a href="herramientas.html">Herramientas</a></li>
       </ul>
       <a href="login.html" class="btn-login">Ingresar</a>
       <div class="hamburger" id="hamburger">
@@ -504,24 +502,14 @@
               <div class="hero-card-icon"><i class="fa-solid fa-headset"></i></div>
               <div>
                 <div class="hero-card-title">Panel de Soporte</div>
-                <div class="hero-card-sub">3 tickets activos</div>
+                <div class="hero-card-sub" id="heroTicketsCount">Cargando...</div>
               </div>
             </div>
-            <div class="ticket-list">
-              <div class="ticket-item">
-                <div class="ticket-dot dot-green"></div>
-                <div class="ticket-info"><p>Falla en red corporativa</p><span>Hace 5 min</span></div>
-                <span class="ticket-badge badge-ok">Resuelto</span>
-              </div>
-              <div class="ticket-item">
-                <div class="ticket-dot dot-yellow"></div>
-                <div class="ticket-info"><p>Actualización de sistema</p><span>Hace 20 min</span></div>
-                <span class="ticket-badge badge-pend">Pendiente</span>
-              </div>
+            <div class="ticket-list" id="heroTicketList">
               <div class="ticket-item">
                 <div class="ticket-dot dot-blue"></div>
-                <div class="ticket-info"><p>Soporte remoto activo</p><span>En curso</span></div>
-                <span class="ticket-badge badge-live">En vivo</span>
+                <div class="ticket-info"><p>Cargando tickets...</p><span>Espera un momento</span></div>
+                <span class="ticket-badge badge-live">...</span>
               </div>
             </div>
           </div>
@@ -886,6 +874,97 @@
       window.addEventListener("resize", resizeCanvas);
       window.addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
       resizeCanvas(); drawCanvas();
+
+      // CARGAR TICKETS REALES EN EL HERO
+      async function cargarTicketsHero() {
+        try {
+          const res = await fetch("/tickets");
+          const tickets = await res.json();
+          
+          // Filtrar solo tickets activos (no finalizados)
+          const activos = tickets.filter(t => t.estado !== "Finalizado");
+          
+          // Actualizar contador
+          const count = activos.length;
+          document.getElementById("heroTicketsCount").textContent = 
+            count === 0 ? "Sin tickets activos" : 
+            count === 1 ? "1 ticket activo" : 
+            `${count} tickets activos`;
+          
+          // Mostrar últimos 3 tickets
+          const ultimos = activos.slice(0, 3);
+          const container = document.getElementById("heroTicketList");
+          
+          if (ultimos.length === 0) {
+            container.innerHTML = `
+              <div class="ticket-item">
+                <div class="ticket-dot dot-green"></div>
+                <div class="ticket-info">
+                  <p>Sistema funcionando correctamente</p>
+                  <span>Todo en orden</span>
+                </div>
+                <span class="ticket-badge badge-ok">✓ OK</span>
+              </div>
+            `;
+            return;
+          }
+          
+          container.innerHTML = ultimos.map(ticket => {
+            // Calcular tiempo transcurrido
+            const fecha = new Date(ticket.fecha);
+            const ahora = new Date();
+            const diff = Math.floor((ahora - fecha) / 1000 / 60); // minutos
+            
+            let tiempoTexto;
+            if (diff < 1) tiempoTexto = "Hace un momento";
+            else if (diff < 60) tiempoTexto = `Hace ${diff} min`;
+            else if (diff < 1440) tiempoTexto = `Hace ${Math.floor(diff/60)} h`;
+            else tiempoTexto = `Hace ${Math.floor(diff/1440)} días`;
+            
+            // Determinar color y badge según estado
+            let dotClass, badgeClass, badgeText;
+            if (ticket.estado === "Finalizado") {
+              dotClass = "dot-green";
+              badgeClass = "badge-ok";
+              badgeText = "Resuelto";
+            } else if (ticket.estado === "Proceso") {
+              dotClass = "dot-blue";
+              badgeClass = "badge-live";
+              badgeText = "En curso";
+            } else {
+              dotClass = "dot-yellow";
+              badgeClass = "badge-pend";
+              badgeText = "Pendiente";
+            }
+            
+            // Truncar descripción si es muy larga
+            const desc = ticket.descripcion.length > 35 
+              ? ticket.descripcion.substring(0, 35) + "..." 
+              : ticket.descripcion;
+            
+            return `
+              <div class="ticket-item">
+                <div class="ticket-dot ${dotClass}"></div>
+                <div class="ticket-info">
+                  <p>${desc}</p>
+                  <span>${tiempoTexto}</span>
+                </div>
+                <span class="ticket-badge ${badgeClass}">${badgeText}</span>
+              </div>
+            `;
+          }).join("");
+          
+        } catch (err) {
+          console.error("Error cargando tickets:", err);
+          document.getElementById("heroTicketsCount").textContent = "Sistema activo";
+        }
+      }
+      
+      // Cargar tickets al inicio
+      cargarTicketsHero();
+      
+      // Actualizar cada 30 segundos
+      setInterval(cargarTicketsHero, 30000);
 
       // REVEAL ON SCROLL
       const reveals = document.querySelectorAll(".reveal");

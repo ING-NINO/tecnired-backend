@@ -808,6 +808,8 @@ db.query(`
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     mensaje TEXT NOT NULL,
     fecha DATETIME DEFAULT NOW(),
+    respuesta TEXT,
+    fecha_respuesta DATETIME,
     INDEX idx_email (email),
     INDEX idx_rating (rating),
     INDEX idx_fecha (fecha)
@@ -815,6 +817,14 @@ db.query(`
 `, (err) => {
   if (err) console.error("Error creando tabla feedback:", err.message);
   else console.log("✅ Tabla feedback lista");
+});
+
+// Agregar columnas de respuesta si no existen (para bases de datos existentes)
+db.query("ALTER TABLE feedback ADD COLUMN IF NOT EXISTS respuesta TEXT", (err) => {
+  if (err && !err.message.includes("Duplicate")) console.error("respuesta column:", err.message);
+});
+db.query("ALTER TABLE feedback ADD COLUMN IF NOT EXISTS fecha_respuesta DATETIME", (err) => {
+  if (err && !err.message.includes("Duplicate")) console.error("fecha_respuesta column:", err.message);
 });
 
 // Endpoint para recibir feedback
@@ -908,6 +918,45 @@ app.get("/feedback", (req, res) => {
   });
 });
 
+// Endpoint público para mostrar feedbacks positivos en la página principal
+app.get("/feedback/public", (req, res) => {
+  const limit = req.query.limit || 6;
+  
+  // Solo mostrar feedbacks con rating >= 4 (positivos)
+  db.query(
+    "SELECT nombre, mensaje, rating, fecha, respuesta FROM feedback WHERE rating >= 4 ORDER BY fecha DESC LIMIT ?",
+    [parseInt(limit)],
+    (err, rows) => {
+      if (err) return res.status(500).json({ status: "fail" });
+      res.json({ status: "ok", feedback: rows });
+    }
+  );
+});
+
+// Endpoint para responder a un feedback
+app.put("/feedback/:id/responder", (req, res) => {
+  const { respuesta } = req.body;
+  const feedbackId = req.params.id;
+  
+  if (!respuesta) {
+    return res.status(400).json({ status: "fail", message: "La respuesta es obligatoria" });
+  }
+  
+  db.query(
+    "UPDATE feedback SET respuesta = ?, fecha_respuesta = NOW() WHERE id = ?",
+    [respuesta, feedbackId],
+    (err, result) => {
+      if (err) {
+        console.error("Error respondiendo feedback:", err.message);
+        return res.status(500).json({ status: "fail", message: "Error al guardar respuesta" });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ status: "fail", message: "Feedback no encontrado" });
+      }
+      res.json({ status: "ok", message: "Respuesta guardada correctamente" });
+    }
+  );
+});
 // ===== GESTIÓN DE USUARIOS (ADMIN) =====
 
 // Listar todos los usuarios

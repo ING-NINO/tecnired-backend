@@ -241,6 +241,51 @@
         text-align: center;
         color: var(--muted);
       }
+      
+      /* Notificación de nuevo mensaje */
+      .notification-toast {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: linear-gradient(135deg, var(--primary-soft), var(--primary));
+        color: #06202c;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+        pointer-events: none;
+      }
+      
+      .notification-toast i {
+        font-size: 1.2rem;
+      }
+      
+      @keyframes slideIn {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+      }
 
       @media (max-width: 640px) {
         header {
@@ -254,6 +299,12 @@
 
         .chat-input > button {
           grid-column: 1 / -1;
+        }
+        
+        .notification-toast {
+          right: 10px;
+          left: 10px;
+          top: 70px;
         }
       }
     </style>
@@ -433,8 +484,64 @@
       socket.on("nuevoMensaje", (m) => {
         if (m.ticket_id == ticketId) {
           agregarMensaje(m);
+          
+          // Notificar si el mensaje es del asesor (no del cliente mismo)
+          if (m.remitente !== usuario.email) {
+            mostrarNotificacion("Nuevo mensaje del asesor");
+            
+            // Reproducir sonido de notificación (opcional)
+            reproducirSonido();
+          }
         }
       });
+      
+      // Función para mostrar notificación
+      function mostrarNotificacion(mensaje) {
+        // Remover notificación anterior si existe
+        const notifAnterior = document.querySelector(".notification-toast");
+        if (notifAnterior) {
+          notifAnterior.remove();
+        }
+        
+        // Crear nueva notificación
+        const notif = document.createElement("div");
+        notif.className = "notification-toast";
+        notif.innerHTML = `
+          <i class="fa-solid fa-message"></i>
+          <span>${mensaje}</span>
+        `;
+        
+        document.body.appendChild(notif);
+        
+        // Remover después de 3 segundos
+        setTimeout(() => {
+          notif.remove();
+        }, 3000);
+      }
+      
+      // Función para reproducir sonido de notificación
+      function reproducirSonido() {
+        try {
+          // Crear un beep simple usando Web Audio API
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.value = 800; // Frecuencia del beep
+          oscillator.type = 'sine';
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.2);
+        } catch (e) {
+          console.log("No se pudo reproducir sonido:", e);
+        }
+      }
 
       socket.on("ticketFinalizado", (data) => {
         if (Number(data.ticket_id) === Number(ticketId)) {
@@ -464,11 +571,8 @@
           return;
         }
 
-        agregarMensaje({
-          ticket_id: ticketId,
-          remitente: usuario.email,
-          mensaje: input.value,
-        });
+        // ❌ NO agregar manualmente - llegará por Socket.IO
+        // agregarMensaje({ ... });
 
         input.value = "";
       }
@@ -506,11 +610,8 @@
               return;
             }
 
-            agregarMensaje({
-              ticket_id: ticketId,
-              remitente: usuario.email,
-              mensaje: url,
-            });
+            // ❌ NO agregar manualmente - llegará por Socket.IO
+            // agregarMensaje({ ... });
 
             document.getElementById("progressBar").style.width = "0%";
           },

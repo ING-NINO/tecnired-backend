@@ -266,6 +266,105 @@
       padding: 60px;
     }
     
+    /* Modal para responder */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-header {
+      margin-bottom: 24px;
+    }
+    .modal-header h2 {
+      font-size: 1.5rem;
+      color: var(--light);
+      margin-bottom: 8px;
+    }
+    .modal-header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+    .form-group textarea {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--light);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 120px;
+    }
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .btn-cancel {
+      flex: 1;
+      padding: 12px;
+      background: rgba(148,163,184,0.15);
+      color: var(--muted);
+      border: 1px solid rgba(148,163,184,0.3);
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-cancel:hover {
+      background: rgba(148,163,184,0.25);
+    }
+    .btn-submit {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--primary-soft), var(--primary));
+      color: #06202c;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(56,189,248,0.3);
+    }
+    
     @media (max-width: 768px) {
       .stats-grid {
         grid-template-columns: 1fr 1fr;
@@ -279,6 +378,9 @@
       }
       h1 {
         font-size: 1.8rem;
+      }
+      .modal-content {
+        padding: 30px 20px;
       }
     }
   </style>
@@ -355,6 +457,28 @@
 
     <div class="feedback-list" id="feedbackList">
       <div class="loading">Cargando feedback...</div>
+    </div>
+  </div>
+
+  <!-- Modal para responder -->
+  <div class="modal" id="modalRespuesta">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-reply"></i> Responder Feedback</h2>
+        <p id="modalNombreCliente"></p>
+      </div>
+      <form id="formRespuesta">
+        <div class="form-group">
+          <label>Tu respuesta</label>
+          <textarea id="respuestaTexto" required placeholder="Escribe tu respuesta al cliente..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+          <button type="submit" class="btn-submit">
+            <i class="fa-solid fa-paper-plane"></i> Enviar Respuesta
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -441,6 +565,26 @@
             </div>
           </div>
           <p class="feedback-message">${feedback.mensaje}</p>
+          ${feedback.respuesta ? `
+            <div style="background:rgba(56,189,248,0.08);border-left:3px solid var(--primary);padding:16px;border-radius:10px;margin-top:16px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--primary);font-weight:600;font-size:0.9rem;">
+                <i class="fa-solid fa-reply"></i>
+                <span>Respuesta de TECNIRED</span>
+              </div>
+              <p style="color:var(--light);line-height:1.6;font-size:0.95rem;">${feedback.respuesta}</p>
+              ${feedback.fecha_respuesta ? `
+                <p style="color:var(--muted);font-size:0.8rem;margin-top:8px;">
+                  <i class="fa-solid fa-clock"></i> ${new Date(feedback.fecha_respuesta).toLocaleString("es-CO")}
+                </p>
+              ` : ''}
+            </div>
+          ` : `
+            <button onclick="abrirModalRespuesta(${feedback.id}, '${feedback.nombre.replace(/'/g, "\\'")}')" 
+                    style="margin-top:16px;padding:10px 20px;background:linear-gradient(135deg,var(--primary-soft),var(--primary));color:#06202c;border:none;border-radius:10px;font-weight:700;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;">
+              <i class="fa-solid fa-reply"></i>
+              Responder
+            </button>
+          `}
           <div class="feedback-date">
             <i class="fa-solid fa-clock"></i>
             ${fecha}
@@ -460,6 +604,52 @@
       cargarEstadisticas();
       cargarFeedback();
     }, 30000);
+    
+    // Variables para el modal
+    let feedbackIdActual = null;
+    
+    // Abrir modal de respuesta
+    function abrirModalRespuesta(feedbackId, nombreCliente) {
+      feedbackIdActual = feedbackId;
+      document.getElementById("modalNombreCliente").textContent = `Respondiendo a: ${nombreCliente}`;
+      document.getElementById("respuestaTexto").value = "";
+      document.getElementById("modalRespuesta").classList.add("active");
+    }
+    
+    // Cerrar modal
+    function cerrarModal() {
+      document.getElementById("modalRespuesta").classList.remove("active");
+      feedbackIdActual = null;
+    }
+    
+    // Enviar respuesta
+    document.getElementById("formRespuesta").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const respuesta = document.getElementById("respuestaTexto").value.trim();
+      if (!respuesta || !feedbackIdActual) return;
+      
+      try {
+        const res = await fetch(`/feedback/${feedbackIdActual}/responder`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ respuesta })
+        });
+        
+        const data = await res.json();
+        
+        if (data.status === "ok") {
+          alert("✅ Respuesta enviada correctamente");
+          cerrarModal();
+          cargarFeedback(); // Recargar para mostrar la respuesta
+        } else {
+          alert("❌ " + (data.message || "Error al enviar respuesta"));
+        }
+      } catch (err) {
+        console.error("Error enviando respuesta:", err);
+        alert("❌ Error de conexión");
+      }
+    });
   </script>
   
   <script>

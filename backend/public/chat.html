@@ -256,6 +256,35 @@
         }
       });
       
+      // Escuchar nuevos mensajes en tiempo real
+      socket.on("nuevoMensaje", (m) => {
+        if (Number(m.ticket_id) === Number(ticketActual) && m.id > ultimoMensajeId) {
+          const chat = document.getElementById("chat");
+          
+          const div = document.createElement("div");
+          div.classList.add("msg");
+
+          if (m.remitente === usuario.email) {
+            div.classList.add("asesor");
+          } else {
+            div.classList.add("cliente");
+          }
+
+          // ARCHIVO O TEXTO
+          if (m.mensaje.startsWith("/uploads/") || m.mensaje.startsWith("http")) {
+            const img = document.createElement("img");
+            img.src = m.mensaje;
+            div.appendChild(img);
+          } else {
+            div.textContent = m.mensaje;
+          }
+
+          chat.appendChild(div);
+          ultimoMensajeId = m.id;
+          chat.scrollTop = chat.scrollHeight;
+        }
+      });
+      
       // Función para bloquear el chat
       function bloquearChat(mensaje) {
         chatCerrado = true;
@@ -457,8 +486,8 @@
         if (e.key === "Enter") enviar();
       });
 
-      /* AUTO REFRESH */
-      setInterval(() => cargarMensajes(false), 1500);
+      /* AUTO REFRESH (reducido porque ahora usamos Socket.IO) */
+      setInterval(() => cargarMensajes(false), 10000); // Cada 10 segundos como backup
 
       /* LOGOUT */
       function logout() {

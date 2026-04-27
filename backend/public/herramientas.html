@@ -213,11 +213,11 @@
       <span>TECNIRED</span>
     </a>
     <ul class="nav-links" id="navLinks">
-      <li><a href="index.html">Inicio</a></li>
-      <li><a href="Sobre_Nosotros.html">Nosotros</a></li>
-      <li><a href="login.html">Portal</a></li>
+      <li><a href="user_cliente.html"><i class="fa-solid fa-arrow-left"></i> Volver al Panel</a></li>
+      <li><a href="index.html"><i class="fa-solid fa-home"></i> Inicio</a></li>
+      <li><a href="#" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</a></li>
     </ul>
-    <a href="login.html" class="btn-nav">Ingresar</a>
+    <a href="user_cliente.html" class="btn-nav"><i class="fa-solid fa-arrow-left"></i> Volver</a>
     <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
   </nav>
 
@@ -397,13 +397,34 @@
   </footer>
 
   <script>
+    // Verificar si el usuario está logueado
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario) {
+      // Si no está logueado, redirigir al login
+      window.location.href = "/login.html";
+    }
+    
+    // Función para cerrar sesión
+    function cerrarSesion() {
+      if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+        localStorage.removeItem("usuario");
+        window.location.href = "/index.html";
+      }
+    }
+    
     // NAVBAR
     const navbar = document.getElementById("navbar");
     const hamburger = document.getElementById("hamburger");
     const navLinks = document.getElementById("navLinks");
     window.addEventListener("scroll", () => navbar.classList.toggle("scroll", window.scrollY > 50));
     hamburger.addEventListener("click", () => { hamburger.classList.toggle("open"); navLinks.classList.toggle("open"); });
-    navLinks.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { hamburger.classList.remove("open"); navLinks.classList.remove("open"); }));
+    navLinks.querySelectorAll("a").forEach(a => a.addEventListener("click", (e) => { 
+      // No cerrar el menú si es el link de cerrar sesión
+      if (!e.target.closest('a').getAttribute('onclick')) {
+        hamburger.classList.remove("open"); 
+        navLinks.classList.remove("open"); 
+      }
+    }));
 
     // CANVAS
     const canvas = document.getElementById("bg");

@@ -499,17 +499,27 @@
         <div class="hero-visual">
           <div class="hero-card">
             <div class="hero-card-header">
-              <div class="hero-card-icon"><i class="fa-solid fa-headset"></i></div>
+              <div class="hero-card-icon"><i class="fa-solid fa-chart-line"></i></div>
               <div>
                 <div class="hero-card-title">Panel de Soporte</div>
-                <div class="hero-card-sub" id="heroTicketsCount">Cargando...</div>
+                <div class="hero-card-sub">Estado del sistema</div>
               </div>
             </div>
             <div class="ticket-list" id="heroTicketList">
               <div class="ticket-item">
+                <div class="ticket-dot dot-green"></div>
+                <div class="ticket-info"><p>Casos resueltos</p><span id="casosResueltos">Cargando...</span></div>
+                <span class="ticket-badge badge-ok" id="badgeResueltos">0</span>
+              </div>
+              <div class="ticket-item">
+                <div class="ticket-dot dot-yellow"></div>
+                <div class="ticket-info"><p>Casos pendientes</p><span id="casosPendientes">En espera</span></div>
+                <span class="ticket-badge badge-pend" id="badgePendientes">0</span>
+              </div>
+              <div class="ticket-item">
                 <div class="ticket-dot dot-blue"></div>
-                <div class="ticket-info"><p>Cargando tickets...</p><span>Espera un momento</span></div>
-                <span class="ticket-badge badge-live">...</span>
+                <div class="ticket-info"><p>Actualización del sistema</p><span id="ultimaActualizacion">Verificando...</span></div>
+                <span class="ticket-badge badge-live" id="badgeVersion">v1.0</span>
               </div>
             </div>
           </div>
@@ -875,96 +885,53 @@
       window.addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
       resizeCanvas(); drawCanvas();
 
-      // CARGAR TICKETS REALES EN EL HERO
-      async function cargarTicketsHero() {
+      // CARGAR ESTADÍSTICAS EN EL HERO
+      async function cargarEstadisticasHero() {
         try {
           const res = await fetch("/tickets");
           const tickets = await res.json();
           
-          // Filtrar solo tickets activos (no finalizados)
-          const activos = tickets.filter(t => t.estado !== "Finalizado");
+          // Contar casos resueltos (finalizados)
+          const resueltos = tickets.filter(t => t.estado === "Finalizado").length;
+          document.getElementById("badgeResueltos").textContent = resueltos;
+          document.getElementById("casosResueltos").textContent = 
+            resueltos === 0 ? "Sin casos finalizados" :
+            resueltos === 1 ? "1 caso finalizado" :
+            `${resueltos} casos finalizados`;
           
-          // Actualizar contador
-          const count = activos.length;
-          document.getElementById("heroTicketsCount").textContent = 
-            count === 0 ? "Sin tickets activos" : 
-            count === 1 ? "1 ticket activo" : 
-            `${count} tickets activos`;
+          // Contar casos pendientes (no finalizados)
+          const pendientes = tickets.filter(t => t.estado !== "Finalizado").length;
+          document.getElementById("badgePendientes").textContent = pendientes;
+          document.getElementById("casosPendientes").textContent = 
+            pendientes === 0 ? "Todo al día" :
+            pendientes === 1 ? "1 caso en espera" :
+            `${pendientes} casos en espera`;
           
-          // Mostrar últimos 3 tickets
-          const ultimos = activos.slice(0, 3);
-          const container = document.getElementById("heroTicketList");
+          // Última actualización del sistema (simulada - puedes cambiar esto)
+          const fechaActualizacion = new Date("2026-04-15"); // Fecha de última actualización
+          const ahora = new Date();
+          const diasDesdeActualizacion = Math.floor((ahora - fechaActualizacion) / (1000 * 60 * 60 * 24));
           
-          if (ultimos.length === 0) {
-            container.innerHTML = `
-              <div class="ticket-item">
-                <div class="ticket-dot dot-green"></div>
-                <div class="ticket-info">
-                  <p>Sistema funcionando correctamente</p>
-                  <span>Todo en orden</span>
-                </div>
-                <span class="ticket-badge badge-ok">✓ OK</span>
-              </div>
-            `;
-            return;
-          }
-          
-          container.innerHTML = ultimos.map(ticket => {
-            // Calcular tiempo transcurrido
-            const fecha = new Date(ticket.fecha);
-            const ahora = new Date();
-            const diff = Math.floor((ahora - fecha) / 1000 / 60); // minutos
-            
-            let tiempoTexto;
-            if (diff < 1) tiempoTexto = "Hace un momento";
-            else if (diff < 60) tiempoTexto = `Hace ${diff} min`;
-            else if (diff < 1440) tiempoTexto = `Hace ${Math.floor(diff/60)} h`;
-            else tiempoTexto = `Hace ${Math.floor(diff/1440)} días`;
-            
-            // Determinar color y badge según estado
-            let dotClass, badgeClass, badgeText;
-            if (ticket.estado === "Finalizado") {
-              dotClass = "dot-green";
-              badgeClass = "badge-ok";
-              badgeText = "Resuelto";
-            } else if (ticket.estado === "Proceso") {
-              dotClass = "dot-blue";
-              badgeClass = "badge-live";
-              badgeText = "En curso";
-            } else {
-              dotClass = "dot-yellow";
-              badgeClass = "badge-pend";
-              badgeText = "Pendiente";
-            }
-            
-            // Truncar descripción si es muy larga
-            const desc = ticket.descripcion.length > 35 
-              ? ticket.descripcion.substring(0, 35) + "..." 
-              : ticket.descripcion;
-            
-            return `
-              <div class="ticket-item">
-                <div class="ticket-dot ${dotClass}"></div>
-                <div class="ticket-info">
-                  <p>${desc}</p>
-                  <span>${tiempoTexto}</span>
-                </div>
-                <span class="ticket-badge ${badgeClass}">${badgeText}</span>
-              </div>
-            `;
-          }).join("");
+          document.getElementById("badgeVersion").textContent = "v2.5.0";
+          document.getElementById("ultimaActualizacion").textContent = 
+            diasDesdeActualizacion === 0 ? "Actualizado hoy" :
+            diasDesdeActualizacion === 1 ? "Hace 1 día" :
+            diasDesdeActualizacion < 30 ? `Hace ${diasDesdeActualizacion} días` :
+            `Hace ${Math.floor(diasDesdeActualizacion / 30)} meses`;
           
         } catch (err) {
-          console.error("Error cargando tickets:", err);
-          document.getElementById("heroTicketsCount").textContent = "Sistema activo";
+          console.error("Error cargando estadísticas:", err);
+          document.getElementById("casosResueltos").textContent = "Sistema activo";
+          document.getElementById("casosPendientes").textContent = "Operativo";
+          document.getElementById("ultimaActualizacion").textContent = "Sistema actualizado";
         }
       }
       
-      // Cargar tickets al inicio
-      cargarTicketsHero();
+      // Cargar estadísticas al inicio
+      cargarEstadisticasHero();
       
       // Actualizar cada 30 segundos
-      setInterval(cargarTicketsHero, 30000);
+      setInterval(cargarEstadisticasHero, 30000);
 
       // REVEAL ON SCROLL
       const reveals = document.querySelectorAll(".reveal");

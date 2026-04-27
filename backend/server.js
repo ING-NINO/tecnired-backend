@@ -243,7 +243,7 @@ app.post("/auth/google", async (req, res) => {
   const { nombre, email } = googleUser;
 
   db.query(
-    "SELECT id,nombre,email,rol FROM usuarios WHERE email=?",
+    "SELECT id,nombre,email,rol,plan FROM usuarios WHERE email=?",
     [email],
     (err, rows) => {
       if (err) return res.json({ status: "fail" });
@@ -253,11 +253,15 @@ app.post("/auth/google", async (req, res) => {
       }
 
       db.query(
-        "INSERT INTO usuarios (nombre,email,password,telefono) VALUES (?,?,?,?)",
-        [nombre, email, crearHashPassword(crypto.randomBytes(32).toString("hex")), "Google"],
+        "INSERT INTO usuarios (nombre,email,password,telefono,rol,plan) VALUES (?,?,?,?,?,?)",
+        [nombre, email, crearHashPassword(crypto.randomBytes(32).toString("hex")), "Google", "cliente", "gratis"],
         (err, result) => {
-          if (err) return res.json({ status: "fail" });
+          if (err) {
+            console.error("Error creando usuario Google:", err.message);
+            return res.json({ status: "fail", message: "Error al crear usuario" });
+          }
 
+          console.log(`✅ Usuario Google creado: ${nombre} (${email})`);
           res.json({
             status: "ok",
             user: {
@@ -265,6 +269,7 @@ app.post("/auth/google", async (req, res) => {
               nombre,
               email,
               rol: "cliente",
+              plan: "gratis"
             },
           });
         },
@@ -793,9 +798,22 @@ app.get("/pago/fallo",     (req, res) => res.sendFile(path.join(__dirname, "publ
 app.get("/pago/pendiente", (req, res) => res.sendFile(path.join(__dirname, "public/pago_pendiente.html")));
 
 // Agregar columna plan a usuarios si no existe
-db.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan VARCHAR(20) DEFAULT 'gratis'", (err) => {
-  if (err && !err.message.includes("Duplicate")) console.error("plan column:", err.message);
-  else console.log("✅ Columna plan lista");
+db.query("ALTER TABLE usuarios ADD COLUMN plan VARCHAR(20) DEFAULT 'gratis'", (err) => {
+  if (err && err.message.includes("Duplicate column name")) {
+    console.log("✅ Columna plan ya existe");
+    // Actualizar usuarios existentes sin plan
+    db.query("UPDATE usuarios SET plan = 'gratis' WHERE plan IS NULL OR plan = ''", (err, result) => {
+      if (err) {
+        console.error("❌ Error actualizando usuarios sin plan:", err.message);
+      } else if (result.affectedRows > 0) {
+        console.log(`✅ ${result.affectedRows} usuarios actualizados con plan gratis`);
+      }
+    });
+  } else if (err) {
+    console.error("❌ Error agregando columna plan:", err.message);
+  } else {
+    console.log("✅ Columna plan agregada correctamente");
+  }
 });
 
 // Crear tabla de feedback si no existe
@@ -820,11 +838,23 @@ db.query(`
 });
 
 // Agregar columnas de respuesta si no existen (para bases de datos existentes)
-db.query("ALTER TABLE feedback ADD COLUMN IF NOT EXISTS respuesta TEXT", (err) => {
-  if (err && !err.message.includes("Duplicate")) console.error("respuesta column:", err.message);
+db.query("ALTER TABLE feedback ADD COLUMN respuesta TEXT", (err) => {
+  if (err && err.message.includes("Duplicate column name")) {
+    console.log("✅ Columna respuesta ya existe");
+  } else if (err) {
+    console.error("❌ Error agregando columna respuesta:", err.message);
+  } else {
+    console.log("✅ Columna respuesta agregada");
+  }
 });
-db.query("ALTER TABLE feedback ADD COLUMN IF NOT EXISTS fecha_respuesta DATETIME", (err) => {
-  if (err && !err.message.includes("Duplicate")) console.error("fecha_respuesta column:", err.message);
+db.query("ALTER TABLE feedback ADD COLUMN fecha_respuesta DATETIME", (err) => {
+  if (err && err.message.includes("Duplicate column name")) {
+    console.log("✅ Columna fecha_respuesta ya existe");
+  } else if (err) {
+    console.error("❌ Error agregando columna fecha_respuesta:", err.message);
+  } else {
+    console.log("✅ Columna fecha_respuesta agregada");
+  }
 });
 
 // Endpoint para recibir feedback
@@ -963,9 +993,8 @@ app.put("/feedback/:id/responder", (req, res) => {
 app.get("/admin/usuarios", (req, res) => {
   console.log("📋 Consultando usuarios...");
   
-  // Consulta sin la columna 'plan' que no existe
   db.query(
-    "SELECT id, nombre, email, rol, telefono FROM usuarios ORDER BY id DESC",
+    "SELECT id, nombre, email, rol, telefono, plan FROM usuarios ORDER BY id DESC",
     (err, rows) => {
       if (err) {
         console.error("❌ Error consultando usuarios:", err.message);

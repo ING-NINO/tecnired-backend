@@ -206,6 +206,134 @@
       .card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
       .card p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
 
+      /* ===== FLIP CARDS ===== */
+      .flip-card {
+        background: transparent;
+        width: 100%;
+        height: 320px;
+        perspective: 1000px;
+      }
+      
+      .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: left;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+      }
+      
+      .flip-card:hover .flip-card-inner {
+        transform: rotateY(180deg);
+      }
+      
+      .flip-card-front, .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 32px 28px;
+        backdrop-filter: blur(16px);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      }
+      
+      .flip-card-back {
+        transform: rotateY(180deg);
+        background: linear-gradient(135deg, var(--card-bg), rgba(30,41,59,0.9));
+        border-color: rgba(56,189,248,0.4);
+      }
+      
+      .flip-card-front::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary-soft), var(--primary));
+        opacity: 0;
+        transition: opacity 0.35s;
+      }
+      
+      .flip-card:hover .flip-card-front::before {
+        opacity: 1;
+      }
+      
+      .flip-hint {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.75rem;
+        color: var(--muted);
+        opacity: 0.7;
+        font-style: italic;
+      }
+      
+      .back-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(56,189,248,0.2);
+      }
+      
+      .back-header i {
+        font-size: 1.5rem;
+        color: var(--primary);
+      }
+      
+      .back-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+      }
+      
+      .back-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: rgba(56,189,248,0.05);
+        border: 1px solid rgba(56,189,248,0.15);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+      }
+      
+      .detail-item:hover {
+        background: rgba(56,189,248,0.1);
+        border-color: rgba(56,189,248,0.3);
+        transform: translateX(4px);
+      }
+      
+      .detail-item i {
+        font-size: 1rem;
+        color: var(--primary);
+        width: 20px;
+        text-align: center;
+      }
+      
+      .detail-item span {
+        font-size: 0.85rem;
+        color: var(--text);
+        font-weight: 500;
+      }
+
       /* ===== PLANES ===== */
       #planes {
         background: linear-gradient(180deg, var(--dark) 0%, #060d1f 100%);
@@ -454,6 +582,32 @@
         .hero-stats { flex-wrap: wrap; gap: 20px; }
         .formulario { padding: 28px 20px; }
         .cards, .planes-container, .testimonios-container { grid-template-columns: 1fr; }
+        
+        /* Flip cards en móvil - activar con tap */
+        .flip-card {
+          height: 280px;
+        }
+        .flip-card-front, .flip-card-back {
+          padding: 24px 20px;
+        }
+        .flip-hint {
+          bottom: 12px;
+          font-size: 0.7rem;
+        }
+        .detail-item {
+          padding: 10px 12px;
+          gap: 10px;
+        }
+        .detail-item span {
+          font-size: 0.8rem;
+        }
+        .back-header {
+          margin-bottom: 20px;
+          padding-bottom: 12px;
+        }
+        .back-header h3 {
+          font-size: 1rem;
+        }
       }
       
       /* COMENTARIOS DE CLIENTES */
@@ -624,35 +778,238 @@
         <p class="section-sub">No solo reparamos equipos — optimizamos tu entorno digital para que trabajes sin interrupciones.</p>
       </div>
       <div class="cards">
-        <div class="card reveal">
-          <div class="card-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-          <h3>Mantenimiento Preventivo</h3>
-          <p>Limpieza interna, optimización de sistema y mejora de rendimiento para prolongar la vida útil de tus equipos.</p>
+        <div class="flip-card reveal">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+              <h3>Mantenimiento Preventivo</h3>
+              <p>Limpieza interna, optimización de sistema y mejora de rendimiento para prolongar la vida útil de tus equipos.</p>
+              <div class="flip-hint">Pasa el mouse para más detalles</div>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-header">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <h3>Mantenimiento Preventivo</h3>
+              </div>
+              <div class="back-content">
+                <div class="detail-item">
+                  <i class="fa-solid fa-broom"></i>
+                  <span>Limpieza profunda de componentes internos</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-gauge-high"></i>
+                  <span>Optimización del sistema operativo</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-temperature-low"></i>
+                  <span>Control de temperatura y ventilación</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-hard-drive"></i>
+                  <span>Desfragmentación y limpieza de disco</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-shield-check"></i>
+                  <span>Actualización de drivers y software</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card reveal">
-          <div class="card-icon"><i class="fa-solid fa-headset"></i></div>
-          <h3>Soporte Remoto 24/7</h3>
-          <p>Atención inmediata sin importar tu ubicación. Diagnóstico rápido y solución eficiente desde cualquier lugar.</p>
+        
+        <div class="flip-card reveal">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon"><i class="fa-solid fa-headset"></i></div>
+              <h3>Soporte Remoto 24/7</h3>
+              <p>Atención inmediata sin importar tu ubicación. Diagnóstico rápido y solución eficiente desde cualquier lugar.</p>
+              <div class="flip-hint">Pasa el mouse para más detalles</div>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-header">
+                <i class="fa-solid fa-headset"></i>
+                <h3>Soporte Remoto 24/7</h3>
+              </div>
+              <div class="back-content">
+                <div class="detail-item">
+                  <i class="fa-solid fa-clock"></i>
+                  <span>Disponibilidad 24 horas, 7 días a la semana</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-desktop"></i>
+                  <span>Acceso remoto seguro a tu equipo</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-stethoscope"></i>
+                  <span>Diagnóstico completo en tiempo real</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-rocket"></i>
+                  <span>Solución inmediata sin desplazamientos</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-comments"></i>
+                  <span>Chat directo con técnicos especializados</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card reveal">
-          <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <h3>Seguridad Digital</h3>
-          <p>Protección contra virus, malware y ataques informáticos. Tus datos y sistemas siempre seguros.</p>
+        
+        <div class="flip-card reveal">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
+              <h3>Seguridad Digital</h3>
+              <p>Protección contra virus, malware y ataques informáticos. Tus datos y sistemas siempre seguros.</p>
+              <div class="flip-hint">Pasa el mouse para más detalles</div>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-header">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h3>Seguridad Digital</h3>
+              </div>
+              <div class="back-content">
+                <div class="detail-item">
+                  <i class="fa-solid fa-virus-slash"></i>
+                  <span>Eliminación de virus y malware</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-firewall"></i>
+                  <span>Configuración de firewall avanzado</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-key"></i>
+                  <span>Gestión segura de contraseñas</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-lock"></i>
+                  <span>Cifrado de datos sensibles</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-user-shield"></i>
+                  <span>Auditoría de seguridad completa</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card reveal">
-          <div class="card-icon"><i class="fa-solid fa-network-wired"></i></div>
-          <h3>Redes e Infraestructura</h3>
-          <p>Configuración, diagnóstico y optimización de redes LAN, WiFi y VPN para hogares y empresas.</p>
+        
+        <div class="flip-card reveal">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon"><i class="fa-solid fa-network-wired"></i></div>
+              <h3>Redes e Infraestructura</h3>
+              <p>Configuración, diagnóstico y optimización de redes LAN, WiFi y VPN para hogares y empresas.</p>
+              <div class="flip-hint">Pasa el mouse para más detalles</div>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-header">
+                <i class="fa-solid fa-network-wired"></i>
+                <h3>Redes e Infraestructura</h3>
+              </div>
+              <div class="back-content">
+                <div class="detail-item">
+                  <i class="fa-solid fa-wifi"></i>
+                  <span>Configuración de redes WiFi empresariales</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-ethernet"></i>
+                  <span>Instalación de redes LAN cableadas</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-globe"></i>
+                  <span>Configuración de VPN seguras</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-server"></i>
+                  <span>Administración de servidores</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-chart-line"></i>
+                  <span>Monitoreo y optimización de rendimiento</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card reveal">
-          <div class="card-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-          <h3>Migración a la Nube</h3>
-          <p>Traslado seguro de tus datos y aplicaciones a plataformas cloud con mínimo tiempo de inactividad.</p>
+        
+        <div class="flip-card reveal">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <h3>Migración a la Nube</h3>
+              <p>Traslado seguro de tus datos y aplicaciones a plataformas cloud con mínimo tiempo de inactividad.</p>
+              <div class="flip-hint">Pasa el mouse para más detalles</div>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-header">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <h3>Migración a la Nube</h3>
+              </div>
+              <div class="back-content">
+                <div class="detail-item">
+                  <i class="fa-solid fa-database"></i>
+                  <span>Migración segura de bases de datos</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-download"></i>
+                  <span>Respaldo completo antes de migrar</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-sync"></i>
+                  <span>Sincronización automática de archivos</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <span>Mínimo tiempo de inactividad</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-graduation-cap"></i>
+                  <span>Capacitación para el nuevo entorno</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card reveal">
-          <div class="card-icon"><i class="fa-solid fa-ticket"></i></div>
-          <h3>Gestión de Tickets</h3>
-          <p>Sistema de seguimiento en tiempo real con escalamiento N1-N3 y chat directo con asesores especializados.</p>
+        
+        <div class="flip-card reveal">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-icon"><i class="fa-solid fa-ticket"></i></div>
+              <h3>Gestión de Tickets</h3>
+              <p>Sistema de seguimiento en tiempo real con escalamiento N1-N3 y chat directo con asesores especializados.</p>
+              <div class="flip-hint">Pasa el mouse para más detalles</div>
+            </div>
+            <div class="flip-card-back">
+              <div class="back-header">
+                <i class="fa-solid fa-ticket"></i>
+                <h3>Gestión de Tickets</h3>
+              </div>
+              <div class="back-content">
+                <div class="detail-item">
+                  <i class="fa-solid fa-eye"></i>
+                  <span>Seguimiento en tiempo real</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-layer-group"></i>
+                  <span>Escalamiento automático N1-N2-N3</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-message"></i>
+                  <span>Chat directo con técnicos</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-bell"></i>
+                  <span>Notificaciones instantáneas</span>
+                </div>
+                <div class="detail-item">
+                  <i class="fa-solid fa-history"></i>
+                  <span>Historial completo de incidencias</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1304,6 +1661,58 @@
       
       // Cargar comentarios al inicio
       cargarComentarios();
+      
+      // ===== FLIP CARDS INTERACTIVITY =====
+      document.addEventListener('DOMContentLoaded', function() {
+        const flipCards = document.querySelectorAll('.flip-card');
+        
+        // Mejorar experiencia en móviles
+        flipCards.forEach(card => {
+          let isFlipped = false;
+          
+          // Para móviles - activar con tap
+          card.addEventListener('touchstart', function(e) {
+            if (window.innerWidth <= 560) {
+              e.preventDefault();
+              isFlipped = !isFlipped;
+              
+              if (isFlipped) {
+                card.classList.add('mobile-flipped');
+              } else {
+                card.classList.remove('mobile-flipped');
+              }
+            }
+          });
+          
+          // Para desktop - mantener hover normal
+          card.addEventListener('mouseleave', function() {
+            if (window.innerWidth <= 560) {
+              // En móvil, mantener el estado hasta el próximo tap
+              return;
+            }
+          });
+        });
+        
+        // Agregar CSS para móviles
+        const style = document.createElement('style');
+        style.textContent = `
+          @media (max-width: 560px) {
+            .flip-card.mobile-flipped .flip-card-inner {
+              transform: rotateY(180deg);
+            }
+            .flip-card:hover .flip-card-inner {
+              transform: none;
+            }
+            .flip-card.mobile-flipped:hover .flip-card-inner {
+              transform: rotateY(180deg);
+            }
+            .flip-hint {
+              display: none;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      });
     </script>
   </body>
 </html>

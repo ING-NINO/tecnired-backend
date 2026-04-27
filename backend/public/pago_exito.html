@@ -66,14 +66,74 @@
       transform: translateY(-3px);
       box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
     }
+    .loading {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="icon">✓</div>
     <h1>¡Pago Exitoso!</h1>
-    <p>Tu plan ha sido activado correctamente. Ya puedes disfrutar de todas las funcionalidades de tu nuevo plan.</p>
-    <a href="/user_cliente.html" class="btn">Ir al Panel</a>
+    <p id="mensaje">Tu plan ha sido activado correctamente. Actualizando tus privilegios...</p>
+    <a href="/user_cliente.html" class="btn" id="btnPanel">Ir al Panel</a>
+    <p class="loading" id="loading">Espera un momento...</p>
   </div>
+
+  <script>
+    // Actualizar el plan del usuario en localStorage
+    async function actualizarPlan() {
+      try {
+        // Obtener usuario actual
+        const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+        
+        if (!usuario || !usuario.email) {
+          document.getElementById("mensaje").textContent = 
+            "Por favor, inicia sesión para ver tus nuevos privilegios.";
+          document.getElementById("loading").style.display = "none";
+          return;
+        }
+
+        // Esperar 3 segundos para que el webhook procese el pago
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Obtener el plan actualizado
+        const res = await fetch(`/usuario/plan/${usuario.email}`);
+        const data = await res.json();
+
+        if (data.plan && data.plan !== "gratis") {
+          // Actualizar localStorage con el nuevo plan
+          usuario.plan = data.plan;
+          localStorage.setItem("usuario", JSON.stringify(usuario));
+          
+          document.getElementById("mensaje").textContent = 
+            `¡Felicidades! Tu plan ${data.plan.toUpperCase()} está activo. Ya puedes disfrutar de todas las funcionalidades.`;
+          document.getElementById("loading").style.display = "none";
+        } else {
+          // Si aún no se actualizó, esperar más tiempo
+          setTimeout(async () => {
+            const res2 = await fetch(`/usuario/plan/${usuario.email}`);
+            const data2 = await res2.json();
+            
+            if (data2.plan && data2.plan !== "gratis") {
+              usuario.plan = data2.plan;
+              localStorage.setItem("usuario", JSON.stringify(usuario));
+            }
+            
+            document.getElementById("loading").style.display = "none";
+          }, 3000);
+        }
+      } catch (err) {
+        console.error("Error actualizando plan:", err);
+        document.getElementById("loading").textContent = 
+          "Hubo un problema al actualizar. Recarga la página en tu panel.";
+      }
+    }
+
+    // Ejecutar al cargar
+    actualizarPlan();
+  </script>
 </body>
 </html>

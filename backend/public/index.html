@@ -1085,9 +1085,20 @@
 
       // PAGO MERCADOPAGO
       async function pagar(plan, btn) {
+        // Verificar si el usuario está logueado
         const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-        const email = usuario ? usuario.email : null;
+        
+        if (!usuario || !usuario.email) {
+          // Usuario NO logueado - redirigir a login con parámetro del plan
+          if (confirm("Necesitas iniciar sesión o crear una cuenta para comprar un plan. ¿Deseas continuar?")) {
+            localStorage.setItem("planPendiente", plan);
+            window.location.href = "/login.html?redirect=planes&plan=" + plan;
+          }
+          return;
+        }
 
+        // Usuario SÍ está logueado - proceder con el pago
+        const email = usuario.email;
         const textoOriginal = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
         btn.style.pointerEvents = "none";
@@ -1101,10 +1112,12 @@
           const data = await res.json();
 
           if (data.status === "ok" && data.init_point) {
-            // Siempre usar init_point (producción real)
+            // Guardar info del pago pendiente
+            localStorage.setItem("pagoPendiente", JSON.stringify({ plan, email }));
+            // Redirigir a MercadoPago
             window.location.href = data.init_point;
           } else {
-            alert("No se pudo iniciar el pago. Intenta de nuevo.");
+            alert(data.message || "No se pudo iniciar el pago. Intenta de nuevo.");
             btn.innerHTML = textoOriginal;
             btn.style.pointerEvents = "";
           }

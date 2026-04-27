@@ -256,10 +256,13 @@
   </div>
 
   <script>
-    const userEmail = localStorage.getItem("userEmail");
+    // Obtener email del usuario logueado
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    const userEmail = usuario ? usuario.email : null;
+    
     if (!userEmail) {
-      alert("Debes iniciar sesión");
-      window.location.href = "/login.html";
+      alert("Debes iniciar sesión para ver los planes");
+      window.location.href = "/login.html?redirect=planes";
     }
 
     let planActual = "gratis";
@@ -428,7 +431,9 @@
         .then(res => res.json())
         .then(data => {
           if (data.status === "ok") {
-            // Redirigir a MercadoPago (usar sandbox en desarrollo)
+            // Guardar info del pago pendiente
+            localStorage.setItem("pagoPendiente", JSON.stringify({ plan: planId, email: userEmail }));
+            // Redirigir a MercadoPago
             window.location.href = data.sandbox_init_point || data.init_point;
           } else {
             alert(data.message || "Error al crear el pago");

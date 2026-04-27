@@ -108,6 +108,12 @@ async function cargarPlan(){
     const res=await fetch(`/usuario/plan/${usuario.email}`);
     const data=await res.json();
     planActual=data.plan||"gratis";
+    
+    // Actualizar también en localStorage
+    if(usuario.plan !== planActual) {
+      usuario.plan = planActual;
+      localStorage.setItem("usuario", JSON.stringify(usuario));
+    }
   }catch(e){planActual="gratis";}
   aplicarPlan();
 }

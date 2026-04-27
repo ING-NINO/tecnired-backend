@@ -1,10 +1,19 @@
 ﻿<!doctype html><html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Portal | TecniRed</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/><style>:root{--bg:#020617;--panel:rgba(15,23,42,0.85);--line:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--primary:#38bdf8;--ps:#0ea5e9;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--border:rgba(56,189,248,0.15);}*{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",sans-serif;}body{background:var(--bg);color:var(--text);min-height:100vh;}canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}.header{position:sticky;top:0;z-index:100;background:rgba(2,6,23,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;justify-content:space-between;align-items:center;gap:16px;}.hbrand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--primary);font-size:1rem;}.hbrand img{width:32px;}.hright{display:flex;align-items:center;gap:12px;}.pbadge{padding:5px 14px;border-radius:999px;font-size:0.72rem;font-weight:700;}.pb-gratis{background:rgba(148,163,184,0.15);color:var(--muted);border:1px solid rgba(148,163,184,0.2);}.pb-estandar{background:rgba(56,189,248,0.15);color:var(--primary);border:1px solid rgba(56,189,248,0.3);}.pb-premium{background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ps),var(--primary));display:grid;place-items:center;font-weight:800;font-size:0.9rem;color:#06202c;}.btn-out{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;padding:8px 16px;border-radius:10px;font-weight:600;font-size:0.82rem;cursor:pointer;}.main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:32px 24px 60px;}</style>
-<style>.banner{border-radius:20px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}.banner.gratis{background:rgba(15,23,42,0.7);border:1px solid var(--line);}.banner.estandar{background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(56,189,248,0.05));border:1px solid rgba(56,189,248,0.25);}.banner.premium{background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(99,102,241,0.06));border:1px solid rgba(139,92,246,0.28);}.banner h2{font-size:1.1rem;font-weight:800;margin-bottom:3px;}.banner p{font-size:0.82rem;color:var(--muted);}.bup{padding:10px 20px;border-radius:12px;font-weight:700;font-size:0.82rem;text-decoration:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;}.bup-std{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;}.bup-pre{background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;}.bup:hover{transform:translateY(-2px);}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}.sc{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;backdrop-filter:blur(12px);}.sc .n{font-size:1.9rem;font-weight:900;color:var(--primary);}.sc .l{font-size:0.75rem;color:var(--muted);margin-top:3px;}.lbar{background:rgba(15,23,42,0.7);border:1px solid var(--border);border-radius:14px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}.lbar .ll{font-size:0.8rem;color:var(--muted);flex-shrink:0;}.bw{flex:1;min-width:100px;height:7px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;}.bf{height:100%;border-radius:999px;transition:width 0.6s;}.bf-ok{background:linear-gradient(90deg,var(--ps),var(--primary));}.bf-warn{background:linear-gradient(90deg,#f59e0b,#fbbf24);}.bf-full{background:linear-gradient(90deg,#ef4444,#f87171);}.lt{font-size:0.8rem;font-weight:700;flex-shrink:0;}.stitle{font-size:0.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}.tform{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:24px;backdrop-filter:blur(12px);}.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}.fg{display:flex;flex-direction:column;gap:5px;}.fg label{font-size:0.75rem;font-weight:600;color:var(--muted);}.fg input,.fg select,.fg textarea{padding:10px 13px;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:0.85rem;outline:none;font-family:inherit;transition:border-color 0.2s;}.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);}.fg input:disabled{opacity:0.45;cursor:not-allowed;}.fg textarea{resize:vertical;min-height:80px;}.fg select option{background:#0f172a;}.bsub{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;border:none;border-radius:12px;padding:11px 26px;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;}.bsub:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(56,189,248,0.3);}.bsub:disabled{opacity:0.5;cursor:not-allowed;transform:none;}.locked{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);border-radius:20px;padding:28px;text-align:center;margin-bottom:24px;}.locked i{font-size:2rem;color:#f87171;margin-bottom:10px;display:block;}.locked p{color:var(--muted);font-size:0.88rem;margin-bottom:14px;}.tsec{background:var(--panel);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(12px);}.tsec-hdr{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}table{width:100%;border-collapse:collapse;font-size:0.82rem;}th{padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);background:rgba(56,189,248,0.04);border-bottom:1px solid var(--line);}td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}tr:last-child td{border-bottom:none;}tr:hover td{background:rgba(56,189,248,0.03);}.be{display:inline-block;padding:3px 9px;border-radius:6px;font-size:0.7rem;font-weight:700;}.be-Nuevo{background:rgba(56,189,248,0.15);color:var(--primary);}.be-Proceso{background:rgba(245,158,11,0.15);color:var(--warn);}.be-Finalizado{background:rgba(34,197,94,0.15);color:var(--ok);}.bchat{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;border:none;border-radius:8px;padding:5px 13px;font-weight:700;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}.bchat:hover{transform:translateY(-1px);}.bchat:disabled{background:rgba(255,255,255,0.07);color:var(--muted);cursor:not-allowed;transform:none;}.prem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px;}.pfc{background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(99,102,241,0.05));border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:18px;display:flex;align-items:flex-start;gap:12px;}.pfi{width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.2);display:grid;place-items:center;color:#a78bfa;font-size:0.9rem;flex-shrink:0;}.pfc h4{font-size:0.82rem;font-weight:700;margin-bottom:2px;}.pfc p{font-size:0.72rem;color:var(--muted);}.empty{padding:44px;text-align:center;color:var(--muted);}.empty i{font-size:2.2rem;display:block;margin-bottom:10px;color:rgba(56,189,248,0.18);}@media(max-width:700px){.frow{grid-template-columns:1fr;}.header{padding:12px 16px;}.main{padding:20px 14px 40px;}}</style></head>
+<style>.banner{border-radius:20px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}.banner.gratis{background:rgba(15,23,42,0.7);border:1px solid var(--line);}.banner.estandar{background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(56,189,248,0.05));border:1px solid rgba(56,189,248,0.25);}.banner.premium{background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(99,102,241,0.06));border:1px solid rgba(139,92,246,0.28);}.banner h2{font-size:1.1rem;font-weight:800;margin-bottom:3px;}.banner p{font-size:0.82rem;color:var(--muted);}.bup{padding:10px 20px;border-radius:12px;font-weight:700;font-size:0.82rem;text-decoration:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;}.bup-std{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;}.bup-pre{background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;}.bup:hover{transform:translateY(-2px);}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}.sc{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;backdrop-filter:blur(12px);}.sc .n{font-size:1.9rem;font-weight:900;color:var(--primary);}.sc .l{font-size:0.75rem;color:var(--muted);margin-top:3px;}.lbar{background:rgba(15,23,42,0.7);border:1px solid var(--border);border-radius:14px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}.lbar .ll{font-size:0.8rem;color:var(--muted);flex-shrink:0;}.bw{flex:1;min-width:100px;height:7px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;}.bf{height:100%;border-radius:999px;transition:width 0.6s;}.bf-ok{background:linear-gradient(90deg,var(--ps),var(--primary));}.bf-warn{background:linear-gradient(90deg,#f59e0b,#fbbf24);}.bf-full{background:linear-gradient(90deg,#ef4444,#f87171);}.lt{font-size:0.8rem;font-weight:700;flex-shrink:0;}.stitle{font-size:0.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}.tform{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:24px;backdrop-filter:blur(12px);}.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}.fg{display:flex;flex-direction:column;gap:5px;}.fg label{font-size:0.75rem;font-weight:600;color:var(--muted);}.fg input,.fg select,.fg textarea{padding:10px 13px;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:0.85rem;outline:none;font-family:inherit;transition:border-color 0.2s;}.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);}.fg input:disabled{opacity:0.45;cursor:not-allowed;}.fg textarea{resize:vertical;min-height:80px;}.fg select option{background:#0f172a;}.bsub{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;border:none;border-radius:12px;padding:11px 26px;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;}.bsub:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(56,189,248,0.3);}.bsub:disabled{opacity:0.5;cursor:not-allowed;transform:none;}.locked{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);border-radius:20px;padding:28px;text-align:center;margin-bottom:24px;}.locked i{font-size:2rem;color:#f87171;margin-bottom:10px;display:block;}.locked p{color:var(--muted);font-size:0.88rem;margin-bottom:14px;}.tsec{background:var(--panel);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(12px);}.tsec-hdr{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}table{width:100%;border-collapse:collapse;font-size:0.82rem;}th{padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);background:rgba(56,189,248,0.04);border-bottom:1px solid var(--line);}td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}tr:last-child td{border-bottom:none;}tr:hover td{background:rgba(56,189,248,0.03);}.be{display:inline-block;padding:3px 9px;border-radius:6px;font-size:0.7rem;font-weight:700;}.be-Nuevo{background:rgba(56,189,248,0.15);color:var(--primary);}.be-Proceso{background:rgba(245,158,11,0.15);color:var(--warn);}.be-Finalizado{background:rgba(34,197,94,0.15);color:var(--ok);}.bchat{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;border:none;border-radius:8px;padding:5px 13px;font-weight:700;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}.bchat:hover{transform:translateY(-1px);}.bchat:disabled{background:rgba(255,255,255,0.07);color:var(--muted);cursor:not-allowed;transform:none;}.prem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px;}.pfc{background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(99,102,241,0.05));border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:18px;display:flex;align-items:flex-start;gap:12px;}.pfi{width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.2);display:grid;place-items:center;color:#a78bfa;font-size:0.9rem;flex-shrink:0;}.pfc h4{font-size:0.82rem;font-weight:700;margin-bottom:2px;}.pfc p{font-size:0.72rem;color:var(--muted);}.empty{padding:44px;text-align:center;color:var(--muted);}.empty i{font-size:2.2rem;display:block;margin-bottom:10px;color:rgba(56,189,248,0.18);}
+@keyframes ring{0%,100%{transform:rotate(0deg);}10%,30%{transform:rotate(-10deg);}20%,40%{transform:rotate(10deg);}}
+@media(max-width:700px){.frow{grid-template-columns:1fr;}.header{padding:12px 16px;}.main{padding:20px 14px 40px;}}</style></head>
 <body>
 <canvas id="bg"></canvas>
 <header class="header">
   <div class="hbrand"><img src="/img/TecniredLogo.png" alt="Logo"/>TECNIRED</div>
   <div class="hright">
+    <!-- BADGE DE NOTIFICACIONES -->
+    <div id="notifBadge" style="position:relative;margin-right:8px;display:none;">
+      <button onclick="mostrarNotificaciones()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:8px 16px;border-radius:10px;font-weight:600;font-size:0.82rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.3s;position:relative;">
+        <i class="fa-solid fa-bell" style="animation:ring 2s ease-in-out infinite;"></i>
+        <span id="notifCount">0</span> Nuevos mensajes
+      </button>
+    </div>
     <a href="/herramientas.html" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);color:#a78bfa;padding:8px 16px;border-radius:10px;font-weight:600;font-size:0.82rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all 0.3s;margin-right:8px;">
       <i class="fa-solid fa-wrench"></i> Herramientas
     </a>
@@ -187,7 +196,83 @@ async function cargarTickets(){
       tr.innerHTML=`<td><strong>#${t.id}</strong></td><td>${t.categoria}</td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.descripcion}</td><td><span class="be be-${t.estado||"Nuevo"}">${t.estado||"Nuevo"}</span></td><td style="font-size:0.75rem">${t.fecha?new Date(t.fecha).toLocaleString("es-CO"):""}</td><td><button class="bchat" onclick="abrirChat(${t.id})" ${fin?"disabled":""} >${fin?"Cerrado":"Chat"}</button></td>`;
       tbody.appendChild(tr);
     });
+    // Verificar mensajes nuevos
+    await verificarMensajesNuevos(tickets);
   }catch(e){console.error(e);}
+}
+
+// Sistema de notificaciones de mensajes nuevos
+let ultimosMensajes = {};
+
+async function verificarMensajesNuevos(tickets) {
+  try {
+    let totalNuevos = 0;
+    const ticketsActivos = tickets.filter(t => t.estado !== "Finalizado");
+    
+    for (const ticket of ticketsActivos) {
+      const res = await fetch(`/chat/${ticket.id}`);
+      const mensajes = await res.json();
+      
+      // Filtrar solo mensajes del asesor (no del cliente)
+      const mensajesAsesor = mensajes.filter(m => m.remitente !== usuario.nombre);
+      
+      if (!ultimosMensajes[ticket.id]) {
+        // Primera vez que se carga este ticket
+        ultimosMensajes[ticket.id] = mensajesAsesor.length;
+      } else {
+        // Verificar si hay mensajes nuevos
+        const nuevos = mensajesAsesor.length - ultimosMensajes[ticket.id];
+        if (nuevos > 0) {
+          totalNuevos += nuevos;
+          // Actualizar el contador
+          ultimosMensajes[ticket.id] = mensajesAsesor.length;
+        }
+      }
+    }
+    
+    // Mostrar/ocultar badge de notificaciones
+    const badge = document.getElementById("notifBadge");
+    const count = document.getElementById("notifCount");
+    
+    if (totalNuevos > 0) {
+      badge.style.display = "block";
+      count.textContent = totalNuevos;
+      // Reproducir sonido de notificación
+      reproducirSonidoNotificacion();
+    } else {
+      badge.style.display = "none";
+    }
+  } catch (e) {
+    console.error("Error verificando mensajes:", e);
+  }
+}
+
+function reproducirSonidoNotificacion() {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = "sine";
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  } catch (e) {
+    console.log("No se pudo reproducir sonido");
+  }
+}
+
+function mostrarNotificaciones() {
+  alert("Tienes mensajes nuevos en tus tickets activos. Haz clic en 'Chat' para verlos.");
+  // Ocultar el badge después de hacer clic
+  document.getElementById("notifBadge").style.display = "none";
 }
 
 document.getElementById("ticketForm").addEventListener("submit",async e=>{
@@ -214,5 +299,6 @@ function abrirChat(id){
 function cerrarSesion(){localStorage.removeItem("usuario");window.location.href="/";}
 
 document.addEventListener("DOMContentLoaded",async()=>{await cargarPlan();await cargarTickets();});
-setInterval(cargarTickets,300000);
+// Actualizar cada 30 segundos para detectar mensajes nuevos más rápido
+setInterval(cargarTickets,30000);
 </script></body></html>

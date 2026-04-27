@@ -600,29 +600,74 @@
       <a href="login.html" class="btn-primary"><i class="fa-solid fa-arrow-right"></i> Quiero asesoría ahora</a>
     </section>
 
-    <!-- CONTACTO -->
+    <!-- COMENTARIOS Y CALIFICACIÓN -->
     <section id="contacto">
       <div class="reveal">
-        <span class="section-label">Contacto</span>
-        <h2 class="section-title">Cuéntanos tu problema</h2>
-        <p class="section-sub">Nuestro equipo te responde en menos de 24 horas.</p>
+        <span class="section-label">Tu Opinión Importa</span>
+        <h2 class="section-title">Comentarios, Sugerencias y Calificación</h2>
+        <p class="section-sub">Ayúdanos a mejorar nuestro servicio. Tu feedback es fundamental para nosotros.</p>
       </div>
       <div class="formulario reveal">
         <form id="contactForm">
           <div class="form-group">
             <label>Tu nombre</label>
-            <input type="text" placeholder="Juan Pérez" required />
+            <input type="text" id="feedbackNombre" placeholder="Juan Pérez" required />
           </div>
           <div class="form-group">
             <label>Correo electrónico</label>
-            <input type="email" placeholder="juan@correo.com" required />
+            <input type="email" id="feedbackEmail" placeholder="juan@correo.com" required />
           </div>
           <div class="form-group">
-            <label>Cuéntanos tu problema</label>
-            <textarea placeholder="Describe brevemente el problema técnico..."></textarea>
+            <label>Tipo de mensaje</label>
+            <select id="feedbackTipo" required style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;color:var(--light);font-size:0.9rem;outline:none;font-family:inherit;">
+              <option value="">Selecciona una opción...</option>
+              <option value="comentario">💬 Comentario General</option>
+              <option value="sugerencia">💡 Sugerencia de Mejora</option>
+              <option value="problema">⚠️ Reportar Problema</option>
+              <option value="felicitacion">🎉 Felicitación</option>
+            </select>
           </div>
-          <button type="submit" class="btn-submit">Enviar mensaje <i class="fa-solid fa-paper-plane"></i></button>
+          <div class="form-group">
+            <label>Califica nuestro servicio</label>
+            <div style="display:flex;gap:8px;margin-top:8px;justify-content:center;">
+              <span class="star-rating" data-rating="1">⭐</span>
+              <span class="star-rating" data-rating="2">⭐</span>
+              <span class="star-rating" data-rating="3">⭐</span>
+              <span class="star-rating" data-rating="4">⭐</span>
+              <span class="star-rating" data-rating="5">⭐</span>
+            </div>
+            <input type="hidden" id="feedbackRating" value="0" />
+            <p id="ratingText" style="text-align:center;margin-top:8px;font-size:0.85rem;color:var(--muted);">Selecciona tu calificación</p>
+          </div>
+          <div class="form-group">
+            <label>Tu mensaje</label>
+            <textarea id="feedbackMensaje" placeholder="Comparte tu experiencia, sugerencia o problema..." required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Enviar Feedback <i class="fa-solid fa-paper-plane"></i></button>
         </form>
+      </div>
+
+      <!-- REDES SOCIALES -->
+      <div class="reveal" style="margin-top:60px;text-align:center;">
+        <h3 style="font-size:1.4rem;font-weight:700;margin-bottom:20px;">Síguenos en Redes Sociales</h3>
+        <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+          <a href="https://facebook.com/tecnired" target="_blank" class="social-link" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:rgba(24,119,242,0.1);border:1px solid rgba(24,119,242,0.3);border-radius:12px;text-decoration:none;color:#1877f2;font-weight:600;transition:all 0.3s;">
+            <i class="fa-brands fa-facebook" style="font-size:1.4rem;"></i>
+            <span>Facebook</span>
+          </a>
+          <a href="https://instagram.com/tecnired" target="_blank" class="social-link" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:rgba(225,48,108,0.1);border:1px solid rgba(225,48,108,0.3);border-radius:12px;text-decoration:none;color:#e1306c;font-weight:600;transition:all 0.3s;">
+            <i class="fa-brands fa-instagram" style="font-size:1.4rem;"></i>
+            <span>Instagram</span>
+          </a>
+          <a href="https://twitter.com/tecnired" target="_blank" class="social-link" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:rgba(29,161,242,0.1);border:1px solid rgba(29,161,242,0.3);border-radius:12px;text-decoration:none;color:#1da1f2;font-weight:600;transition:all 0.3s;">
+            <i class="fa-brands fa-twitter" style="font-size:1.4rem;"></i>
+            <span>Twitter</span>
+          </a>
+          <a href="https://wa.me/573001234567" target="_blank" class="social-link" style="display:flex;align-items:center;gap:10px;padding:12px 24px;background:rgba(37,211,102,0.1);border:1px solid rgba(37,211,102,0.3);border-radius:12px;text-decoration:none;color:#25d366;font-weight:600;transition:all 0.3s;">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.4rem;"></i>
+            <span>WhatsApp</span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -710,13 +755,141 @@
       }, { threshold: 0.12 });
       reveals.forEach(r => observer.observe(r));
 
-      // CONTACT FORM
-      document.getElementById("contactForm").addEventListener("submit", e => {
+      // SISTEMA DE CALIFICACIÓN CON ESTRELLAS
+      const stars = document.querySelectorAll(".star-rating");
+      const ratingInput = document.getElementById("feedbackRating");
+      const ratingText = document.getElementById("ratingText");
+      
+      const ratingLabels = {
+        1: "😞 Muy Insatisfecho",
+        2: "😕 Insatisfecho",
+        3: "😐 Neutral",
+        4: "😊 Satisfecho",
+        5: "🤩 Muy Satisfecho"
+      };
+
+      stars.forEach(star => {
+        star.style.cursor = "pointer";
+        star.style.fontSize = "2rem";
+        star.style.transition = "all 0.2s";
+        star.style.filter = "grayscale(100%)";
+        star.style.opacity = "0.4";
+
+        star.addEventListener("mouseenter", function() {
+          const rating = parseInt(this.dataset.rating);
+          stars.forEach((s, i) => {
+            if (i < rating) {
+              s.style.filter = "grayscale(0%)";
+              s.style.opacity = "1";
+              s.style.transform = "scale(1.2)";
+            }
+          });
+        });
+
+        star.addEventListener("mouseleave", function() {
+          const currentRating = parseInt(ratingInput.value);
+          stars.forEach((s, i) => {
+            if (i < currentRating) {
+              s.style.filter = "grayscale(0%)";
+              s.style.opacity = "1";
+              s.style.transform = "scale(1)";
+            } else {
+              s.style.filter = "grayscale(100%)";
+              s.style.opacity = "0.4";
+              s.style.transform = "scale(1)";
+            }
+          });
+        });
+
+        star.addEventListener("click", function() {
+          const rating = parseInt(this.dataset.rating);
+          ratingInput.value = rating;
+          ratingText.textContent = ratingLabels[rating];
+          ratingText.style.color = rating >= 4 ? "#22c55e" : rating === 3 ? "#f59e0b" : "#ef4444";
+          
+          stars.forEach((s, i) => {
+            if (i < rating) {
+              s.style.filter = "grayscale(0%)";
+              s.style.opacity = "1";
+              s.style.transform = "scale(1)";
+            } else {
+              s.style.filter = "grayscale(100%)";
+              s.style.opacity = "0.4";
+              s.style.transform = "scale(1)";
+            }
+          });
+        });
+      });
+
+      // HOVER EFFECT REDES SOCIALES
+      document.querySelectorAll(".social-link").forEach(link => {
+        link.addEventListener("mouseenter", function() {
+          this.style.transform = "translateY(-4px)";
+          this.style.boxShadow = "0 8px 20px rgba(0,0,0,0.3)";
+        });
+        link.addEventListener("mouseleave", function() {
+          this.style.transform = "translateY(0)";
+          this.style.boxShadow = "none";
+        });
+      });
+
+      // CONTACT FORM - ENVIAR FEEDBACK
+      document.getElementById("contactForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+        
+        const nombre = document.getElementById("feedbackNombre").value;
+        const email = document.getElementById("feedbackEmail").value;
+        const tipo = document.getElementById("feedbackTipo").value;
+        const rating = parseInt(document.getElementById("feedbackRating").value);
+        const mensaje = document.getElementById("feedbackMensaje").value;
+
+        if (rating === 0) {
+          alert("Por favor, selecciona una calificación con estrellas");
+          return;
+        }
+
         const btn = e.target.querySelector(".btn-submit");
-        btn.textContent = "¡Mensaje enviado!";
-        btn.style.background = "linear-gradient(135deg,#22c55e,#16a34a)";
-        setTimeout(() => { btn.innerHTML = 'Enviar mensaje <i class="fa-solid fa-paper-plane"></i>'; btn.style.background = ""; }, 3000);
+        const textoOriginal = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch("/feedback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, email, tipo, rating, mensaje })
+          });
+
+          const data = await res.json();
+
+          if (data.status === "ok") {
+            btn.innerHTML = '✓ ¡Gracias por tu feedback!';
+            btn.style.background = "linear-gradient(135deg,#22c55e,#16a34a)";
+            e.target.reset();
+            ratingInput.value = "0";
+            ratingText.textContent = "Selecciona tu calificación";
+            ratingText.style.color = "var(--muted)";
+            stars.forEach(s => {
+              s.style.filter = "grayscale(100%)";
+              s.style.opacity = "0.4";
+              s.style.transform = "scale(1)";
+            });
+            
+            setTimeout(() => {
+              btn.innerHTML = textoOriginal;
+              btn.style.background = "";
+              btn.disabled = false;
+            }, 3000);
+          } else {
+            alert("Error al enviar el feedback. Intenta de nuevo.");
+            btn.innerHTML = textoOriginal;
+            btn.disabled = false;
+          }
+        } catch (err) {
+          alert("Error de conexión. Intenta de nuevo.");
+          btn.innerHTML = textoOriginal;
+          btn.disabled = false;
+        }
       });
 
       // PAGO MERCADOPAGO

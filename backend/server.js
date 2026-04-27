@@ -798,6 +798,116 @@ db.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan VARCHAR(20) DEFAULT
   else console.log("✅ Columna plan lista");
 });
 
+// Crear tabla de feedback si no existe
+db.query(`
+  CREATE TABLE IF NOT EXISTS feedback (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    tipo ENUM('comentario', 'sugerencia', 'problema', 'felicitacion') NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    mensaje TEXT NOT NULL,
+    fecha DATETIME DEFAULT NOW(),
+    INDEX idx_email (email),
+    INDEX idx_rating (rating),
+    INDEX idx_fecha (fecha)
+  )
+`, (err) => {
+  if (err) console.error("Error creando tabla feedback:", err.message);
+  else console.log("✅ Tabla feedback lista");
+});
+
+// Endpoint para recibir feedback
+app.post("/feedback", (req, res) => {
+  const { nombre, email, tipo, rating, mensaje } = req.body;
+
+  if (!nombre || !email || !tipo || !rating || !mensaje) {
+    return res.status(400).json({ status: "fail", message: "Todos los campos son obligatorios" });
+  }
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ status: "fail", message: "La calificación debe estar entre 1 y 5" });
+  }
+
+  const tiposValidos = ["comentario", "sugerencia", "problema", "felicitacion"];
+  if (!tiposValidos.includes(tipo)) {
+    return res.status(400).json({ status: "fail", message: "Tipo de feedback no válido" });
+  }
+
+  db.query(
+    "INSERT INTO feedback (nombre, email, tipo, rating, mensaje, fecha) VALUES (?, ?, ?, ?, ?, NOW())",
+    [nombre, email, tipo, rating, mensaje],
+    (err, result) => {
+      if (err) {
+        console.error("Error guardando feedback:", err);
+        return res.status(500).json({ status: "fail", message: "Error al guardar el feedback" });
+      }
+
+      console.log(`✅ Nuevo feedback recibido: ${tipo} - ${rating}⭐ de ${nombre}`);
+      res.json({ status: "ok", message: "Feedback guardado correctamente", id: result.insertId });
+    }
+  );
+});
+
+// Endpoint para obtener estadísticas de feedback (admin)
+app.get("/feedback/stats", (req, res) => {
+  db.query(`
+    SELECT 
+      COUNT(*) as total,
+      AVG(rating) as promedio_rating,
+      SUM(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) as positivos,
+      SUM(CASE WHEN rating <= 2 THEN 1 ELSE 0 END) as negativos,
+      COUNT(DISTINCT email) as usuarios_unicos
+    FROM feedback
+  `, (err, stats) => {
+    if (err) return res.status(500).json({ status: "fail" });
+    
+    db.query(`
+      SELECT tipo, COUNT(*) as cantidad
+      FROM feedback
+      GROUP BY tipo
+    `, (err, porTipo) => {
+      if (err) return res.status(500).json({ status: "fail" });
+      
+      res.json({
+        status: "ok",
+        stats: stats[0],
+        porTipo: porTipo
+      });
+    });
+  });
+});
+
+// Endpoint para listar todo el feedback (admin)
+app.get("/feedback", (req, res) => {
+  const { tipo, rating, limit } = req.query;
+  
+  let sql = "SELECT * FROM feedback WHERE 1=1";
+  const params = [];
+
+  if (tipo) {
+    sql += " AND tipo = ?";
+    params.push(tipo);
+  }
+
+  if (rating) {
+    sql += " AND rating = ?";
+    params.push(parseInt(rating));
+  }
+
+  sql += " ORDER BY fecha DESC";
+
+  if (limit) {
+    sql += " LIMIT ?";
+    params.push(parseInt(limit));
+  }
+
+  db.query(sql, params, (err, rows) => {
+    if (err) return res.status(500).json({ status: "fail" });
+    res.json({ status: "ok", feedback: rows });
+  });
+});
+
 // Endpoint para obtener el plan del usuario
 app.get("/usuario/plan/:email", (req, res) => {
   db.query(

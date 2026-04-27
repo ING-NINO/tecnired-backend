@@ -8,6 +8,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       rel="stylesheet"
     />
+    
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
 
     <style>
       :root {
@@ -131,10 +134,33 @@
         background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: white;
         cursor: pointer;
+        transition: all 0.3s;
+      }
+      
+      .input-box button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .input-box input[type="text"]:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
 
       .file-btn {
         background: #1e293b;
+      }
+      
+      /* Mensaje de ticket cerrado */
+      .ticket-cerrado-msg {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        color: #fca5a5;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 10px 20px;
+        font-weight: 600;
       }
 
       .preview {
@@ -211,6 +237,61 @@
 
       let ticketActual = null;
       let ultimoMensajeId = 0;
+      let chatCerrado = false;
+      let estadoTicketActual = null;
+      
+      // Socket.IO
+      const socket = io();
+      
+      // Unirse a la sala del ticket cuando se selecciona
+      function unirseATicket(ticketId) {
+        socket.emit("joinTicket", ticketId);
+      }
+      
+      // Escuchar cuando se finaliza un ticket
+      socket.on("ticketFinalizado", (data) => {
+        if (Number(data.ticket_id) === Number(ticketActual)) {
+          bloquearChat("Este ticket ha sido finalizado. El chat está cerrado.");
+          estadoTicketActual = "Finalizado";
+        }
+      });
+      
+      // Función para bloquear el chat
+      function bloquearChat(mensaje) {
+        chatCerrado = true;
+        
+        // Deshabilitar inputs
+        document.getElementById("mensaje").disabled = true;
+        document.getElementById("fileInput").disabled = true;
+        document.querySelectorAll(".input-box button").forEach(btn => btn.disabled = true);
+        
+        // Mostrar mensaje
+        const chat = document.getElementById("chat");
+        const existeMensaje = document.querySelector(".ticket-cerrado-msg");
+        if (!existeMensaje) {
+          const div = document.createElement("div");
+          div.className = "ticket-cerrado-msg";
+          div.innerHTML = `<i class="fa fa-lock"></i> ${mensaje}`;
+          chat.appendChild(div);
+          chat.scrollTop = chat.scrollHeight;
+        }
+      }
+      
+      // Función para desbloquear el chat
+      function desbloquearChat() {
+        chatCerrado = false;
+        
+        // Habilitar inputs
+        document.getElementById("mensaje").disabled = false;
+        document.getElementById("fileInput").disabled = false;
+        document.querySelectorAll(".input-box button").forEach(btn => btn.disabled = false);
+        
+        // Remover mensaje de cerrado
+        const mensajeCerrado = document.querySelector(".ticket-cerrado-msg");
+        if (mensajeCerrado) {
+          mensajeCerrado.remove();
+        }
+      }
 
       /* ===== TICKETS ===== */
       function cargarTickets() {
@@ -223,7 +304,7 @@
             data.forEach((t) => {
               const div = document.createElement("div");
               div.className = "ticket";
-              div.innerHTML = `<b>#${t.id}</b><br>${t.categoria}`;
+              div.innerHTML = `<b>#${t.id}</b><br>${t.categoria}<br><small>${t.estado}</small>`;
 
               div.onclick = () => {
                 document
@@ -232,8 +313,21 @@
                 div.classList.add("active");
 
                 ticketActual = t.id;
+                estadoTicketActual = t.estado;
                 ultimoMensajeId = 0;
                 document.getElementById("chat").innerHTML = "";
+                
+                // Desbloquear primero (por si el anterior estaba cerrado)
+                desbloquearChat();
+                
+                // Unirse a la sala del ticket
+                unirseATicket(t.id);
+                
+                // Verificar si está finalizado
+                if (t.estado === "Finalizado") {
+                  bloquearChat("Este ticket ya fue finalizado. El chat está cerrado.");
+                }
+                
                 cargarMensajes(true);
               };
 
@@ -247,8 +341,16 @@
         if (!ticketActual) return;
 
         fetch(`/chat/${ticketActual}`)
-          .then((res) => res.json())
+          .then((res) => {
+            if (res.status === 403) {
+              bloquearChat("Este ticket ya fue finalizado. El chat está cerrado.");
+              return null;
+            }
+            return res.json();
+          })
           .then((data) => {
+            if (!data) return;
+            
             const chat = document.getElementById("chat");
 
             data.forEach((m) => {
@@ -282,6 +384,8 @@
 
       /* ===== MENSAJE TEXTO ===== */
       function enviar() {
+        if (chatCerrado) return;
+        
         const input = document.getElementById("mensaje");
 
         if (!input.value || !ticketActual) return;
@@ -294,7 +398,12 @@
             remitente: usuario.email,
             mensaje: input.value,
           }),
-        }).then(() => {
+        })
+        .then((res) => {
+          if (res.status === 403) {
+            bloquearChat("Este ticket ya fue finalizado. El chat está cerrado.");
+            return;
+          }
           input.value = "";
           cargarMensajes(true);
         });
@@ -302,10 +411,13 @@
 
       /* ===== ARCHIVOS ===== */
       function abrirArchivo() {
+        if (chatCerrado) return;
         document.getElementById("fileInput").click();
       }
 
       document.getElementById("fileInput").addEventListener("change", (e) => {
+        if (chatCerrado) return;
+        
         const file = e.target.files[0];
         if (!file) return;
 
@@ -319,15 +431,22 @@
       });
 
       async function enviarArchivo(file) {
+        if (chatCerrado) return;
+        
         const formData = new FormData();
         formData.append("archivo", file);
         formData.append("ticket_id", ticketActual);
         formData.append("remitente", usuario.email);
 
-        await fetch("/chat/file", {
+        const res = await fetch("/chat/file", {
           method: "POST",
           body: formData,
         });
+        
+        if (res.status === 403) {
+          bloquearChat("Este ticket ya fue finalizado. El chat está cerrado.");
+          return;
+        }
 
         document.getElementById("previewBox").style.display = "none";
         cargarMensajes(true);

@@ -267,6 +267,45 @@
       transform: translateY(-2px);
     }
     
+    /* Tabs */
+    .tab-btn {
+      flex: 1;
+      padding: 16px 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      backdrop-filter: blur(20px);
+    }
+    .tab-btn:hover {
+      border-color: var(--primary);
+      color: var(--light);
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(56,189,248,0.1));
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+    }
+    .tab-count {
+      background: rgba(56,189,248,0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .tab-btn.active .tab-count {
+      background: var(--primary);
+      color: #06202c;
+    }
+    
     @media (max-width: 768px) {
       table {
         font-size: 0.8rem;
@@ -294,7 +333,44 @@
       </button>
     </div>
 
-    <div class="usuarios-table">
+    <!-- TABS -->
+    <div style="display:flex;gap:12px;margin-bottom:30px;">
+      <button id="tabClientes" class="tab-btn active" onclick="cambiarTab('clientes')">
+        <i class="fa-solid fa-user"></i> Clientes
+        <span class="tab-count" id="countClientes">0</span>
+      </button>
+      <button id="tabAsesores" class="tab-btn" onclick="cambiarTab('asesores')">
+        <i class="fa-solid fa-user-tie"></i> Asesores y Admins
+        <span class="tab-count" id="countAsesores">0</span>
+      </button>
+    </div>
+
+    <!-- TABLA CLIENTES -->
+    <div class="usuarios-table" id="tablaClientes">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Plan</th>
+            <th>Teléfono</th>
+            <th>Registro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="clientesTable">
+          <tr>
+            <td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">
+              Cargando clientes...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TABLA ASESORES -->
+    <div class="usuarios-table" id="tablaAsesores" style="display:none;">
       <table>
         <thead>
           <tr>
@@ -302,16 +378,15 @@
             <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
-            <th>Plan</th>
             <th>Teléfono</th>
             <th>Registro</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="usuariosTable">
+        <tbody id="asesoresTable">
           <tr>
-            <td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">
-              Cargando usuarios...
+            <td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">
+              Cargando asesores...
             </td>
           </tr>
         </tbody>
@@ -411,45 +486,118 @@
     resizeCanvas();
     drawCanvas();
 
-    // Cargar usuarios
+    // Variables globales para almacenar usuarios
+    let clientesData = [];
+    let asesoresData = [];
+    let tabActual = 'clientes';
+
+    // Cambiar entre tabs
+    function cambiarTab(tab) {
+      tabActual = tab;
+      
+      // Actualizar estilos de los botones
+      document.getElementById('tabClientes').classList.toggle('active', tab === 'clientes');
+      document.getElementById('tabAsesores').classList.toggle('active', tab === 'asesores');
+      
+      // Mostrar/ocultar tablas
+      document.getElementById('tablaClientes').style.display = tab === 'clientes' ? 'block' : 'none';
+      document.getElementById('tablaAsesores').style.display = tab === 'asesores' ? 'block' : 'none';
+    }
+
+    // Renderizar tabla de clientes
+    function renderizarClientes() {
+      const tbody = document.getElementById("clientesTable");
+      
+      if (clientesData.length > 0) {
+        tbody.innerHTML = clientesData.map(u => {
+          const puedeEliminar = u.id !== 1;
+          
+          return `
+            <tr>
+              <td><strong>#${u.id}</strong></td>
+              <td>${u.nombre}</td>
+              <td>${u.email}</td>
+              <td><span class="badge badge-cliente">${u.plan || "gratis"}</span></td>
+              <td>${u.telefono || "N/A"}</td>
+              <td>${u.fecha_registro || "N/A"}</td>
+              <td>
+                <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
+                  <i class="fa-solid fa-pen"></i> Rol
+                </button>
+                ${puedeEliminar ? `
+                  <button class="btn-action btn-delete" onclick="eliminarUsuario(${u.id}, '${u.nombre}')">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                ` : ''}
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } else {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No hay clientes registrados</td></tr>';
+      }
+      
+      // Actualizar contador
+      document.getElementById('countClientes').textContent = clientesData.length;
+    }
+
+    // Renderizar tabla de asesores
+    function renderizarAsesores() {
+      const tbody = document.getElementById("asesoresTable");
+      
+      if (asesoresData.length > 0) {
+        tbody.innerHTML = asesoresData.map(u => {
+          const rolClass = u.rol === "admin" ? "badge-admin" : "badge-asesor";
+          const puedeEliminar = u.id !== 1;
+          
+          return `
+            <tr>
+              <td><strong>#${u.id}</strong></td>
+              <td>${u.nombre}</td>
+              <td>${u.email}</td>
+              <td><span class="badge ${rolClass}">${u.rol}</span></td>
+              <td>${u.telefono || "N/A"}</td>
+              <td>${u.fecha_registro || "N/A"}</td>
+              <td>
+                <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
+                  <i class="fa-solid fa-pen"></i> Rol
+                </button>
+                ${puedeEliminar ? `
+                  <button class="btn-action btn-delete" onclick="eliminarUsuario(${u.id}, '${u.nombre}')">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                ` : ''}
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } else {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No hay asesores registrados</td></tr>';
+      }
+      
+      // Actualizar contador
+      document.getElementById('countAsesores').textContent = asesoresData.length;
+    }
+
+    // Cargar usuarios y separarlos
     async function cargarUsuarios() {
       try {
         const res = await fetch("/admin/usuarios");
         const data = await res.json();
 
-        const tbody = document.getElementById("usuariosTable");
-
         if (data.status === "ok" && data.usuarios.length > 0) {
-          tbody.innerHTML = data.usuarios.map(u => {
-            const rolClass = u.rol === "admin" ? "badge-admin" : 
-                            u.rol.includes("asesor") ? "badge-asesor" : "badge-cliente";
-            
-            const puedeEliminar = u.id !== 1; // No eliminar admin principal
-
-            return `
-              <tr>
-                <td><strong>#${u.id}</strong></td>
-                <td>${u.nombre}</td>
-                <td>${u.email}</td>
-                <td><span class="badge ${rolClass}">${u.rol}</span></td>
-                <td>${u.plan || "gratis"}</td>
-                <td>${u.telefono || "N/A"}</td>
-                <td>${u.fecha_registro || "N/A"}</td>
-                <td>
-                  <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
-                    <i class="fa-solid fa-pen"></i> Rol
-                  </button>
-                  ${puedeEliminar ? `
-                    <button class="btn-action btn-delete" onclick="eliminarUsuario(${u.id}, '${u.nombre}')">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                  ` : ''}
-                </td>
-              </tr>
-            `;
-          }).join("");
+          // Separar usuarios por rol
+          clientesData = data.usuarios.filter(u => u.rol === 'cliente');
+          asesoresData = data.usuarios.filter(u => u.rol !== 'cliente');
+          
+          // Renderizar ambas tablas
+          renderizarClientes();
+          renderizarAsesores();
         } else {
-          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted);">No hay usuarios registrados</td></tr>';
+          clientesData = [];
+          asesoresData = [];
+          renderizarClientes();
+          renderizarAsesores();
         }
       } catch (err) {
         console.error("Error cargando usuarios:", err);

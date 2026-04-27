@@ -908,6 +908,118 @@ app.get("/feedback", (req, res) => {
   });
 });
 
+// ===== GESTIÓN DE USUARIOS (ADMIN) =====
+
+// Listar todos los usuarios
+app.get("/admin/usuarios", (req, res) => {
+  db.query(
+    "SELECT id, nombre, email, rol, telefono, plan, DATE_FORMAT(fecha_registro, '%Y-%m-%d') as fecha_registro FROM usuarios ORDER BY id DESC",
+    (err, rows) => {
+      if (err) return res.status(500).json({ status: "fail" });
+      res.json({ status: "ok", usuarios: rows });
+    }
+  );
+});
+
+// Crear nuevo usuario (asesor o admin)
+app.post("/admin/usuarios", (req, res) => {
+  const { nombre, email, password, telefono, rol } = req.body;
+
+  if (!nombre || !email || !password || !rol) {
+    return res.status(400).json({ status: "fail", message: "Campos obligatorios faltantes" });
+  }
+
+  // Validar que el rol sea válido
+  const rolesValidos = ["cliente", "asesor", "asesor1", "asesor2", "asesor3", "admin"];
+  if (!rolesValidos.includes(rol)) {
+    return res.status(400).json({ status: "fail", message: "Rol no válido" });
+  }
+
+  // Verificar si el email ya existe
+  db.query("SELECT email FROM usuarios WHERE email = ?", [email], (err, rows) => {
+    if (err) return res.status(500).json({ status: "fail" });
+    if (rows.length > 0) {
+      return res.status(400).json({ status: "fail", message: "El email ya está registrado" });
+    }
+
+    // Crear usuario
+    db.query(
+      "INSERT INTO usuarios (nombre, email, password, telefono, rol, fecha_registro) VALUES (?, ?, ?, ?, ?, NOW())",
+      [nombre, email, crearHashPassword(password), telefono || "N/A", rol],
+      (err, result) => {
+        if (err) return res.status(500).json({ status: "fail" });
+        res.json({ 
+          status: "ok", 
+          message: "Usuario creado correctamente",
+          id: result.insertId 
+        });
+      }
+    );
+  });
+});
+
+// Eliminar usuario
+app.delete("/admin/usuarios/:id", (req, res) => {
+  const userId = req.params.id;
+
+  // No permitir eliminar al admin principal (id 1)
+  if (userId === "1") {
+    return res.status(403).json({ status: "fail", message: "No se puede eliminar al administrador principal" });
+  }
+
+  db.query("DELETE FROM usuarios WHERE id = ?", [userId], (err, result) => {
+    if (err) return res.status(500).json({ status: "fail" });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ status: "fail", message: "Usuario no encontrado" });
+    }
+    res.json({ status: "ok", message: "Usuario eliminado correctamente" });
+  });
+});
+
+// Cambiar rol de usuario
+app.put("/admin/usuarios/:id/rol", (req, res) => {
+  const { rol } = req.body;
+  const userId = req.params.id;
+
+  const rolesValidos = ["cliente", "asesor", "asesor1", "asesor2", "asesor3", "admin"];
+  if (!rolesValidos.includes(rol)) {
+    return res.status(400).json({ status: "fail", message: "Rol no válido" });
+  }
+
+  db.query("UPDATE usuarios SET rol = ? WHERE id = ?", [rol, userId], (err, result) => {
+    if (err) return res.status(500).json({ status: "fail" });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ status: "fail", message: "Usuario no encontrado" });
+    }
+    res.json({ status: "ok", message: "Rol actualizado correctamente" });
+  });
+});
+
+// ===== REABRIR TICKETS =====
+
+// Reabrir un ticket finalizado
+app.put("/tickets/:id/reabrir", (req, res) => {
+  const ticketId = req.params.id;
+
+  db.query(
+    "UPDATE tickets SET estado = 'Proceso' WHERE id = ? AND estado = 'Finalizado'",
+    [ticketId],
+    (err, result) => {
+      if (err) return res.status(500).json({ status: "fail" });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ status: "fail", message: "Ticket no encontrado o no está finalizado" });
+      }
+
+      // Notificar en tiempo real
+      io.to("ticket_" + ticketId).emit("ticketReabierto", {
+        ticket_id: ticketId,
+      });
+
+      res.json({ status: "ok", message: "Ticket reabierto correctamente" });
+    }
+  );
+});
+
 // Endpoint para obtener el plan del usuario
 app.get("/usuario/plan/:email", (req, res) => {
   db.query(

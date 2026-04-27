@@ -331,6 +331,9 @@
         </div>
       </div>
       <span id="adminEmail" style="font-size:0.8rem;color:var(--muted)"></span>
+      <a href="/admin_usuarios.html" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:10px 20px;border-radius:10px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:0.85rem;margin-right:10px;transition:all 0.3s;border:none;">
+        <i class="fa-solid fa-users"></i> Usuarios
+      </a>
       <a href="/admin_feedback.html" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:white;padding:10px 20px;border-radius:10px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:0.85rem;margin-right:10px;transition:all 0.3s;border:none;">
         <i class="fa-solid fa-star"></i> Ver Feedback
       </a>
@@ -512,6 +515,13 @@
           else if (dias >= 1) alerta = '<span class="alerta-warn"><i class="fa-solid fa-clock"></i> 1-2 dias</span>';
         }
         const esReadonly = tabActual === "finalizados";
+        
+        // Botón de reabrir para tickets finalizados
+        const botonReabrir = esReadonly ? 
+          `<button onclick="reabrirTicket(${t.id})" style="background:rgba(56,189,248,0.15);color:var(--primary);border:1px solid rgba(56,189,248,0.3);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;transition:all 0.2s;margin-top:8px;display:block;width:100%;" onmouseover="this.style.background='rgba(56,189,248,0.25)'" onmouseout="this.style.background='rgba(56,189,248,0.15)'">
+            <i class="fa-solid fa-rotate-left"></i> Reabrir
+          </button>` : '';
+        
         tbody.innerHTML += `
 <tr>
   <td><strong>#${t.id}</strong></td>
@@ -521,7 +531,9 @@
   <td>${t.categoria||"-"}</td>
   <td class="td-desc" title="${(t.descripcion||"").replace(/"/g,"&quot;")}">${t.descripcion||"-"}</td>
   <td><span class="estado-badge estado-${t.estado||"Nuevo"}">${t.estado||"Nuevo"}</span></td>
-  <td>${esReadonly ? '<span style="color:var(--ok);font-size:0.78rem"><i class="fa-solid fa-check"></i> Cerrado</span>' : `<select onchange="cambiarEstado(${t.id},this.value)"><option ${t.estado==="Nuevo"?"selected":""}>Nuevo</option><option ${t.estado==="Proceso"?"selected":""}>Proceso</option><option ${t.estado==="Finalizado"?"selected":""}>Finalizado</option></select>`}</td>
+  <td>
+    ${esReadonly ? `<span style="color:var(--ok);font-size:0.78rem"><i class="fa-solid fa-check"></i> Cerrado</span>${botonReabrir}` : `<select onchange="cambiarEstado(${t.id},this.value)"><option ${t.estado==="Nuevo"?"selected":""}>Nuevo</option><option ${t.estado==="Proceso"?"selected":""}>Proceso</option><option ${t.estado==="Finalizado"?"selected":""}>Finalizado</option></select>`}
+  </td>
   <td>${esReadonly ? (t.escala||"-") : `<select onchange="cambiarEscala(${t.id},this.value)"><option ${!t.escala||t.escala==="Seleccionar"?"selected":""}>Seleccionar</option><option value="1" ${t.escala==="1"?"selected":""}>N1</option><option value="2" ${t.escala==="2"?"selected":""}>N2</option><option value="3" ${t.escala==="3"?"selected":""}>N3</option></select>`}</td>
   <td style="font-size:0.78rem;white-space:nowrap">${formatearFecha(t.fecha)}</td>
   <td>${alerta}</td>
@@ -552,6 +564,40 @@
         body: JSON.stringify({escala})
       });
       ticketsActivos = ticketsActivos.map(t => t.id===id ? {...t,escala} : t);
+    }
+
+    // Reabrir ticket finalizado
+    async function reabrirTicket(id) {
+      if (!confirm("¿Estás seguro de reabrir este ticket? Volverá a estar en estado 'Proceso'.")) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/tickets/${id}/reabrir`, {
+          method: "PUT"
+        });
+
+        const data = await res.json();
+
+        if (data.status === "ok") {
+          // Mover ticket de finalizados a activos
+          const ticket = ticketsFinalizados.find(t => t.id === id);
+          if (ticket) {
+            ticket.estado = "Proceso";
+            ticketsActivos.unshift(ticket);
+            ticketsFinalizados = ticketsFinalizados.filter(t => t.id !== id);
+            document.getElementById("countActivos").textContent = ticketsActivos.length;
+            document.getElementById("countFinalizados").textContent = ticketsFinalizados.length;
+          }
+          
+          filtrarTickets();
+          agregarNotificacion(`Ticket #${id} reabierto`, "El ticket ha vuelto a estado 'Proceso'", "ok");
+        } else {
+          alert(data.message || "Error al reabrir el ticket");
+        }
+      } catch (err) {
+        alert("Error de conexión");
+      }
     }
 
     // SOCKET - ticket finalizado por asesor

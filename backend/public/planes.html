@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planes y Precios - TecniRed</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      font-size: 1.2rem;
+      margin-bottom: 50px;
+    }
+
+    .planes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .plan-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .plan-card.premium {
+      border: 3px solid #ffd700;
+      background: linear-gradient(135deg, #fff 0%, #fffef0 100%);
+    }
+
+    .plan-card.premium::before {
+      content: "⭐ RECOMENDADO";
+      position: absolute;
+      top: 20px;
+      right: -35px;
+      background: #ffd700;
+      color: #333;
+      padding: 5px 40px;
+      transform: rotate(45deg);
+      font-weight: bold;
+      font-size: 0.8rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .plan-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .plan-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .plan-name {
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .plan-price {
+      font-size: 2.5rem;
+      color: #667eea;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .plan-price .currency {
+      font-size: 1.2rem;
+    }
+
+    .plan-period {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .plan-description {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 30px;
+    }
+
+    .plan-features li {
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+
+    .plan-features li:last-child {
+      border-bottom: none;
+    }
+
+    .plan-features li::before {
+      content: "✓";
+      color: #4caf50;
+      font-weight: bold;
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+
+    .plan-features li.disabled {
+      color: #ccc;
+    }
+
+    .plan-features li.disabled::before {
+      content: "✗";
+      color: #f44336;
+    }
+
+    .plan-button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .plan-button.gratis {
+      background: #4caf50;
+      color: white;
+    }
+
+    .plan-button.estandar {
+      background: #667eea;
+      color: white;
+    }
+
+    .plan-button.premium {
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #333;
+    }
+
+    .plan-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    .plan-button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .current-plan {
+      background: #4caf50;
+      color: white;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+
+    .back-button {
+      display: inline-block;
+      background: white;
+      color: #667eea;
+      padding: 12px 30px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      background: #f0f0f0;
+      transform: translateX(-5px);
+    }
+
+    .loading {
+      text-align: center;
+      color: white;
+      font-size: 1.5rem;
+      padding: 50px;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .planes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .plan-card {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Planes y Precios</h1>
+    <p class="subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
+
+    <div id="currentPlanInfo"></div>
+    <div id="planesContainer" class="loading">Cargando planes...</div>
+
+    <div style="text-align: center;">
+      <a href="/user_cliente.html" class="back-button">← Volver al Panel</a>
+    </div>
+  </div>
+
+  <script>
+    const userEmail = localStorage.getItem("userEmail");
+    if (!userEmail) {
+      alert("Debes iniciar sesión");
+      window.location.href = "/login.html";
+    }
+
+    let planActual = "gratis";
+
+    // Cargar plan actual del usuario
+    fetch(`/usuario/plan/${userEmail}`)
+      .then(res => res.json())
+      .then(data => {
+        planActual = data.plan || "gratis";
+        
+        if (data.ticketsUsados !== undefined) {
+          const ticketsInfo = data.ticketsDisponibles === "ilimitados" 
+            ? `Tickets usados este mes: ${data.ticketsUsados} (ilimitados)`
+            : `Tickets usados este mes: ${data.ticketsUsados} de ${data.limites.tickets_mes}`;
+          
+          document.getElementById("currentPlanInfo").innerHTML = `
+            <div class="current-plan">
+              📊 Plan Actual: <strong>${data.nombre}</strong><br>
+              ${ticketsInfo}
+            </div>
+          `;
+        }
+
+        cargarPlanes();
+      })
+      .catch(() => cargarPlanes());
+
+    function cargarPlanes() {
+      fetch("/planes")
+        .then(res => res.json())
+        .then(planes => {
+          const container = document.getElementById("planesContainer");
+          container.className = "planes-grid";
+          container.innerHTML = "";
+
+          planes.forEach(plan => {
+            const card = crearTarjetaPlan(plan);
+            container.appendChild(card);
+          });
+        })
+        .catch(err => {
+          document.getElementById("planesContainer").innerHTML = 
+            '<p style="color: white; text-align: center;">Error cargando planes</p>';
+        });
+    }
+
+    function crearTarjetaPlan(plan) {
+      const div = document.createElement("div");
+      div.className = `plan-card ${plan.id}`;
+
+      const iconos = {
+        gratis: "🎁",
+        estandar: "📦",
+        premium: "💎"
+      };
+
+      const features = [];
+      const limites = plan.limites;
+
+      // Tickets
+      if (limites.tickets_mes === -1) {
+        features.push("Tickets ilimitados");
+      } else {
+        features.push(`${limites.tickets_mes} ticket${limites.tickets_mes > 1 ? 's' : ''} por mes`);
+      }
+
+      // Tiempo de respuesta
+      features.push(`Respuesta en ${limites.tiempo_respuesta}`);
+
+      // Adjuntos
+      if (limites.adjuntos) {
+        features.push("Envío de archivos adjuntos");
+      } else {
+        features.push({ text: "Sin archivos adjuntos", disabled: true });
+      }
+
+      // Escalamiento
+      if (limites.escalamiento && limites.escalamiento.length > 0) {
+        features.push(`Escalamiento N${limites.escalamiento.join("-N")}`);
+      } else {
+        features.push({ text: "Sin escalamiento", disabled: true });
+      }
+
+      // Soporte telefónico
+      if (limites.soporte_telefono) {
+        const texto = limites.soporte_telefono === "24/7" 
+          ? "Soporte telefónico 24/7" 
+          : "Soporte telefónico (horario laboral)";
+        features.push(texto);
+      } else {
+        features.push({ text: "Sin soporte telefónico", disabled: true });
+      }
+
+      // Videollamada
+      if (limites.videollamada) {
+        features.push("Chat con videollamada");
+      } else {
+        features.push({ text: "Sin videollamada", disabled: true });
+      }
+
+      // Asesor dedicado
+      if (limites.asesor_dedicado) {
+        features.push("Asesor dedicado personal");
+      } else {
+        features.push({ text: "Sin asesor dedicado", disabled: true });
+      }
+
+      // Reportes
+      if (limites.reportes) {
+        features.push("Reportes mensuales personalizados");
+      } else {
+        features.push({ text: "Sin reportes personalizados", disabled: true });
+      }
+
+      const featuresHTML = features.map(f => {
+        if (typeof f === "string") {
+          return `<li>${f}</li>`;
+        } else {
+          return `<li class="disabled">${f.text}</li>`;
+        }
+      }).join("");
+
+      const esActual = planActual === plan.id;
+      const puedeComprar = plan.precio > 0 && !esActual;
+
+      let botonHTML;
+      if (esActual) {
+        botonHTML = `<button class="plan-button ${plan.id}" disabled>Plan Actual</button>`;
+      } else if (plan.precio === 0) {
+        botonHTML = `<button class="plan-button ${plan.id}" disabled>Plan Gratuito</button>`;
+      } else {
+        botonHTML = `<button class="plan-button ${plan.id}" onclick="comprarPlan('${plan.id}')">Comprar Ahora</button>`;
+      }
+
+      div.innerHTML = `
+        <div class="plan-header">
+          <div class="plan-icon">${iconos[plan.id] || "📋"}</div>
+          <h2 class="plan-name">${plan.nombre.replace("TecniRed", "").trim()}</h2>
+          <div class="plan-price">
+            <span class="currency">$</span>${plan.precio.toLocaleString("es-CO")}
+            ${plan.precio > 0 ? '<div class="plan-period">por mes</div>' : '<div class="plan-period">7 días de prueba</div>'}
+          </div>
+        </div>
+        <p class="plan-description">${plan.descripcion}</p>
+        <ul class="plan-features">
+          ${featuresHTML}
+        </ul>
+        ${botonHTML}
+      `;
+
+      return div;
+    }
+
+    function comprarPlan(planId) {
+      if (!confirm(`¿Deseas comprar el plan ${planId.toUpperCase()}?`)) return;
+
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = "Procesando...";
+
+      fetch("/pago/crear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planId, email: userEmail })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "ok") {
+            // Redirigir a MercadoPago (usar sandbox en desarrollo)
+            window.location.href = data.sandbox_init_point || data.init_point;
+          } else {
+            alert(data.message || "Error al crear el pago");
+            btn.disabled = false;
+            btn.textContent = "Comprar Ahora";
+          }
+        })
+        .catch(err => {
+          alert("Error al procesar el pago");
+          btn.disabled = false;
+          btn.textContent = "Comprar Ahora";
+        });
+    }
+  </script>
+</body>
+</html>

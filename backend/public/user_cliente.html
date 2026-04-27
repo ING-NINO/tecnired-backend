@@ -1,500 +1,209 @@
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard Cliente | TecniRed</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --primary: #4a8df5;
-        --secondary: #00c6ff;
-        --dark: #0b1629;
-        --light: #cbd5e1;
-      }
-
-      * {
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-        transition: all 0.3s ease;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        background: #0b1629;
-        color: var(--light);
-        overflow-x: hidden;
-      }
-
-      /* ===== PARTICULAS ===== */
-      #particles-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-      }
-
-      header {
-        position: sticky;
-        top: 0;
-        background: rgba(11, 22, 41, 0.9);
-        backdrop-filter: blur(12px);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 5%;
-        z-index: 1000;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      }
-
-      .user {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
-
-      .avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 1.3rem;
-        color: white;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      }
-
-      .logout {
-        background: #ff4d4d;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      .logout:hover {
-        background: #e03b3b;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 100px auto 50px auto;
-        padding: 20px;
-        backdrop-filter: blur(8px);
-        background: rgba(11, 22, 41, 0.85);
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        animation: fadeIn 1s ease forwards;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .cards {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        margin-bottom: 40px;
-      }
-
-      .card {
-        flex: 1;
-        min-width: 200px;
-        padding: 25px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(0, 198, 255, 0.25);
-        text-align: center;
-        cursor: pointer;
-        transition: 0.4s;
-      }
-
-      .card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 15px 40px rgba(0, 198, 255, 0.3);
-      }
-
-      .card h3 {
-        margin-bottom: 12px;
-        font-size: 1.1rem;
-      }
-      .card span {
-        font-size: 2.5rem;
-        color: var(--secondary);
-        font-weight: 700;
-      }
-
-      form {
-        max-width: 700px;
-        margin: 0 auto 40px auto;
-        padding: 30px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(0, 198, 255, 0.25);
-      }
-
-      input,
-      select,
-      textarea {
-        width: 100%;
-        padding: 14px;
-        margin-bottom: 18px;
-        border-radius: 10px;
-        font-size: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        background: rgba(0, 0, 0, 0.4);
-        color: white;
-      }
-
-      select option {
-        background: #0b1629;
-        color: white;
-      }
-
-      input:disabled {
-        background: rgba(0, 0, 0, 0.5);
-        color: var(--light);
-      }
-
-      button.submit {
-        background: var(--primary);
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      button.submit:hover {
-        background: var(--secondary);
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        background: rgba(255, 255, 255, 0.05);
-      }
-
-      th,
-      td {
-        padding: 14px;
-        text-align: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      th {
-        background: rgba(0, 198, 255, 0.1);
-        font-weight: 600;
-      }
-
-      tr:hover {
-        background: rgba(0, 198, 255, 0.2);
-        transform: scale(1.01);
-      }
-
-      .status {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        display: inline-block;
-        min-width: 75px;
-        color: white;
-      }
-      .nuevo {
-        background: #ff9800;
-      }
-      .proceso {
-        background: #2196f3;
-      }
-      .finalizado {
-        background: #4caf50;
-      }
-
-      .chat-btn {
-        border: none;
-        border-radius: 8px;
-        padding: 8px 10px;
-        background: var(--primary);
-        color: white;
-        cursor: pointer;
-        font-weight: 600;
-      }
-
-      .chat-btn:disabled {
-        background: #64748b;
-        cursor: not-allowed;
-        opacity: 0.75;
-      }
-
-      .reveal {
-        opacity: 0;
-        transform: translateY(40px);
-        transition: 1s;
-      }
-      .reveal.active {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="particles-bg"></canvas>
-
-    <header>
-      <h2 style="color: var(--secondary)">TecniRed | Portal</h2>
-      <div class="user">
-        <div class="avatar" id="avatar"></div>
-        <span id="bienvenida"></span>
-        <button class="logout" onclick="cerrarSesion()">Salir</button>
-      </div>
-    </header>
-
-    <div class="container">
-      <div class="cards reveal">
-        <div class="card">
-          <h3>Tickets creados</h3>
-          <span id="total">0</span>
-        </div>
-        <div class="card">
-          <h3>En proceso</h3>
-          <span id="proceso">0</span>
-        </div>
-        <div class="card">
-          <h3>Finalizados</h3>
-          <span id="finalizados">0</span>
-        </div>
-      </div>
-
-      <form onsubmit="crearTicket(event)" class="reveal">
-        <input type="text" id="nombre" placeholder="Nombre" disabled />
-        <select id="categoria" required>
-          <option value="">Selecciona categoría</option>
-          <option>Hardware</option>
-          <option>Software</option>
-          <option>Redes</option>
-          <option>Seguridad</option>
-        </select>
-        <textarea
-          id="descripcion"
-          placeholder="Describe tu problema"
-          required
-        ></textarea>
-        <button class="submit">Enviar Ticket</button>
-      </form>
-
-      <h2 class="reveal">Mis Tickets</h2>
-      <table class="reveal">
-        <thead>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Categoría</th>
-              <th>Descripción</th>
-              <th>Estado</th>
-              <th>Fecha</th>
-              <th>Chat</th>
-            </tr>
-          </thead>
-        </thead>
-
-        <tbody id="tablaTickets"></tbody>
-      </table>
+﻿<!doctype html><html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Portal | TecniRed</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/><style>:root{--bg:#020617;--panel:rgba(15,23,42,0.85);--line:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--primary:#38bdf8;--ps:#0ea5e9;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--border:rgba(56,189,248,0.15);}*{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",sans-serif;}body{background:var(--bg);color:var(--text);min-height:100vh;}canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}.header{position:sticky;top:0;z-index:100;background:rgba(2,6,23,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;justify-content:space-between;align-items:center;gap:16px;}.hbrand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--primary);font-size:1rem;}.hbrand img{width:32px;}.hright{display:flex;align-items:center;gap:12px;}.pbadge{padding:5px 14px;border-radius:999px;font-size:0.72rem;font-weight:700;}.pb-gratis{background:rgba(148,163,184,0.15);color:var(--muted);border:1px solid rgba(148,163,184,0.2);}.pb-estandar{background:rgba(56,189,248,0.15);color:var(--primary);border:1px solid rgba(56,189,248,0.3);}.pb-premium{background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ps),var(--primary));display:grid;place-items:center;font-weight:800;font-size:0.9rem;color:#06202c;}.btn-out{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;padding:8px 16px;border-radius:10px;font-weight:600;font-size:0.82rem;cursor:pointer;}.main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:32px 24px 60px;}</style>
+<style>.banner{border-radius:20px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}.banner.gratis{background:rgba(15,23,42,0.7);border:1px solid var(--line);}.banner.estandar{background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(56,189,248,0.05));border:1px solid rgba(56,189,248,0.25);}.banner.premium{background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(99,102,241,0.06));border:1px solid rgba(139,92,246,0.28);}.banner h2{font-size:1.1rem;font-weight:800;margin-bottom:3px;}.banner p{font-size:0.82rem;color:var(--muted);}.bup{padding:10px 20px;border-radius:12px;font-weight:700;font-size:0.82rem;text-decoration:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all 0.3s;}.bup-std{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;}.bup-pre{background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:white;}.bup:hover{transform:translateY(-2px);}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;}.sc{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;text-align:center;backdrop-filter:blur(12px);}.sc .n{font-size:1.9rem;font-weight:900;color:var(--primary);}.sc .l{font-size:0.75rem;color:var(--muted);margin-top:3px;}.lbar{background:rgba(15,23,42,0.7);border:1px solid var(--border);border-radius:14px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}.lbar .ll{font-size:0.8rem;color:var(--muted);flex-shrink:0;}.bw{flex:1;min-width:100px;height:7px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;}.bf{height:100%;border-radius:999px;transition:width 0.6s;}.bf-ok{background:linear-gradient(90deg,var(--ps),var(--primary));}.bf-warn{background:linear-gradient(90deg,#f59e0b,#fbbf24);}.bf-full{background:linear-gradient(90deg,#ef4444,#f87171);}.lt{font-size:0.8rem;font-weight:700;flex-shrink:0;}.stitle{font-size:0.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}.tform{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:24px;backdrop-filter:blur(12px);}.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}.fg{display:flex;flex-direction:column;gap:5px;}.fg label{font-size:0.75rem;font-weight:600;color:var(--muted);}.fg input,.fg select,.fg textarea{padding:10px 13px;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:0.85rem;outline:none;font-family:inherit;transition:border-color 0.2s;}.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);}.fg input:disabled{opacity:0.45;cursor:not-allowed;}.fg textarea{resize:vertical;min-height:80px;}.fg select option{background:#0f172a;}.bsub{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;border:none;border-radius:12px;padding:11px 26px;font-weight:700;font-size:0.88rem;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px;}.bsub:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(56,189,248,0.3);}.bsub:disabled{opacity:0.5;cursor:not-allowed;transform:none;}.locked{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);border-radius:20px;padding:28px;text-align:center;margin-bottom:24px;}.locked i{font-size:2rem;color:#f87171;margin-bottom:10px;display:block;}.locked p{color:var(--muted);font-size:0.88rem;margin-bottom:14px;}.tsec{background:var(--panel);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(12px);}.tsec-hdr{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}table{width:100%;border-collapse:collapse;font-size:0.82rem;}th{padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);background:rgba(56,189,248,0.04);border-bottom:1px solid var(--line);}td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}tr:last-child td{border-bottom:none;}tr:hover td{background:rgba(56,189,248,0.03);}.be{display:inline-block;padding:3px 9px;border-radius:6px;font-size:0.7rem;font-weight:700;}.be-Nuevo{background:rgba(56,189,248,0.15);color:var(--primary);}.be-Proceso{background:rgba(245,158,11,0.15);color:var(--warn);}.be-Finalizado{background:rgba(34,197,94,0.15);color:var(--ok);}.bchat{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;border:none;border-radius:8px;padding:5px 13px;font-weight:700;font-size:0.75rem;cursor:pointer;transition:all 0.2s;}.bchat:hover{transform:translateY(-1px);}.bchat:disabled{background:rgba(255,255,255,0.07);color:var(--muted);cursor:not-allowed;transform:none;}.prem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px;}.pfc{background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(99,102,241,0.05));border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:18px;display:flex;align-items:flex-start;gap:12px;}.pfi{width:36px;height:36px;border-radius:10px;background:rgba(139,92,246,0.2);display:grid;place-items:center;color:#a78bfa;font-size:0.9rem;flex-shrink:0;}.pfc h4{font-size:0.82rem;font-weight:700;margin-bottom:2px;}.pfc p{font-size:0.72rem;color:var(--muted);}.empty{padding:44px;text-align:center;color:var(--muted);}.empty i{font-size:2.2rem;display:block;margin-bottom:10px;color:rgba(56,189,248,0.18);}@media(max-width:700px){.frow{grid-template-columns:1fr;}.header{padding:12px 16px;}.main{padding:20px 14px 40px;}}</style></head>
+<body>
+<canvas id="bg"></canvas>
+<header class="header">
+  <div class="hbrand"><img src="/img/TecniredLogo.png" alt="Logo"/>TECNIRED</div>
+  <div class="hright">
+    <span class="pbadge pb-gratis" id="planBadge">Gratis</span>
+    <div class="avatar" id="avatarEl"></div>
+    <span id="nombreEl" style="font-size:0.82rem;color:var(--muted)"></span>
+    <button class="btn-out" onclick="cerrarSesion()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+  </div>
+</header>
+<div class="main">
+  <!-- BANNER PLAN -->
+  <div class="banner gratis" id="planBanner">
+    <div>
+      <h2 id="bannerTitle">Plan Gratuito</h2>
+      <p id="bannerDesc">Estás usando el plan gratuito. Actualiza para más funcionalidades.</p>
     </div>
-    <script>
-      // ===== PARTICULAS =====
-      const canvas = document.getElementById("particles-bg");
-      const ctx = canvas.getContext("2d");
-      let w = (canvas.width = window.innerWidth);
-      let h = (canvas.height = window.innerHeight);
+    <div id="bannerBtn"></div>
+  </div>
+  <!-- PREMIUM FEATURES (solo premium) -->
+  <div id="premiumFeatures" style="display:none">
+    <div class="stitle"><i class="fa-solid fa-crown" style="color:#a78bfa"></i> Funcionalidades Premium</div>
+    <div class="prem-grid">
+      <div class="pfc"><div class="pfi"><i class="fa-solid fa-bolt"></i></div><div><h4>Respuesta en 2h</h4><p>Tiempo de respuesta garantizado</p></div></div>
+      <div class="pfc"><div class="pfi"><i class="fa-solid fa-user-tie"></i></div><div><h4>Asesor dedicado</h4><p>Un técnico asignado a tu cuenta</p></div></div>
+      <div class="pfc"><div class="pfi"><i class="fa-solid fa-shield-halved"></i></div><div><h4>Monitoreo preventivo</h4><p>Revisión mensual de tus equipos</p></div></div>
+      <div class="pfc"><div class="pfi"><i class="fa-solid fa-infinity"></i></div><div><h4>Tickets ilimitados</h4><p>Sin restricciones de cantidad</p></div></div>
+    </div>
+  </div>
+  <!-- STATS -->
+  <div class="stats">
+    <div class="sc"><div class="n" id="statTotal">0</div><div class="l">Tickets creados</div></div>
+    <div class="sc"><div class="n" id="statProceso">0</div><div class="l">En proceso</div></div>
+    <div class="sc"><div class="n" id="statFin">0</div><div class="l">Finalizados</div></div>
+    <div class="sc" id="statLimitCard"><div class="n" id="statActivos">0</div><div class="l" id="statLimitLabel">Activos</div></div>
+  </div>
+  <!-- BARRA DE LIMITE (gratis y estandar) -->
+  <div class="lbar" id="limitBar" style="display:none">
+    <span class="ll" id="limitLabel">Tickets activos:</span>
+    <div class="bw"><div class="bf bf-ok" id="limitFill" style="width:0%"></div></div>
+    <span class="lt" id="limitText">0 / 1</span>
+  </div>
+  <!-- FORMULARIO -->
+  <div class="stitle"><i class="fa-solid fa-plus-circle" style="color:var(--primary)"></i> Crear nuevo ticket</div>
+  <div id="formWrap">
+    <div class="tform">
+      <form id="ticketForm">
+        <div class="frow">
+          <div class="fg"><label>Tu nombre</label><input type="text" id="nombre" disabled/></div>
+          <div class="fg"><label>Categoría</label>
+            <select id="categoria" required>
+              <option value="">Selecciona...</option>
+              <option>Hardware</option><option>Software</option>
+              <option>Redes</option><option>Seguridad</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:16px"><label>Describe tu problema</label><textarea id="descripcion" required placeholder="Explica con detalle qué está pasando..."></textarea></div>
+        <button type="submit" class="bsub" id="btnSubmit"><i class="fa-solid fa-paper-plane"></i> Enviar ticket</button>
+      </form>
+    </div>
+  </div>
+  <!-- TABLA -->
+  <div class="tsec">
+    <div class="tsec-hdr">
+      <span class="stitle" style="margin:0"><i class="fa-solid fa-ticket" style="color:var(--primary)"></i> Mis tickets</span>
+      <span id="refreshBtn" style="font-size:0.78rem;color:var(--muted);cursor:pointer" onclick="cargarTickets()"><i class="fa-solid fa-rotate"></i> Actualizar</span>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Categoría</th><th>Descripción</th><th>Estado</th><th>Fecha</th><th>Chat</th></tr></thead>
+      <tbody id="tablaTickets"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+// CANVAS
+const canvas=document.getElementById("bg"),ctx=canvas.getContext("2d");let pts=[];
+function rc(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;pts=[];const n=Math.min(60,Math.floor(window.innerWidth/18));for(let i=0;i<n;i++)pts.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4});}
+function dc(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.fillStyle="rgba(56,189,248,0.4)";ctx.beginPath();ctx.arc(p.x,p.y,1.4,0,Math.PI*2);ctx.fill();for(let j=i+1;j<pts.length;j++){const o=pts[j],dx=p.x-o.x,dy=p.y-o.y,d=dx*dx+dy*dy;if(d<9000){ctx.strokeStyle=`rgba(56,189,248,${.35-d/26000})`;ctx.lineWidth=.35;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(o.x,o.y);ctx.stroke();}}});requestAnimationFrame(dc);}
+window.addEventListener("resize",rc);rc();dc();
 
-      window.addEventListener("resize", () => {
-        w = canvas.width = window.innerWidth;
-        h = canvas.height = window.innerHeight;
-      });
+// AUTH
+const usuario=JSON.parse(localStorage.getItem("usuario"));
+if(!usuario)window.location.href="/";
 
-      const particles = [];
-      for (let i = 0; i < 100; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: Math.random() * 2 + 1,
-          dx: (Math.random() - 0.5) * 0.5,
-          dy: (Math.random() - 0.5) * 0.5,
-        });
-      }
+document.getElementById("nombreEl").textContent=usuario.nombre;
+document.getElementById("avatarEl").textContent=usuario.nombre.charAt(0).toUpperCase();
+document.getElementById("nombre").value=usuario.nombre;
 
-      function animateParticles() {
-        ctx.clearRect(0, 0, w, h);
-        particles.forEach((p) => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = "rgba(0,198,255,0.3)";
-          ctx.fill();
-          p.x += p.dx;
-          p.y += p.dy;
-          if (p.x < 0 || p.x > w) p.dx *= -1;
-          if (p.y < 0 || p.y > h) p.dy *= -1;
-        });
-        requestAnimationFrame(animateParticles);
-      }
-      animateParticles();
+// PLAN CONFIG
+const PLAN_CONFIG={
+  gratis:{label:"Gratis",maxActivos:1,maxLabel:"1 ticket activo"},
+  estandar:{label:"Estándar",maxActivos:5,maxLabel:"5 tickets activos"},
+  premium:{label:"Premium",maxActivos:Infinity,maxLabel:"Ilimitados"}
+};
 
-      // ===== USUARIO =====
-      const usuario = JSON.parse(localStorage.getItem("usuario"));
-      if (!usuario) window.location.href = "/";
-      let ticketsCache = [];
+let planActual="gratis";
+let ticketsCache=[];
 
-      document.getElementById("bienvenida").textContent =
-        `Bienvenido, ${usuario.nombre}`;
-      document.getElementById("avatar").textContent = usuario.nombre
-        .charAt(0)
-        .toUpperCase();
-      document.getElementById("nombre").value = usuario.nombre;
+async function cargarPlan(){
+  try{
+    const res=await fetch(`/usuario/plan/${usuario.email}`);
+    const data=await res.json();
+    planActual=data.plan||"gratis";
+  }catch(e){planActual="gratis";}
+  aplicarPlan();
+}
 
-      // ===== CARGAR TICKETS =====
-      async function cargarTickets() {
-        try {
-          const res = await fetch(`/tickets/usuario/${usuario.email}`);
+function aplicarPlan(){
+  const cfg=PLAN_CONFIG[planActual]||PLAN_CONFIG.gratis;
+  const badge=document.getElementById("planBadge");
+  badge.textContent=cfg.label;
+  badge.className="pbadge pb-"+planActual;
 
-          if (!res.ok) throw new Error("Error obteniendo tickets");
+  const banner=document.getElementById("planBanner");
+  banner.className="banner "+planActual;
 
-          const tickets = await res.json();
-          ticketsCache = tickets;
+  if(planActual==="gratis"){
+    document.getElementById("bannerTitle").textContent="Plan Gratuito";
+    document.getElementById("bannerDesc").textContent="Tienes 1 ticket activo. Actualiza para gestionar más casos.";
+    document.getElementById("bannerBtn").innerHTML='<button class="bup bup-std" onclick="window.location.href=\'/planes.html\'"><i class="fa-solid fa-arrow-up"></i> Actualizar a Estándar</button>';
+    document.getElementById("limitBar").style.display="flex";
+    document.getElementById("premiumFeatures").style.display="none";
+  }else if(planActual==="estandar"){
+    document.getElementById("bannerTitle").textContent="Plan Estándar ⚡";
+    document.getElementById("bannerDesc").textContent="Hasta 5 tickets simultáneos, soporte prioritario y escalamiento N1-N2.";
+    document.getElementById("bannerBtn").innerHTML='<button class="bup bup-pre" onclick="window.location.href=\'/planes.html\'"><i class="fa-solid fa-crown"></i> Subir a Premium</button>';
+    document.getElementById("limitBar").style.display="flex";
+    document.getElementById("premiumFeatures").style.display="none";
+  }else{
+    document.getElementById("bannerTitle").textContent="Plan Premium ⭐";
+    document.getElementById("bannerDesc").textContent="Tienes acceso completo: tickets ilimitados, asesor dedicado y soporte 24/7.";
+    document.getElementById("bannerBtn").innerHTML='<span style="font-size:0.82rem;color:#a78bfa"><i class="fa-solid fa-check-circle"></i> Plan activo</span>';
+    document.getElementById("limitBar").style.display="none";
+    document.getElementById("premiumFeatures").style.display="block";
+  }
+}
 
-          console.log("Tickets recibidos:", tickets);
+function actualizarLimitBar(activos){
+  const cfg=PLAN_CONFIG[planActual]||PLAN_CONFIG.gratis;
+  if(cfg.maxActivos===Infinity)return;
+  const pct=Math.min((activos/cfg.maxActivos)*100,100);
+  const fill=document.getElementById("limitFill");
+  fill.style.width=pct+"%";
+  fill.className="bf "+(pct>=100?"bf-full":pct>=70?"bf-warn":"bf-ok");
+  document.getElementById("limitText").textContent=`${activos} / ${cfg.maxActivos}`;
+  document.getElementById("limitLabel").textContent="Tickets activos:";
+}
 
-          if (!Array.isArray(tickets)) {
-            console.error("La respuesta no es un array");
-            return;
-          }
+function puedeCrearTicket(activos){
+  const cfg=PLAN_CONFIG[planActual]||PLAN_CONFIG.gratis;
+  return cfg.maxActivos===Infinity||activos<cfg.maxActivos;
+}
 
-          document.getElementById("total").textContent = tickets.length;
-          document.getElementById("proceso").textContent = tickets.filter(
-            (t) => t.estado === "Proceso",
-          ).length;
-          document.getElementById("finalizados").textContent = tickets.filter(
-            (t) => t.estado === "Finalizado",
-          ).length;
+async function cargarTickets(){
+  try{
+    const res=await fetch(`/tickets/usuario/${usuario.email}`);
+    const tickets=await res.json();
+    ticketsCache=tickets;
+    const activos=tickets.filter(t=>t.estado!=="Finalizado").length;
+    document.getElementById("statTotal").textContent=tickets.length;
+    document.getElementById("statProceso").textContent=tickets.filter(t=>t.estado==="Proceso").length;
+    document.getElementById("statFin").textContent=tickets.filter(t=>t.estado==="Finalizado").length;
+    document.getElementById("statActivos").textContent=activos;
+    actualizarLimitBar(activos);
+    const puede=puedeCrearTicket(activos);
+    const btn=document.getElementById("btnSubmit");
+    if(btn){btn.disabled=!puede;btn.title=puede?"":"Límite de tickets alcanzado. Actualiza tu plan.";}
+    const tbody=document.getElementById("tablaTickets");
+    tbody.innerHTML="";
+    if(!tickets.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty"><i class="fa-solid fa-inbox"></i>No tienes tickets aún. ¡Crea el primero!</div></td></tr>';return;}
+    tickets.forEach(t=>{
+      const fin=t.estado==="Finalizado";
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td><strong>#${t.id}</strong></td><td>${t.categoria}</td><td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.descripcion}</td><td><span class="be be-${t.estado||"Nuevo"}">${t.estado||"Nuevo"}</span></td><td style="font-size:0.75rem">${t.fecha?new Date(t.fecha).toLocaleString("es-CO"):""}</td><td><button class="bchat" onclick="abrirChat(${t.id})" ${fin?"disabled":""} >${fin?"Cerrado":"Chat"}</button></td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(e){console.error(e);}
+}
 
-          const tbody = document.getElementById("tablaTickets");
-          tbody.innerHTML = "";
+document.getElementById("ticketForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const activos=ticketsCache.filter(t=>t.estado!=="Finalizado").length;
+  if(!puedeCrearTicket(activos)){alert("Alcanzaste el límite de tickets de tu plan. Actualiza para crear más.");return;}
+  const btn=document.getElementById("btnSubmit");
+  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+  try{
+    const res=await fetch("/tickets",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nombre:usuario.nombre,email:usuario.email,categoria:document.getElementById("categoria").value,descripcion:document.getElementById("descripcion").value})});
+    const data=await res.json();
+    if(data.status==="ok"){e.target.reset();document.getElementById("nombre").value=usuario.nombre;await cargarTickets();}
+    else alert(data.message||"No se pudo crear el ticket");
+  }catch(err){alert("Error del servidor");}
+  finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Enviar ticket';}
+});
 
-          tickets.forEach((t, i) => {
-            const fila = document.createElement("tr");
-            const finalizado = t.estado === "Finalizado";
-            fila.innerHTML = `
-  <td>${t.id}</td>
-  <td>${t.categoria}</td>
-  <td>${t.descripcion}</td>
-  <td class="status ${t.estado?.toLowerCase() || ""}">
-    ${t.estado || "Nuevo"}
-  </td>
-  <td>${t.fecha ? new Date(t.fecha).toLocaleString("es-CO") : ""}</td>
-  <td>
-    <button class="chat-btn" onclick="abrirChat(${t.id})" ${finalizado ? "disabled" : ""}>
-      ${finalizado ? "Cerrado" : "Chat"}
-    </button>
-  </td>
-`;
-            fila.style.opacity = 0;
-            tbody.appendChild(fila);
-            setTimeout(() => (fila.style.opacity = 1), 50 * i);
-          });
-        } catch (err) {
-          console.error("Error cargando tickets:", err);
-        }
-      }
+function abrirChat(id){
+  const t=ticketsCache.find(t=>Number(t.id)===Number(id));
+  if(t?.estado==="Finalizado"){alert("Este ticket fue finalizado. El chat está cerrado.");return;}
+  window.location.href=`/chat_cliente.html?ticket=${id}`;
+}
 
-      // ===== CREAR TICKET =====
-      async function crearTicket(e) {
-        e.preventDefault();
+function cerrarSesion(){localStorage.removeItem("usuario");window.location.href="/";}
 
-        const data = {
-          nombre: usuario.nombre,
-          email: usuario.email,
-          categoria: document.getElementById("categoria").value,
-          descripcion: document.getElementById("descripcion").value,
-        };
-
-        if (!data.categoria || !data.descripcion) {
-          alert("Completa todos los campos");
-          return;
-        }
-
-        try {
-          const res = await fetch("/tickets", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          });
-
-          if (!res.ok) throw new Error("Error en servidor");
-
-          const result = await res.json();
-
-          console.log("Respuesta servidor:", result);
-
-          if (result && (result.status === "ok" || result.insertId)) {
-            e.target.reset();
-            document.getElementById("nombre").value = usuario.nombre;
-            await cargarTickets();
-          } else {
-            alert(result.message || "No se pudo crear el ticket");
-          }
-        } catch (err) {
-          console.error("Error creando ticket:", err);
-          alert("Error del servidor");
-        }
-      }
-
-      // ===== REVEAL ANIMACION =====
-      document.addEventListener("DOMContentLoaded", () => {
-        cargarTickets();
-        const reveals = document.querySelectorAll(".reveal");
-        window.addEventListener("scroll", () => {
-          for (const r of reveals) {
-            const top = r.getBoundingClientRect().top;
-            if (top < window.innerHeight - 50) r.classList.add("active");
-          }
-        });
-      });
-
-      // ===== AUTO REFRESH 10 MIN =====
-      setInterval(cargarTickets, 600000);
-
-      // ===== LOGOUT =====
-      function cerrarSesion() {
-        localStorage.removeItem("usuario");
-        window.location.href = "/";
-      }
-
-      function abrirChat(id) {
-        const ticket = ticketsCache.find((t) => Number(t.id) === Number(id));
-        if (ticket?.estado === "Finalizado") {
-          alert("Este caso ya fue finalizado. El chat está cerrado.");
-          return;
-        }
-        window.location.href = `/chat_cliente.html?ticket=${id}`;
-      }
-    </script>
-  </body>
-</html>
+document.addEventListener("DOMContentLoaded",async()=>{await cargarPlan();await cargarTickets();});
+setInterval(cargarTickets,300000);
+</script></body></html>

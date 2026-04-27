@@ -289,9 +289,21 @@ app.get("/tickets/usuario/:email", (req, res) => {
   );
 });
 
-// ===== CREAR TICKET =====
-app.post("/tickets", (req, res) => {
+// ===== CREAR TICKET CON VERIFICACIÓN DE LÍMITES =====
+app.post("/tickets", async (req, res) => {
   const { nombre, email, categoria, descripcion } = req.body;
+
+  // Verificar límites del plan
+  const verificacion = await verificarLimitesPlan(email, "crear_ticket");
+
+  if (!verificacion.permitido) {
+    return res.status(403).json({
+      status: "fail",
+      message: verificacion.mensaje,
+      ticketsUsados: verificacion.ticketsUsados,
+      ticketsDisponibles: verificacion.ticketsDisponibles
+    });
+  }
 
   db.query(
     `INSERT INTO tickets 
@@ -300,7 +312,11 @@ app.post("/tickets", (req, res) => {
     [nombre, email, categoria, descripcion],
     (err) => {
       if (err) return res.status(500).json({ status: "fail" });
-      res.json({ status: "ok" });
+      res.json({
+        status: "ok",
+        plan: verificacion.plan,
+        ticketsRestantes: verificacion.ticketsDisponibles - 1
+      });
     },
   );
 });
@@ -505,15 +521,180 @@ const mpClient = new MercadoPagoConfig({
 });
 
 const PLANES = {
-  estandar: { nombre: "Plan Estándar TecniRed", precio: 60000,  descripcion: "Soporte ilimitado, hasta 3 equipos, seguridad antivirus, chat en tiempo real" },
-  premium:  { nombre: "Plan Premium TecniRed",  precio: 100000, descripcion: "Soporte prioritario, equipos ilimitados, asesor dedicado, monitoreo constante" },
+  gratis: {
+    nombre: "Plan Gratis (Prueba 7 días)",
+    precio: 0,
+    descripcion: "1 ticket/mes, respuesta 72h, chat básico",
+    limites: {
+      tickets_mes: 1,
+      tiempo_respuesta: "72 horas",
+      adjuntos: false,
+      escalamiento: false,
+      soporte_telefono: false,
+      videollamada: false,
+      asesor_dedicado: false,
+      reportes: false
+    }
+  },
+  estandar: {
+    nombre: "Plan Estándar TecniRed",
+    precio: 2000, // Precio de prueba — cambiar a 60000 para producción
+    descripcion: "5 tickets/mes, respuesta 24h, chat prioritario, escalamiento N1-N2",
+    limites: {
+      tickets_mes: 5,
+      tiempo_respuesta: "24 horas",
+      adjuntos: true,
+      escalamiento: ["1", "2"],
+      soporte_telefono: "horario_laboral",
+      videollamada: false,
+      asesor_dedicado: false,
+      reportes: false
+    }
+  },
+  premium: {
+    nombre: "Plan Premium TecniRed",
+    precio: 100000,
+    descripcion: "Tickets ilimitados, respuesta 4h 24/7, asesor dedicado, escalamiento completo",
+    limites: {
+      tickets_mes: -1, // ilimitado
+      tiempo_respuesta: "4 horas",
+      adjuntos: true,
+      escalamiento: ["1", "2", "3"],
+      soporte_telefono: "24/7",
+      videollamada: true,
+      asesor_dedicado: true,
+      reportes: true
+    }
+  }
 };
+
+// Middleware para verificar límites del plan
+async function verificarLimitesPlan(email, accion) {
+  return new Promise((resolve) => {
+    db.query(
+      "SELECT plan FROM usuarios WHERE email=?",
+      [email],
+      (err, rows) => {
+        if (err || !rows.length) {
+          return resolve({ permitido: false, mensaje: "Usuario no encontrado" });
+        }
+
+        const planUsuario = rows[0].plan || "gratis";
+        const limites = PLANES[planUsuario]?.limites;
+
+        if (!limites) {
+          return resolve({ permitido: false, mensaje: "Plan no válido" });
+        }
+
+        // Verificar límite de tickets por mes
+        if (accion === "crear_ticket") {
+          if (limites.tickets_mes === -1) {
+            return resolve({ permitido: true, plan: planUsuario, limites });
+          }
+
+          const inicioMes = new Date();
+          inicioMes.setDate(1);
+          inicioMes.setHours(0, 0, 0, 0);
+
+          db.query(
+            "SELECT COUNT(*) as total FROM tickets WHERE email=? AND fecha >= ?",
+            [email, inicioMes],
+            (err, count) => {
+              if (err) {
+                return resolve({ permitido: false, mensaje: "Error verificando límites" });
+              }
+
+              const ticketsUsados = count[0].total;
+              if (ticketsUsados >= limites.tickets_mes) {
+                return resolve({
+                  permitido: false,
+                  mensaje: `Has alcanzado el límite de ${limites.tickets_mes} tickets por mes. Actualiza tu plan para continuar.`,
+                  ticketsUsados,
+                  ticketsDisponibles: limites.tickets_mes
+                });
+              }
+
+              resolve({
+                permitido: true,
+                plan: planUsuario,
+                limites,
+                ticketsUsados,
+                ticketsDisponibles: limites.tickets_mes - ticketsUsados
+              });
+            }
+          );
+        } else {
+          resolve({ permitido: true, plan: planUsuario, limites });
+        }
+      }
+    );
+  });
+}
+
+// Endpoint para obtener información del plan y límites
+app.get("/usuario/plan/:email", (req, res) => {
+  db.query(
+    "SELECT plan FROM usuarios WHERE email=?",
+    [req.params.email],
+    (err, rows) => {
+      if (err || !rows.length) {
+        return res.json({ plan: "gratis", limites: PLANES.gratis.limites });
+      }
+
+      const planUsuario = rows[0].plan || "gratis";
+      const planInfo = PLANES[planUsuario];
+
+      // Contar tickets del mes actual
+      const inicioMes = new Date();
+      inicioMes.setDate(1);
+      inicioMes.setHours(0, 0, 0, 0);
+
+      db.query(
+        "SELECT COUNT(*) as total FROM tickets WHERE email=? AND fecha >= ?",
+        [req.params.email, inicioMes],
+        (err, count) => {
+          const ticketsUsados = err ? 0 : count[0].total;
+          const ticketsDisponibles = planInfo.limites.tickets_mes === -1
+            ? "ilimitados"
+            : planInfo.limites.tickets_mes - ticketsUsados;
+
+          res.json({
+            plan: planUsuario,
+            nombre: planInfo.nombre,
+            limites: planInfo.limites,
+            ticketsUsados,
+            ticketsDisponibles
+          });
+        }
+      );
+    }
+  );
+});
+
+// Endpoint para obtener todos los planes disponibles
+app.get("/planes", (req, res) => {
+  const planesPublicos = Object.keys(PLANES).map(key => ({
+    id: key,
+    nombre: PLANES[key].nombre,
+    precio: PLANES[key].precio,
+    descripcion: PLANES[key].descripcion,
+    limites: PLANES[key].limites
+  }));
+  res.json(planesPublicos);
+});
 
 // Crear preferencia de pago
 app.post("/pago/crear", async (req, res) => {
   const { plan, email } = req.body;
   const planInfo = PLANES[plan];
-  if (!planInfo) return res.status(400).json({ status: "fail", message: "Plan no válido" });
+  
+  if (!planInfo) {
+    return res.status(400).json({ status: "fail", message: "Plan no válido" });
+  }
+
+  if (planInfo.precio === 0) {
+    return res.status(400).json({ status: "fail", message: "El plan gratis no requiere pago" });
+  }
 
   try {
     const preference = new Preference(mpClient);
@@ -611,7 +792,25 @@ app.get("/pago/exito",     (req, res) => res.sendFile(path.join(__dirname, "publ
 app.get("/pago/fallo",     (req, res) => res.sendFile(path.join(__dirname, "public/pago_fallo.html")));
 app.get("/pago/pendiente", (req, res) => res.sendFile(path.join(__dirname, "public/pago_pendiente.html")));
 
-// Crear tabla pagos si no existe
+// Agregar columna plan a usuarios si no existe
+db.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan VARCHAR(20) DEFAULT 'gratis'", (err) => {
+  if (err && !err.message.includes("Duplicate")) console.error("plan column:", err.message);
+  else console.log("✅ Columna plan lista");
+});
+
+// Endpoint para obtener el plan del usuario
+app.get("/usuario/plan/:email", (req, res) => {
+  db.query(
+    "SELECT plan FROM usuarios WHERE email=?",
+    [req.params.email],
+    (err, rows) => {
+      if (err || !rows.length) return res.json({ plan: "gratis" });
+      res.json({ plan: rows[0].plan || "gratis" });
+    }
+  );
+});
+
+// Crear tabla de pagos si no existe
 db.query(`
   CREATE TABLE IF NOT EXISTS pagos (
     id INT AUTO_INCREMENT PRIMARY KEY,

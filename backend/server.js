@@ -944,17 +944,24 @@ app.post("/admin/usuarios", (req, res) => {
 
   // Verificar si el email ya existe
   db.query("SELECT email FROM usuarios WHERE email = ?", [email], (err, rows) => {
-    if (err) return res.status(500).json({ status: "fail" });
+    if (err) {
+      console.error("Error verificando email:", err.message);
+      return res.status(500).json({ status: "fail", message: "Error verificando email" });
+    }
     if (rows.length > 0) {
       return res.status(400).json({ status: "fail", message: "El email ya está registrado" });
     }
 
-    // Crear usuario
+    // Crear usuario (sin fecha_registro que no existe en Railway)
     db.query(
-      "INSERT INTO usuarios (nombre, email, password, telefono, rol, fecha_registro) VALUES (?, ?, ?, ?, ?, NOW())",
+      "INSERT INTO usuarios (nombre, email, password, telefono, rol) VALUES (?, ?, ?, ?, ?)",
       [nombre, email, crearHashPassword(password), telefono || "N/A", rol],
       (err, result) => {
-        if (err) return res.status(500).json({ status: "fail" });
+        if (err) {
+          console.error("Error creando usuario:", err.message);
+          return res.status(500).json({ status: "fail", message: "Error al crear usuario: " + err.message });
+        }
+        console.log(`✅ Usuario creado: ${nombre} (${rol})`);
         res.json({ 
           status: "ok", 
           message: "Usuario creado correctamente",

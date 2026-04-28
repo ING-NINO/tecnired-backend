@@ -270,6 +270,96 @@
     }
     .btn-send-chat:hover{transform:scale(1.08);box-shadow:0 4px 14px rgba(56,189,248,0.4);}
 
+    /* EMOJI PICKER ADMIN */
+    .emoji-btn-admin {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      margin-right: 4px;
+    }
+
+    .emoji-btn-admin:hover {
+      background: rgba(56,189,248,0.1);
+    }
+
+    .emoji-picker-admin {
+      position: absolute;
+      bottom: 60px;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 1000;
+      width: 280px;
+    }
+
+    .emoji-picker-admin.show {
+      display: block;
+      animation: emojiSlide 0.3s ease-out;
+    }
+
+    .emoji-picker-admin .emoji-categories {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .emoji-picker-admin .emoji-category {
+      padding: 6px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+    }
+
+    .emoji-picker-admin .emoji-category:hover,
+    .emoji-picker-admin .emoji-category.active {
+      background: rgba(56,189,248,0.15);
+    }
+
+    .emoji-picker-admin .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .emoji-picker-admin .emoji-item {
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .emoji-picker-admin .emoji-item:hover {
+      background: rgba(56,189,248,0.15);
+      transform: scale(1.2);
+    }
+
+    @keyframes emojiSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     /* TOAST */
     .toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
     .toast{
@@ -408,9 +498,23 @@
       <div class="chat-composer">
         <div class="chat-composer-inner">
           <input type="text" id="chatInput" placeholder="Escribe un mensaje..." />
+          <button class="emoji-btn-admin" onclick="toggleEmojiPickerAdmin()" title="Emojis">😊</button>
           <button class="btn-send-chat" onclick="enviarMensajeInterno()" title="Enviar">
             <i class="fa-solid fa-paper-plane"></i>
           </button>
+        </div>
+        
+        <!-- Emoji Picker para chat interno -->
+        <div class="emoji-picker-admin" id="emojiPickerAdmin">
+          <div class="emoji-categories">
+            <div class="emoji-category active" data-category="smileys">😊</div>
+            <div class="emoji-category" data-category="gestures">👋</div>
+            <div class="emoji-category" data-category="objects">💻</div>
+            <div class="emoji-category" data-category="symbols">❤️</div>
+          </div>
+          <div class="emoji-grid" id="emojiGridAdmin">
+            <!-- Emojis se cargan dinámicamente -->
+          </div>
         </div>
       </div>
     </div>
@@ -679,6 +783,61 @@
         }
       } catch (e) { /* tabla puede no existir aún */ }
     }
+
+    // ===== EMOJI FUNCTIONALITY ADMIN =====
+    const emojisAdmin = {
+      smileys: ["😊", "😂", "🥰", "😍", "🤗", "😘", "😋", "😎", "🤔", "😴", "😅", "🙂", "😉", "😇", "🥳", "😜"],
+      gestures: ["👋", "👍", "👎", "👏", "🙏", "💪", "✋", "👌", "🤝", "✌️", "🤞", "👊", "✊", "🙌", "👐", "🤲"],
+      objects: ["💻", "📱", "⌨️", "🖥️", "🖨️", "📞", "📧", "💾", "🔧", "⚙️", "🔌", "💡", "🔋", "📡", "🛠️", "⚡"],
+      symbols: ["❤️", "💙", "💚", "💛", "🧡", "💜", "🖤", "🤍", "💯", "✅", "❌", "⭐", "🔥", "💎", "🎯", "🚀"]
+    };
+
+    let currentEmojiCategoryAdmin = 'smileys';
+
+    function loadEmojisAdmin(category = 'smileys') {
+      const grid = document.getElementById("emojiGridAdmin");
+      grid.innerHTML = emojisAdmin[category].map(emoji => 
+        `<div class="emoji-item" onclick="insertEmojiAdmin('${emoji}')">${emoji}</div>`
+      ).join('');
+    }
+
+    function toggleEmojiPickerAdmin() {
+      const picker = document.getElementById("emojiPickerAdmin");
+      picker.classList.toggle("show");
+      if (picker.classList.contains("show")) {
+        loadEmojisAdmin(currentEmojiCategoryAdmin);
+      }
+    }
+
+    function insertEmojiAdmin(emoji) {
+      const input = document.getElementById("chatInput");
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      const text = input.value;
+      input.value = text.substring(0, start) + emoji + text.substring(end);
+      input.selectionStart = input.selectionEnd = start + emoji.length;
+      input.focus();
+      document.getElementById("emojiPickerAdmin").classList.remove("show");
+    }
+
+    // Event listeners para categorías de emojis del admin
+    document.querySelectorAll('.emoji-picker-admin .emoji-category').forEach(cat => {
+      cat.addEventListener('click', function() {
+        document.querySelector('.emoji-picker-admin .emoji-category.active').classList.remove('active');
+        this.classList.add('active');
+        currentEmojiCategoryAdmin = this.dataset.category;
+        loadEmojisAdmin(currentEmojiCategoryAdmin);
+      });
+    });
+
+    // Cerrar emoji picker del admin al hacer clic fuera
+    document.addEventListener('click', function(e) {
+      const picker = document.getElementById("emojiPickerAdmin");
+      const emojiBtn = document.querySelector(".emoji-btn-admin");
+      if (picker && emojiBtn && !picker.contains(e.target) && !emojiBtn.contains(e.target)) {
+        picker.classList.remove("show");
+      }
+    });
 
     function renderMensaje(m) {
       const empty = document.getElementById("chatEmpty");

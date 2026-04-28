@@ -14,15 +14,121 @@
 .toast-btn-primary{background:linear-gradient(135deg,var(--ps),var(--primary));color:#06202c;}
 .toast-btn-secondary{background:rgba(255,255,255,0.1);color:var(--muted);border:1px solid rgba(255,255,255,0.2);}
 .toast-btn:hover{transform:translateY(-1px);}
-.tutorial-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
-.tutorial-modal{background:linear-gradient(135deg,rgba(15,23,42,0.95),rgba(30,41,59,0.95));border:1px solid rgba(56,189,248,0.3);border-radius:20px;padding:32px;max-width:500px;width:90%;backdrop-filter:blur(20px);box-shadow:0 25px 50px rgba(0,0,0,0.5);text-align:center;}
-.tutorial-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--ps),var(--primary));display:grid;place-items:center;color:#06202c;font-size:1.8rem;margin:0 auto 20px;}
-.tutorial-title{font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:12px;}
-.tutorial-text{color:var(--muted);line-height:1.5;margin-bottom:24px;}
-.tutorial-steps{text-align:left;margin-bottom:24px;}
-.tutorial-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
-.tutorial-step-num{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#06202c;font-weight:700;font-size:0.8rem;display:grid;place-items:center;flex-shrink:0;}
-.tutorial-step-text{color:var(--muted);font-size:0.9rem;}
+/* TUTORIAL MODERNO - ONBOARDING */
+.tutorial-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;
+  display:none;backdrop-filter:blur(8px);
+  animation:fadeIn 0.4s ease;
+}
+.tutorial-overlay.active{display:block;}
+.tutorial-spotlight{
+  position:absolute;
+  border:3px solid var(--primary);
+  border-radius:12px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,0.85), 0 0 40px var(--primary);
+  pointer-events:none;
+  transition:all 0.5s cubic-bezier(0.4,0,0.2,1);
+  z-index:100000;
+}
+.tutorial-tooltip{
+  position:absolute;
+  background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+  border:2px solid var(--primary);
+  border-radius:20px;
+  padding:28px;
+  max-width:420px;
+  box-shadow:0 25px 80px rgba(0,0,0,0.6), 0 0 60px rgba(56,189,248,0.3);
+  z-index:100001;
+  animation:tooltipSlideIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes tooltipSlideIn{
+  from{opacity:0;transform:translateY(30px) scale(0.9);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.tutorial-header{
+  display:flex;align-items:center;gap:16px;margin-bottom:20px;
+}
+.tutorial-step-badge{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,var(--ps),var(--primary));
+  display:grid;place-items:center;
+  font-weight:800;font-size:1.3rem;color:#06202c;
+  box-shadow:0 8px 24px rgba(56,189,248,0.4);
+  flex-shrink:0;
+}
+.tutorial-header-text h3{
+  margin:0 0 4px;font-size:1.3rem;font-weight:800;
+  background:linear-gradient(135deg,var(--primary),#67e8f9);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.tutorial-header-text p{
+  margin:0;color:var(--muted);font-size:0.85rem;
+}
+.tutorial-content{
+  color:var(--text);line-height:1.6;margin-bottom:24px;
+  font-size:0.95rem;
+}
+.tutorial-content strong{color:var(--primary);}
+.tutorial-actions{
+  display:flex;gap:12px;align-items:center;
+}
+.tutorial-btn{
+  flex:1;padding:14px 20px;border-radius:12px;
+  font-weight:700;font-size:0.95rem;cursor:pointer;
+  border:none;transition:all 0.3s ease;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.tutorial-btn-primary{
+  background:linear-gradient(135deg,var(--ps),var(--primary));
+  color:#06202c;
+  box-shadow:0 8px 24px rgba(56,189,248,0.4);
+}
+.tutorial-btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 32px rgba(56,189,248,0.5);
+}
+.tutorial-btn-secondary{
+  background:rgba(255,255,255,0.05);
+  color:var(--text);
+  border:1px solid rgba(255,255,255,0.1);
+}
+.tutorial-btn-secondary:hover{
+  background:rgba(255,255,255,0.1);
+}
+.tutorial-progress{
+  display:flex;gap:8px;margin-top:20px;
+  padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);
+}
+.tutorial-progress-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  transition:all 0.3s ease;
+}
+.tutorial-progress-dot.active{
+  background:var(--primary);
+  box-shadow:0 0 12px var(--primary);
+  width:24px;border-radius:5px;
+}
+.tutorial-skip{
+  position:absolute;top:24px;right:24px;
+  background:rgba(239,68,68,0.15);
+  border:1px solid rgba(239,68,68,0.3);
+  color:#f87171;padding:10px 18px;
+  border-radius:10px;font-weight:600;
+  cursor:pointer;transition:all 0.3s ease;
+  z-index:100002;
+  font-size:0.85rem;
+}
+.tutorial-skip:hover{
+  background:rgba(239,68,68,0.25);
+  transform:translateY(-2px);
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes fadeOut{from{opacity:1;}to{opacity:0;}}
+@media(max-width:700px){
+  .tutorial-tooltip{max-width:90%;padding:20px;margin:20px;}
+  .tutorial-header{flex-direction:column;text-align:center;}
+}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 @keyframes fadeOut{from{opacity:1;}to{opacity:0;}}
 @media(max-width:700px){.frow{grid-template-columns:1fr;}.header{padding:12px 16px;}.main{padding:20px 14px 40px;}.toast{right:10px;left:10px;max-width:none;}.tutorial-modal{margin:20px;}}</style></head>
@@ -409,66 +515,216 @@ function mostrarNotificaciones() {
   console.log("🔄 Badge ocultado por el usuario");
 }
 
-// Tutorial para nuevos usuarios
-function mostrarTutorialNotificaciones() {
-  // Verificar si ya se mostró el tutorial
-  if (localStorage.getItem('tutorialNotificacionesMostrado')) {
+// ===== TUTORIAL MODERNO INTERACTIVO =====
+const tutorialSteps = [
+  {
+    target: '#btnNuevoTicket',
+    title: '¡Bienvenido a TecniRed!',
+    content: 'Aquí puedes <strong>crear nuevos tickets</strong> para reportar problemas o solicitar soporte técnico. Haz clic en este botón para comenzar.',
+    position: 'bottom'
+  },
+  {
+    target: '.frow',
+    title: 'Tus Tickets',
+    content: 'En esta sección verás <strong>todos tus tickets</strong> con su estado actual. Puedes filtrar por estado: Nuevo, En Proceso o Finalizado.',
+    position: 'top'
+  },
+  {
+    target: 'table',
+    title: 'Información Detallada',
+    content: 'Cada ticket muestra su <strong>categoría, descripción y estado</strong>. Usa el botón "Chat" para comunicarte con nuestros asesores en tiempo real.',
+    position: 'top'
+  }
+];
+
+let currentTutorialStep = 0;
+let tutorialActive = false;
+
+function iniciarTutorial() {
+  // Verificar si ya se mostró
+  if (localStorage.getItem('tutorialCompletado')) {
     return;
   }
   
+  tutorialActive = true;
+  currentTutorialStep = 0;
+  
+  // Crear overlay
   const overlay = document.createElement('div');
-  overlay.className = 'tutorial-overlay';
-  overlay.innerHTML = `
-    <div class="tutorial-modal">
-      <div class="tutorial-icon">
-        <i class="fa-solid fa-bell"></i>
-      </div>
-      <div class="tutorial-title">¡Bienvenido al sistema de notificaciones!</div>
-      <div class="tutorial-text">
-        Te mantendremos informado cuando recibas respuestas de nuestros asesores.
-      </div>
-      <div class="tutorial-steps">
-        <div class="tutorial-step">
-          <div class="tutorial-step-num">1</div>
-          <div class="tutorial-step-text">Cuando un asesor responda tu ticket, aparecerá una notificación en la esquina superior derecha.</div>
-        </div>
-        <div class="tutorial-step">
-          <div class="tutorial-step-num">2</div>
-          <div class="tutorial-step-text">También verás un badge rojo en el menú superior con el número de mensajes nuevos.</div>
-        </div>
-        <div class="tutorial-step">
-          <div class="tutorial-step-num">3</div>
-          <div class="tutorial-step-text">Haz clic en "Ver Chat" o en el botón "Chat" de la tabla para leer las respuestas.</div>
-        </div>
-      </div>
-      <button class="toast-btn toast-btn-primary" onclick="cerrarTutorial()" style="width:100%;">
-        <i class="fa-solid fa-check"></i> ¡Entendido!
-      </button>
-    </div>
-  `;
+  overlay.className = 'tutorial-overlay active';
+  overlay.id = 'tutorialOverlay';
+  
+  // Botón de saltar
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'tutorial-skip';
+  skipBtn.innerHTML = '<i class="fa-solid fa-times"></i> Saltar tutorial';
+  skipBtn.onclick = finalizarTutorial;
+  overlay.appendChild(skipBtn);
   
   document.body.appendChild(overlay);
   
-  // Agregar animación de entrada
-  setTimeout(() => {
-    overlay.style.animation = 'fadeIn 0.3s ease-in';
-  }, 10);
+  mostrarPasoTutorial();
 }
 
-function cerrarTutorial() {
-  const overlay = document.querySelector('.tutorial-overlay');
+function mostrarPasoTutorial() {
+  const step = tutorialSteps[currentTutorialStep];
+  const overlay = document.getElementById('tutorialOverlay');
+  
+  // Limpiar spotlight y tooltip anteriores
+  const oldSpotlight = overlay.querySelector('.tutorial-spotlight');
+  const oldTooltip = overlay.querySelector('.tutorial-tooltip');
+  if (oldSpotlight) oldSpotlight.remove();
+  if (oldTooltip) oldTooltip.remove();
+  
+  // Obtener elemento objetivo
+  const targetElement = document.querySelector(step.target);
+  if (!targetElement) {
+    siguientePaso();
+    return;
+  }
+  
+  // Crear spotlight
+  const spotlight = document.createElement('div');
+  spotlight.className = 'tutorial-spotlight';
+  posicionarSpotlight(spotlight, targetElement);
+  overlay.appendChild(spotlight);
+  
+  // Crear tooltip
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tutorial-tooltip';
+  
+  // Barra de progreso
+  const progressDots = tutorialSteps.map((_, i) => 
+    `<div class="tutorial-progress-dot ${i === currentTutorialStep ? 'active' : ''}"></div>`
+  ).join('');
+  
+  tooltip.innerHTML = `
+    <div class="tutorial-header">
+      <div class="tutorial-step-badge">${currentTutorialStep + 1}</div>
+      <div class="tutorial-header-text">
+        <h3>${step.title}</h3>
+        <p>Paso ${currentTutorialStep + 1} de ${tutorialSteps.length}</p>
+      </div>
+    </div>
+    <div class="tutorial-content">
+      ${step.content}
+    </div>
+    <div class="tutorial-actions">
+      ${currentTutorialStep > 0 ? '<button class="tutorial-btn tutorial-btn-secondary" onclick="pasoAnterior()"><i class="fa-solid fa-arrow-left"></i> Anterior</button>' : ''}
+      <button class="tutorial-btn tutorial-btn-primary" onclick="siguientePaso()">
+        ${currentTutorialStep === tutorialSteps.length - 1 ? '<i class="fa-solid fa-check"></i> ¡Entendido!' : 'Siguiente <i class="fa-solid fa-arrow-right"></i>'}
+      </button>
+    </div>
+    <div class="tutorial-progress">
+      ${progressDots}
+    </div>
+  `;
+  
+  posicionarTooltip(tooltip, targetElement, step.position);
+  overlay.appendChild(tooltip);
+  
+  // Scroll suave al elemento
+  targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function posicionarSpotlight(spotlight, element) {
+  const rect = element.getBoundingClientRect();
+  const padding = 8;
+  
+  spotlight.style.left = `${rect.left - padding}px`;
+  spotlight.style.top = `${rect.top - padding}px`;
+  spotlight.style.width = `${rect.width + padding * 2}px`;
+  spotlight.style.height = `${rect.height + padding * 2}px`;
+}
+
+function posicionarTooltip(tooltip, element, position) {
+  document.body.appendChild(tooltip);
+  const rect = element.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+  
+  let top, left;
+  
+  if (position === 'bottom') {
+    top = rect.bottom + 20;
+    left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+  } else if (position === 'top') {
+    top = rect.top - tooltipRect.height - 20;
+    left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+  } else if (position === 'right') {
+    top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
+    left = rect.right + 20;
+  } else { // left
+    top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
+    left = rect.left - tooltipRect.width - 20;
+  }
+  
+  // Ajustar si se sale de la pantalla
+  if (left < 20) left = 20;
+  if (left + tooltipRect.width > window.innerWidth - 20) {
+    left = window.innerWidth - tooltipRect.width - 20;
+  }
+  if (top < 20) top = 20;
+  if (top + tooltipRect.height > window.innerHeight - 20) {
+    top = window.innerHeight - tooltipRect.height - 20;
+  }
+  
+  tooltip.style.position = 'fixed';
+  tooltip.style.top = `${top}px`;
+  tooltip.style.left = `${left}px`;
+  
+  document.body.removeChild(tooltip);
+}
+
+function siguientePaso() {
+  if (currentTutorialStep < tutorialSteps.length - 1) {
+    currentTutorialStep++;
+    mostrarPasoTutorial();
+  } else {
+    finalizarTutorial();
+  }
+}
+
+function pasoAnterior() {
+  if (currentTutorialStep > 0) {
+    currentTutorialStep--;
+    mostrarPasoTutorial();
+  }
+}
+
+function finalizarTutorial() {
+  const overlay = document.getElementById('tutorialOverlay');
   if (overlay) {
-    overlay.style.animation = 'fadeOut 0.3s ease-out forwards';
+    overlay.style.animation = 'fadeOut 0.3s ease';
     setTimeout(() => {
-      if (overlay.parentNode) {
-        overlay.parentNode.removeChild(overlay);
-      }
+      overlay.remove();
     }, 300);
   }
   
-  // Marcar como mostrado solo cuando el usuario cierra el tutorial
-  localStorage.setItem('tutorialNotificacionesMostrado', 'true');
+  tutorialActive = false;
+  localStorage.setItem('tutorialCompletado', 'true');
+  
+  // Mostrar mensaje de bienvenida
+  setTimeout(() => {
+    mostrarToast('¡Bienvenido a TecniRed! 🎉', 'Estamos aquí para ayudarte con cualquier problema técnico.', 'ok');
+  }, 500);
 }
+
+// Ajustar spotlight al hacer resize
+window.addEventListener('resize', () => {
+  if (tutorialActive) {
+    const step = tutorialSteps[currentTutorialStep];
+    const targetElement = document.querySelector(step.target);
+    const spotlight = document.querySelector('.tutorial-spotlight');
+    const tooltip = document.querySelector('.tutorial-tooltip');
+    
+    if (targetElement && spotlight) {
+      posicionarSpotlight(spotlight, targetElement);
+    }
+    if (targetElement && tooltip) {
+      posicionarTooltip(tooltip, targetElement, step.position);
+    }
+  }
+});
 
 // Función de debug para probar notificaciones
 function probarNotificacion() {
@@ -477,16 +733,20 @@ function probarNotificacion() {
   console.log("✅ Notificación de prueba mostrada");
 }
 
-// Agregar botón de debug temporal (solo para pruebas)
+// Iniciar tutorial cuando cargue la página
 document.addEventListener("DOMContentLoaded", () => {
-  // Mostrar tutorial para nuevos usuarios
+  // Esperar a que todo esté cargado
   setTimeout(() => {
-    mostrarTutorialNotificaciones();
-  }, 2000); // Esperar 2 segundos después de cargar
+    iniciarTutorial();
+  }, 1500);
   
   // Agregar función de debug en la consola
-  console.log("🔧 Para probar notificaciones, ejecuta: probarNotificacion()");
+  console.log("🔧 Para reiniciar el tutorial, ejecuta: localStorage.removeItem('tutorialCompletado'); location.reload()");
   window.probarNotificacion = probarNotificacion;
+  window.reiniciarTutorial = () => {
+    localStorage.removeItem('tutorialCompletado');
+    location.reload();
+  };
 });
 
 document.getElementById("ticketForm").addEventListener("submit",async e=>{

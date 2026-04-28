@@ -314,6 +314,276 @@
         padding: 12px 8px;
       }
     }
+
+    /* ===== MODAL DE PLANES ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+    }
+
+    .modal-plan {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 24px;
+      max-width: 1000px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+      animation: modalSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-plan-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-plan-header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--light);
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ef4444;
+      transform: rotate(90deg);
+    }
+
+    .modal-plan-body {
+      padding: 32px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .plan-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 2px solid rgba(56, 189, 248, 0.15);
+      border-radius: 20px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--primary);
+      box-shadow: 0 20px 60px rgba(56, 189, 248, 0.2);
+    }
+
+    .plan-card:hover::before {
+      opacity: 1;
+    }
+
+    .plan-card.active {
+      border-color: var(--primary);
+      background: rgba(56, 189, 248, 0.05);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+    }
+
+    .plan-card.premium {
+      border-color: #fbbf24;
+    }
+
+    .plan-card.premium:hover {
+      box-shadow: 0 20px 60px rgba(251, 191, 36, 0.3);
+    }
+
+    .plan-card.premium.active {
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.05);
+      box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #06202c;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+    }
+
+    .plan-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .plan-card h4 {
+      margin: 0 0 12px;
+      font-size: 1.5rem;
+      text-align: center;
+      color: var(--light);
+    }
+
+    .plan-price {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 24px;
+    }
+
+    .plan-price span {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+
+    .plan-features li {
+      padding: 10px 0;
+      color: var(--light);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+    }
+
+    .plan-features i {
+      color: #22c55e;
+      font-size: 1rem;
+    }
+
+    .btn-select-plan {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-select-plan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(56, 189, 248, 0.4);
+    }
+
+    .plan-card.active .btn-select-plan {
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--primary);
+      cursor: default;
+    }
+
+    .plan-card.premium .btn-select-plan {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      box-shadow: 0 8px 24px rgba(251, 191, 36, 0.3);
+    }
+
+    .plan-card.premium .btn-select-plan:hover {
+      box-shadow: 0 12px 32px rgba(251, 191, 36, 0.4);
+    }
+
+    /* ===== NOTIFICACIONES ===== */
+    .notification {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--light);
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      opacity: 0;
+      transform: translateX(400px);
+      transition: all 0.3s ease;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      border-color: #22c55e;
+    }
+
+    .notification i {
+      font-size: 1.3rem;
+      color: #22c55e;
+    }
   </style>
 </head>
 <body>
@@ -377,14 +647,13 @@
             <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
-            <th>Plan</th>
             <th>Teléfono</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="asesoresTable">
           <tr>
-            <td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">
+            <td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">
               Cargando asesores...
             </td>
           </tr>
@@ -552,8 +821,6 @@
         tbody.innerHTML = asesoresData.map(u => {
           const rolClass = u.rol === "admin" ? "badge-admin" : "badge-asesor";
           const puedeEliminar = u.id !== 1;
-          const planClass = u.plan === 'premium' ? 'badge-admin' : u.plan === 'estandar' ? 'badge-asesor' : 'badge-cliente';
-          const planNombre = u.plan === 'premium' ? 'Premium' : u.plan === 'estandar' ? 'Estándar' : 'Gratis';
           
           return `
             <tr>
@@ -561,12 +828,8 @@
               <td>${u.nombre}</td>
               <td>${u.email}</td>
               <td><span class="badge ${rolClass}">${u.rol}</span></td>
-              <td><span class="badge ${planClass}">${planNombre}</span></td>
               <td>${u.telefono || "N/A"}</td>
               <td>
-                <button class="btn-action btn-edit" onclick="cambiarPlan(${u.id}, '${u.plan || 'gratis'}')">
-                  <i class="fa-solid fa-crown"></i> Plan
-                </button>
                 <button class="btn-action btn-edit" onclick="cambiarRol(${u.id}, '${u.rol}')">
                   <i class="fa-solid fa-pen"></i> Rol
                 </button>
@@ -580,7 +843,7 @@
           `;
         }).join("");
       } else {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">No hay asesores registrados</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">No hay asesores registrados</td></tr>';
       }
       
       // Actualizar contador
@@ -704,32 +967,80 @@
       }
     }
 
-    // Cambiar plan
+    // Cambiar plan con modal moderno
     async function cambiarPlan(id, planActual) {
+      // Crear modal
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-plan">
+          <div class="modal-plan-header">
+            <h3><i class="fa-solid fa-crown"></i> Seleccionar Plan</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-plan-body">
+            <div class="plan-card ${planActual === 'gratis' ? 'active' : ''}" data-plan="gratis">
+              <div class="plan-icon">🆓</div>
+              <h4>Gratis</h4>
+              <div class="plan-price">$0<span>/mes</span></div>
+              <ul class="plan-features">
+                <li><i class="fa-solid fa-check"></i> 1 ticket por mes</li>
+                <li><i class="fa-solid fa-check"></i> Respuesta en 72h</li>
+                <li><i class="fa-solid fa-check"></i> Soporte básico</li>
+              </ul>
+              <button class="btn-select-plan" onclick="confirmarPlan(${id}, 'gratis')">
+                ${planActual === 'gratis' ? 'Plan Actual' : 'Seleccionar'}
+              </button>
+            </div>
+            
+            <div class="plan-card ${planActual === 'estandar' ? 'active' : ''}" data-plan="estandar">
+              <div class="plan-icon">⭐</div>
+              <h4>Estándar</h4>
+              <div class="plan-price">$29<span>/mes</span></div>
+              <ul class="plan-features">
+                <li><i class="fa-solid fa-check"></i> 5 tickets por mes</li>
+                <li><i class="fa-solid fa-check"></i> Respuesta en 24h</li>
+                <li><i class="fa-solid fa-check"></i> Escalamiento N1-N2</li>
+                <li><i class="fa-solid fa-check"></i> Soporte prioritario</li>
+              </ul>
+              <button class="btn-select-plan" onclick="confirmarPlan(${id}, 'estandar')">
+                ${planActual === 'estandar' ? 'Plan Actual' : 'Seleccionar'}
+              </button>
+            </div>
+            
+            <div class="plan-card premium ${planActual === 'premium' ? 'active' : ''}" data-plan="premium">
+              <div class="plan-badge">Popular</div>
+              <div class="plan-icon">👑</div>
+              <h4>Premium</h4>
+              <div class="plan-price">$99<span>/mes</span></div>
+              <ul class="plan-features">
+                <li><i class="fa-solid fa-check"></i> Tickets ilimitados</li>
+                <li><i class="fa-solid fa-check"></i> Respuesta en 4h</li>
+                <li><i class="fa-solid fa-check"></i> Asesor dedicado</li>
+                <li><i class="fa-solid fa-check"></i> Soporte 24/7</li>
+                <li><i class="fa-solid fa-check"></i> Prioridad máxima</li>
+              </ul>
+              <button class="btn-select-plan" onclick="confirmarPlan(${id}, 'premium')">
+                ${planActual === 'premium' ? 'Plan Actual' : 'Seleccionar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    // Confirmar cambio de plan
+    window.confirmarPlan = async function(id, nuevoPlan) {
       const planNombres = {
-        'gratis': 'Gratis (1 ticket/mes)',
-        'estandar': 'Estándar (5 tickets/mes)',
-        'premium': 'Premium (ilimitado)'
+        'gratis': 'Gratis',
+        'estandar': 'Estándar',
+        'premium': 'Premium'
       };
-      
-      const planActualNombre = planNombres[planActual] || 'Gratis';
-      
-      const nuevoPlan = prompt(
-        `Cambiar plan del usuario (actual: ${planActualNombre})\n\n` +
-        `Opciones:\n` +
-        `- gratis (1 ticket/mes, respuesta 72h)\n` +
-        `- estandar (5 tickets/mes, respuesta 24h, escalamiento N1-N2)\n` +
-        `- premium (ilimitado, respuesta 4h, asesor dedicado)`,
-        planActual
-      );
-
-      if (!nuevoPlan || nuevoPlan === planActual) return;
-
-      const planesValidos = ['gratis', 'estandar', 'premium'];
-      if (!planesValidos.includes(nuevoPlan)) {
-        alert('Plan no válido. Debe ser: gratis, estandar o premium');
-        return;
-      }
 
       try {
         const res = await fetch(`/admin/usuarios/${id}/plan`, {
@@ -741,13 +1052,32 @@
         const data = await res.json();
 
         if (data.status === "ok") {
-          alert(`Plan actualizado correctamente a: ${planNombres[nuevoPlan]}`);
+          document.querySelector('.modal-overlay').remove();
+          mostrarNotificacion(`Plan actualizado a ${planNombres[nuevoPlan]}`, 'success');
           cargarUsuarios();
         } else {
           alert(data.message || "Error al actualizar plan");
         }
       } catch (err) {
         alert("Error de conexión");
+      }
+    }
+
+    // Función para mostrar notificaciones
+    function mostrarNotificacion(mensaje, tipo = 'success') {
+      const notif = document.createElement('div');
+      notif.className = `notification ${tipo}`;
+      notif.innerHTML = `
+        <i class="fa-solid fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${mensaje}</span>
+      `;
+      document.body.appendChild(notif);
+      setTimeout(() => notif.classList.add('show'), 10);
+      setTimeout(() => {
+        notif.classList.remove('show');
+        setTimeout(() => notif.remove(), 300);
+      }, 3000);
+    }
       }
     }
 

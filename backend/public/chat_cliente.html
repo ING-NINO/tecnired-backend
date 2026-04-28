@@ -1337,8 +1337,15 @@
       function loadEmojis(category = 'smileys') {
         const grid = document.getElementById("emojiGrid");
         grid.innerHTML = emojis[category].map(emoji => 
-          `<div class="emoji-item" onclick="insertEmoji('${emoji}')">${emoji}</div>`
+          `<div class="emoji-item" data-emoji="${emoji}">${emoji}</div>`
         ).join('');
+        
+        // Agregar event listeners a cada emoji
+        grid.querySelectorAll('.emoji-item').forEach(item => {
+          item.addEventListener('click', function() {
+            insertEmoji(this.dataset.emoji);
+          });
+        });
       }
 
       function toggleEmojiPicker() {
@@ -1349,7 +1356,7 @@
         }
       }
 
-      function insertEmoji(emoji) {
+      window.insertEmoji = function(emoji) {
         const input = document.getElementById("mensajeInput");
         const start = input.selectionStart;
         const end = input.selectionEnd;
@@ -1357,8 +1364,11 @@
         input.value = text.substring(0, start) + emoji + text.substring(end);
         input.selectionStart = input.selectionEnd = start + emoji.length;
         input.focus();
+        autoResize();
         document.getElementById("emojiPicker").classList.remove("show");
       }
+
+      window.toggleEmojiPicker = toggleEmojiPicker;
 
       // Event listeners para categorías de emojis
       document.querySelectorAll('.emoji-category').forEach(cat => {

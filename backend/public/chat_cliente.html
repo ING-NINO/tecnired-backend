@@ -976,28 +976,7 @@
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
       }
     </style>
-        border-bottom: 1px solid var(--line);
-        background: rgba(15, 23, 42, 0.72);
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-
-      .info-ticket strong {
-        color: var(--text);
-      }
-
-      .chat-area {
-        min-height: 0;
-      }
-
-      .chat-box {
-        height: 100%;
-        min-height: 0;
-        padding: 18px;
-        overflow-y: auto;
-        background: linear-gradient(180deg, rgba(15, 23, 42, 0.65), #090f1f);
-        display: flex;
-        flex-direction: column;
+  </head>
         gap: 10px;
         scroll-behavior: smooth;
       }
@@ -1098,94 +1077,6 @@
 
       #menuAdjuntos button {
         width: 100%;
-        margin-bottom: 6px;
-        background: #1d4ed8;
-        color: white;
-      }
-
-      #menuAdjuntos button:last-child {
-        margin-bottom: 0;
-      }
-
-      #progressBar {
-        height: 6px;
-        width: 0%;
-        background: var(--primary);
-      }
-
-      .closed-notice {
-        margin: auto;
-        max-width: 520px;
-        text-align: center;
-        color: var(--muted);
-      }
-      
-      /* Notificación de nuevo mensaje */
-      .notification-toast {
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: linear-gradient(135deg, var(--primary-soft), var(--primary));
-        color: #06202c;
-        padding: 16px 24px;
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4);
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        z-index: 1000;
-        animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
-        pointer-events: none;
-      }
-      
-      .notification-toast i {
-        font-size: 1.2rem;
-      }
-      
-      @keyframes slideIn {
-        from {
-          transform: translateX(400px);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-      
-      @keyframes slideOut {
-        from {
-          transform: translateX(0);
-          opacity: 1;
-        }
-        to {
-          transform: translateX(400px);
-          opacity: 0;
-        }
-      }
-
-      @media (max-width: 640px) {
-        header {
-          align-items: flex-start;
-          flex-direction: column;
-        }
-
-        .chat-input {
-          grid-template-columns: auto 1fr;
-        }
-
-        .chat-input > button {
-          grid-column: 1 / -1;
-        }
-        
-        .notification-toast {
-          right: 10px;
-          left: 10px;
-          top: 70px;
-        }
-      }
-    </style>
   </head>
 
   <body>
@@ -1778,7 +1669,8 @@
         }
       })();
     </script>
-      }
+  </body>
+</html>
 
       function actualizarBotonBajar() {
         // función reservada para mantener la lógica de scroll actual

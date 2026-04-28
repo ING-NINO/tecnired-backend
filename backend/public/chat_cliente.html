@@ -1576,6 +1576,15 @@
         btnEnviar.disabled = true;
         btnEnviar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
+        // Mostrar el mensaje inmediatamente para mejor UX
+        const mensajeTemp = {
+          mensaje: texto,
+          remitente: usuario.nombre,
+          ticket_id: ticketId,
+          fecha: new Date().toISOString()
+        };
+        agregarMensaje(mensajeTemp, true);
+
         try {
           const res = await fetch("/chat", {
             method: "POST",
@@ -1587,13 +1596,25 @@
             })
           });
 
-          if (res.ok) {
-            mensajeInput.value = "";
-            autoResize();
-          } else {
+          if (!res.ok) {
+            // Si falla, remover el mensaje temporal y mostrar error
+            const mensajes = contenedorMensajes.querySelectorAll('.message.own');
+            const ultimoMensaje = mensajes[mensajes.length - 1];
+            if (ultimoMensaje && ultimoMensaje.querySelector('.message-text').textContent === texto) {
+              ultimoMensaje.remove();
+            }
             alert("Error al enviar mensaje");
           }
+          
+          mensajeInput.value = "";
+          autoResize();
         } catch (error) {
+          // Si hay error de conexión, remover el mensaje temporal
+          const mensajes = contenedorMensajes.querySelectorAll('.message.own');
+          const ultimoMensaje = mensajes[mensajes.length - 1];
+          if (ultimoMensaje && ultimoMensaje.querySelector('.message-text').textContent === texto) {
+            ultimoMensaje.remove();
+          }
           alert("Error de conexión");
         } finally {
           btnEnviar.disabled = false;
@@ -1624,8 +1645,9 @@
       socket.on("nuevoMensaje", (mensaje) => {
         if (mensaje.ticket_id == ticketId) {
           const esPropio = mensaje.remitente === usuario.nombre;
+          
           if (!esPropio) {
-            // Mostrar indicador de escritura antes del mensaje
+            // Mostrar indicador de escritura antes del mensaje del asesor
             mostrarIndicadorEscritura(true);
             setTimeout(() => {
               mostrarIndicadorEscritura(false);
@@ -1636,6 +1658,16 @@
                 mostrarNotificacion(`Nuevo mensaje de ${mensaje.remitente}`, 'fa-comment');
               }
             }, 1500);
+          } else {
+            // Para mensajes propios, verificar si ya existe para evitar duplicados
+            const mensajes = contenedorMensajes.querySelectorAll('.message.own');
+            const yaExiste = Array.from(mensajes).some(msg => 
+              msg.querySelector('.message-text').textContent === mensaje.mensaje
+            );
+            
+            if (!yaExiste) {
+              agregarMensaje(mensaje, true);
+            }
           }
         }
       });

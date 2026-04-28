@@ -290,7 +290,7 @@
       position: absolute;
       bottom: 60px;
       right: 0;
-      background: var(--card-bg);
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 16px;
@@ -298,12 +298,46 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
       display: none;
       z-index: 1000;
-      width: 280px;
+      width: 320px;
+      max-height: 400px;
     }
 
     .emoji-picker-admin.show {
       display: block;
       animation: emojiSlide 0.3s ease-out;
+    }
+
+    .emoji-picker-admin .emoji-picker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .emoji-picker-admin .emoji-picker-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .emoji-picker-admin .emoji-search {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .emoji-picker-admin .emoji-search:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.1);
     }
 
     .emoji-picker-admin .emoji-categories {
@@ -333,6 +367,17 @@
       gap: 4px;
       max-height: 200px;
       overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+
+    .emoji-picker-admin .emoji-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .emoji-picker-admin .emoji-grid::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 2px;
     }
 
     .emoji-picker-admin .emoji-item {
@@ -342,11 +387,34 @@
       font-size: 1.2rem;
       text-align: center;
       transition: all 0.2s ease;
+      position: relative;
     }
 
     .emoji-picker-admin .emoji-item:hover {
       background: rgba(56,189,248,0.15);
       transform: scale(1.2);
+    }
+
+    .emoji-picker-admin .emoji-item::after {
+      content: attr(data-name);
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg);
+      color: var(--text);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 20;
+    }
+
+    .emoji-picker-admin .emoji-item:hover::after {
+      opacity: 1;
     }
 
     @keyframes emojiSlide {
@@ -506,11 +574,15 @@
         
         <!-- Emoji Picker para chat interno -->
         <div class="emoji-picker-admin" id="emojiPickerAdmin">
+          <div class="emoji-picker-header">
+            <div class="emoji-picker-title">Emojis</div>
+          </div>
+          <input type="text" class="emoji-search" placeholder="Buscar emoji..." id="emojiSearchAdmin">
           <div class="emoji-categories">
-            <div class="emoji-category active" data-category="smileys">😊</div>
-            <div class="emoji-category" data-category="gestures">👋</div>
-            <div class="emoji-category" data-category="objects">💻</div>
-            <div class="emoji-category" data-category="symbols">❤️</div>
+            <div class="emoji-category active" data-category="smileys" title="Caritas">😊</div>
+            <div class="emoji-category" data-category="gestures" title="Gestos">👋</div>
+            <div class="emoji-category" data-category="objects" title="Objetos">💻</div>
+            <div class="emoji-category" data-category="symbols" title="Símbolos">❤️</div>
           </div>
           <div class="emoji-grid" id="emojiGridAdmin">
             <!-- Emojis se cargan dinámicamente -->
@@ -794,10 +866,29 @@
 
     let currentEmojiCategoryAdmin = 'smileys';
 
-    function loadEmojisAdmin(category = 'smileys') {
+    function getEmojiNameAdmin(emoji) {
+      const emojiNames = {
+        '😊': 'sonrisa', '😂': 'risa', '🥰': 'amor', '😍': 'ojos corazón',
+        '👋': 'saludo', '👍': 'pulgar arriba', '👎': 'pulgar abajo', '👏': 'aplausos',
+        '💻': 'laptop', '📱': 'móvil', '⌨️': 'teclado', '🖥️': 'monitor',
+        '❤️': 'corazón rojo', '💙': 'corazón azul', '💚': 'corazón verde', '💛': 'corazón amarillo'
+      };
+      return emojiNames[emoji] || 'emoji';
+    }
+
+    function loadEmojisAdmin(category = 'smileys', searchTerm = '') {
       const grid = document.getElementById("emojiGridAdmin");
-      grid.innerHTML = emojisAdmin[category].map(emoji => 
-        `<div class="emoji-item" onclick="insertEmojiAdmin('${emoji}')">${emoji}</div>`
+      let emojisToShow = emojisAdmin[category];
+      
+      if (searchTerm) {
+        // Buscar en todas las categorías
+        emojisToShow = Object.values(emojisAdmin).flat().filter(emoji => 
+          getEmojiNameAdmin(emoji).includes(searchTerm.toLowerCase())
+        );
+      }
+      
+      grid.innerHTML = emojisToShow.map(emoji => 
+        `<div class="emoji-item" onclick="insertEmojiAdmin('${emoji}')" data-name="${getEmojiNameAdmin(emoji)}">${emoji}</div>`
       ).join('');
     }
 
@@ -806,6 +897,7 @@
       picker.classList.toggle("show");
       if (picker.classList.contains("show")) {
         loadEmojisAdmin(currentEmojiCategoryAdmin);
+        document.getElementById("emojiSearchAdmin").focus();
       }
     }
 
@@ -828,6 +920,12 @@
         currentEmojiCategoryAdmin = this.dataset.category;
         loadEmojisAdmin(currentEmojiCategoryAdmin);
       });
+    });
+
+    // Búsqueda de emojis del admin
+    document.getElementById("emojiSearchAdmin").addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      loadEmojisAdmin(currentEmojiCategoryAdmin, searchTerm);
     });
 
     // Cerrar emoji picker del admin al hacer clic fuera

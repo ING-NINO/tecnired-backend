@@ -36,23 +36,24 @@
 
     <style>
       :root {
-        --bg-primary: #0a0a0f;
-        --bg-secondary: #1a1a2e;
-        --bg-tertiary: #16213e;
-        --glass-bg: rgba(255, 255, 255, 0.05);
-        --glass-border: rgba(255, 255, 255, 0.1);
+        --bg-primary: #020617;
+        --bg-secondary: #0f172a;
+        --bg-tertiary: #1e293b;
+        --glass-bg: rgba(15, 23, 42, 0.7);
+        --glass-border: rgba(56, 189, 248, 0.15);
         --glass-shadow: rgba(0, 0, 0, 0.3);
-        --text-primary: #ffffff;
-        --text-secondary: #b8bcc8;
-        --text-muted: #6b7280;
-        --accent-primary: #667eea;
-        --accent-secondary: #764ba2;
-        --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --success: #10b981;
+        --text-primary: #f1f5f9;
+        --text-secondary: #e2e8f0;
+        --text-muted: #94a3b8;
+        --accent-primary: #38bdf8;
+        --accent-secondary: #0ea5e9;
+        --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+        --success: #22c55e;
         --warning: #f59e0b;
         --danger: #ef4444;
-        --glow-primary: rgba(102, 126, 234, 0.4);
-        --glow-secondary: rgba(118, 75, 162, 0.4);
+        --glow-primary: rgba(56, 189, 248, 0.4);
+        --glow-secondary: rgba(14, 165, 233, 0.4);
+        --border: rgba(56, 189, 248, 0.15);
       }
 
       * {
@@ -178,7 +179,7 @@
         place-items: center;
         font-weight: 800;
         font-size: 1.4rem;
-        color: white;
+        color: #06202c;
         position: relative;
         box-shadow: 0 8px 32px var(--glow-primary);
         animation: pulse-glow 3s ease-in-out infinite;
@@ -1235,8 +1236,8 @@
           
           // Draw particle with gradient
           const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
-          gradient.addColorStop(0, `rgba(102, 126, 234, ${p.opacity})`);
-          gradient.addColorStop(1, `rgba(118, 75, 162, 0)`);
+          gradient.addColorStop(0, `rgba(56, 189, 248, ${p.opacity})`);
+          gradient.addColorStop(1, `rgba(14, 165, 233, 0)`);
           
           ctx.fillStyle = gradient;
           ctx.beginPath();
@@ -1252,7 +1253,7 @@
             
             if (distance < 120) {
               const opacity = (120 - distance) / 120 * 0.3;
-              ctx.strokeStyle = `rgba(102, 126, 234, ${opacity})`;
+              ctx.strokeStyle = `rgba(56, 189, 248, ${opacity})`;
               ctx.lineWidth = 0.5;
               ctx.beginPath();
               ctx.moveTo(p.x, p.y);

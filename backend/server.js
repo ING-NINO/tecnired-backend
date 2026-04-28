@@ -138,6 +138,12 @@ io.on("connection", (socket) => {
     );
   });
 
+  // Evento cuando el usuario está escribiendo
+  socket.on("userTyping", (data) => {
+    // Retransmitir a todos en la sala del ticket
+    socket.to("ticket_" + data.ticketId).emit("userTyping", data);
+  });
+
   socket.on("disconnect", () => {
     console.log("🔴 Usuario desconectado");
   });

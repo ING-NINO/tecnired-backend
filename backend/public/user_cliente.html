@@ -23,6 +23,8 @@
 .tutorial-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
 .tutorial-step-num{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#06202c;font-weight:700;font-size:0.8rem;display:grid;place-items:center;flex-shrink:0;}
 .tutorial-step-text{color:var(--muted);font-size:0.9rem;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes fadeOut{from{opacity:1;}to{opacity:0;}}
 @media(max-width:700px){.frow{grid-template-columns:1fr;}.header{padding:12px 16px;}.main{padding:20px 14px 40px;}.toast{right:10px;left:10px;max-width:none;}.tutorial-modal{margin:20px;}}</style></head>
 <body>
 <canvas id="bg"></canvas>
@@ -447,20 +449,25 @@ function mostrarTutorialNotificaciones() {
   
   document.body.appendChild(overlay);
   
-  // Marcar como mostrado
-  localStorage.setItem('tutorialNotificacionesMostrado', 'true');
+  // Agregar animación de entrada
+  setTimeout(() => {
+    overlay.style.animation = 'fadeIn 0.3s ease-in';
+  }, 10);
 }
 
 function cerrarTutorial() {
   const overlay = document.querySelector('.tutorial-overlay');
   if (overlay) {
-    overlay.style.animation = 'slideOut 0.3s ease-out forwards';
+    overlay.style.animation = 'fadeOut 0.3s ease-out forwards';
     setTimeout(() => {
       if (overlay.parentNode) {
         overlay.parentNode.removeChild(overlay);
       }
     }, 300);
   }
+  
+  // Marcar como mostrado solo cuando el usuario cierra el tutorial
+  localStorage.setItem('tutorialNotificacionesMostrado', 'true');
 }
 
 // Función de debug para probar notificaciones

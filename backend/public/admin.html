@@ -481,6 +481,7 @@
     .toast-body span{font-size:0.75rem;color:var(--muted);}
     @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
     @keyframes slideOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(40px)}}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
     /* RESPONSIVE */
     @media(max-width:1024px){
@@ -551,7 +552,8 @@
       <!-- TOOLBAR -->
       <div class="toolbar">
         <input type="text" id="filtro" placeholder="Buscar por ID, nombre, email o descripción..." oninput="filtrarTickets()"/>
-        <button class="btn-sm btn-ghost" onclick="mostrarTodos()"><i class="fa-solid fa-rotate"></i> Todos</button>
+        <button class="btn-sm btn-ghost" onclick="recargarTickets()"><i class="fa-solid fa-rotate"></i> Recargar</button>
+        <button class="btn-sm btn-ghost" onclick="mostrarTodos()"><i class="fa-solid fa-list"></i> Todos</button>
       </div>
 
       <!-- TABLE -->
@@ -703,6 +705,69 @@
     function mostrarTodos() {
       document.getElementById("filtro").value = "";
       filtrarTickets();
+    }
+
+    async function recargarTickets() {
+      const btnRecargar = event.target.closest('button');
+      const icon = btnRecargar.querySelector('i');
+      
+      // Animación de rotación
+      icon.style.animation = 'spin 1s linear infinite';
+      btnRecargar.disabled = true;
+      
+      try {
+        // Recargar tickets activos
+        const resActivos = await fetch("/tickets");
+        const dataActivos = await resActivos.json();
+        ticketsActivos = dataActivos.filter(t => t.estado !== "Finalizado");
+        
+        // Recargar tickets finalizados
+        const resFinalizados = await fetch("/tickets/finalizados");
+        const dataFinalizados = await resFinalizados.json();
+        ticketsFinalizados = dataFinalizados;
+        
+        // Actualizar contadores
+        document.getElementById("countActivos").textContent = ticketsActivos.length;
+        document.getElementById("countFinalizados").textContent = ticketsFinalizados.length;
+        
+        // Refrescar vista actual
+        filtrarTickets();
+        
+        // Mostrar notificación
+        mostrarNotificacion('Tickets actualizados correctamente', 'success');
+      } catch (error) {
+        mostrarNotificacion('Error al recargar tickets', 'error');
+      } finally {
+        icon.style.animation = '';
+        btnRecargar.disabled = false;
+      }
+    }
+
+    // Función para mostrar notificaciones
+    function mostrarNotificacion(mensaje, tipo = 'success') {
+      const notif = document.createElement('div');
+      notif.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 24px;
+        background: ${tipo === 'success' ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)'};
+        border: 1px solid ${tipo === 'success' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'};
+        color: ${tipo === 'success' ? '#22c55e' : '#ef4444'};
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      `;
+      notif.innerHTML = `<i class="fa-solid fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${mensaje}`;
+      document.body.appendChild(notif);
+      
+      setTimeout(() => {
+        notif.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notif.remove(), 300);
+      }, 3000);
     }
 
     function formatearFecha(f) {

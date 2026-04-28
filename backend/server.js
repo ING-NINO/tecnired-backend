@@ -337,6 +337,7 @@ app.get("/tickets", (req, res) => {
   db.query(
     `SELECT t.id, t.nombre, t.email,
     COALESCE(u.telefono,'No registrado') AS telefono,
+    COALESCE(u.plan,'gratis') AS plan,
     t.categoria, t.descripcion, t.estado,
     COALESCE(t.escala,'Seleccionar') AS escala, t.fecha
     FROM tickets t
@@ -391,6 +392,7 @@ app.get("/tickets/finalizados", (req, res) => {
   db.query(
     `SELECT t.id, t.nombre, t.email,
     COALESCE(u.telefono,'No registrado') AS telefono,
+    COALESCE(u.plan,'gratis') AS plan,
     t.categoria, t.descripcion, t.estado,
     COALESCE(t.escala,'Seleccionar') AS escala, t.fecha
     FROM tickets t
@@ -451,10 +453,16 @@ app.get("/tickets/asesor/:email", (req, res) => {
       // Si el rol viene como "asesor1", "asesor 1" o "asesor_n1" se filtra por nivel.
       // Si el rol es "asesor" sin nivel, se listan todos los tickets escalados.
       const sql = nivel
-        ? "SELECT * FROM tickets WHERE escala=? ORDER BY fecha DESC"
-        : `SELECT * FROM tickets
-           WHERE escala IN ('1','2','3')
-           ORDER BY fecha DESC`;
+        ? `SELECT t.*, COALESCE(u.plan,'gratis') AS plan 
+           FROM tickets t 
+           LEFT JOIN usuarios u ON t.email = u.email 
+           WHERE t.escala=? 
+           ORDER BY t.fecha DESC`
+        : `SELECT t.*, COALESCE(u.plan,'gratis') AS plan 
+           FROM tickets t 
+           LEFT JOIN usuarios u ON t.email = u.email 
+           WHERE t.escala IN ('1','2','3')
+           ORDER BY t.fecha DESC`;
       const params = nivel ? [nivel] : [];
 
       db.query(sql, params, (err, rows) => {

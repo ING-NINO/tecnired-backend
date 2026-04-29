@@ -391,6 +391,17 @@
       }
       async function continuarConGoogle(messageElement) {
         setMessage(messageElement, "");
+        
+        // Verificar que Firebase esté inicializado
+        if (!auth || !googleProvider) {
+          setMessage(messageElement, "Inicializando Google... Intenta de nuevo en un momento.");
+          await initFirebase();
+          if (!auth || !googleProvider) {
+            setMessage(messageElement, "Error de configuración. Contacta soporte.");
+            return;
+          }
+        }
+        
         try {
           const result = await signInWithPopup(auth, googleProvider);
           const googleUser = result.user;
@@ -399,6 +410,7 @@
           if (data.status === "ok") { redirectByRole(data.user); return; }
           setMessage(messageElement, data.message || "No se pudo entrar con Google");
         } catch (error) {
+          console.error("Error Google:", error);
           const blocked = error.code === "auth/popup-blocked" || error.code === "auth/popup-closed-by-user";
           setMessage(messageElement, blocked ? "Completa la ventana de Google para continuar." : "Google no esta disponible. Revisa Firebase Auth.");
         }

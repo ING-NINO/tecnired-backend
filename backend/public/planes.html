@@ -250,8 +250,8 @@
     <div id="currentPlanInfo"></div>
     <div id="planesContainer" class="loading">Cargando planes...</div>
 
-    <div style="text-align: center;">
-      <a href="/user_cliente.html" class="back-button">← Volver al Panel</a>
+    <div style="text-align: center;" id="backButtonContainer">
+      <a href="/user_cliente.html" class="back-button" id="backButton">← Volver al Panel</a>
     </div>
   </div>
 
@@ -259,36 +259,42 @@
     // Obtener email del usuario logueado
     const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
     const userEmail = usuario ? usuario.email : null;
-    
+
+    // Actualizar botón de volver según estado de login
     if (!userEmail) {
-      alert("Debes iniciar sesión para ver los planes");
-      window.location.href = "/login.html?redirect=planes";
+      document.getElementById("backButton").href = "/index.html";
+      document.getElementById("backButton").textContent = "← Volver al Inicio";
     }
 
     let planActual = "gratis";
 
-    // Cargar plan actual del usuario
-    fetch(`/usuario/plan/${userEmail}`)
-      .then(res => res.json())
-      .then(data => {
-        planActual = data.plan || "gratis";
-        
-        if (data.ticketsUsados !== undefined) {
-          const ticketsInfo = data.ticketsDisponibles === "ilimitados" 
-            ? `Tickets usados este mes: ${data.ticketsUsados} (ilimitados)`
-            : `Tickets usados este mes: ${data.ticketsUsados} de ${data.limites.tickets_mes}`;
+    // Cargar plan actual del usuario (solo si está logueado)
+    if (userEmail) {
+      fetch(`/usuario/plan/${userEmail}`)
+        .then(res => res.json())
+        .then(data => {
+          planActual = data.plan || "gratis";
           
-          document.getElementById("currentPlanInfo").innerHTML = `
-            <div class="current-plan">
-              📊 Plan Actual: <strong>${data.nombre}</strong><br>
-              ${ticketsInfo}
-            </div>
-          `;
-        }
+          if (data.ticketsUsados !== undefined) {
+            const ticketsInfo = data.ticketsDisponibles === "ilimitados" 
+              ? `Tickets usados este mes: ${data.ticketsUsados} (ilimitados)`
+              : `Tickets usados este mes: ${data.ticketsUsados} de ${data.limites.tickets_mes}`;
+            
+            document.getElementById("currentPlanInfo").innerHTML = `
+              <div class="current-plan">
+                📊 Plan Actual: <strong>${data.nombre}</strong><br>
+                ${ticketsInfo}
+              </div>
+            `;
+          }
 
-        cargarPlanes();
-      })
-      .catch(() => cargarPlanes());
+          cargarPlanes();
+        })
+        .catch(() => cargarPlanes());
+    } else {
+      // Si no está logueado, solo mostrar los planes
+      cargarPlanes();
+    }
 
     function cargarPlanes() {
       fetch("/planes")
@@ -385,7 +391,7 @@
         }
       }).join("");
 
-      const esActual = planActual === plan.id;
+      const esActual = userEmail && planActual === plan.id;
       const puedeComprar = plan.precio > 0 && !esActual;
 
       let botonHTML;
@@ -417,6 +423,13 @@
     }
 
     function comprarPlan(planId) {
+      // Si el usuario no está logueado, redirigir a checkout
+      if (!userEmail) {
+        window.location.href = `/checkout.html?plan=${planId}`;
+        return;
+      }
+
+      // Si está logueado, proceder con el flujo normal
       if (!confirm(`¿Deseas comprar el plan ${planId.toUpperCase()}?`)) return;
 
       const btn = event.target;
@@ -433,7 +446,7 @@
           if (data.status === "ok") {
             // Guardar info del pago pendiente
             localStorage.setItem("pagoPendiente", JSON.stringify({ plan: planId, email: userEmail }));
-            // Redirigir a MercadoPago
+            // Redirigir a MercadoPago (usar sandbox en desarrollo)
             window.location.href = data.sandbox_init_point || data.init_point;
           } else {
             alert(data.message || "Error al crear el pago");

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - TecniRed</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #38bdf8;
+      --primary-dark: #0ea5e9;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --bg: #020617;
+      --bg-soft: #0f172a;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--primary), #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      color: var(--muted);
+    }
+
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .checkout-form {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .form-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-section h2 i {
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .order-summary {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 20px;
+      padding: 30px;
+      position: sticky;
+      top: 20px;
+    }
+
+    .order-summary h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+    }
+
+    .plan-selected {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(14, 165, 233, 0.05));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .plan-selected h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    .plan-selected .price {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 20px;
+    }
+
+    .plan-features li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .plan-features i {
+      color: var(--success);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .summary-row.total {
+      border-bottom: none;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-top: 10px;
+    }
+
+    .btn-checkout {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-checkout:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-checkout:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .security-badge i {
+      color: var(--success);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      text-decoration: none;
+      margin-bottom: 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      gap: 12px;
+    }
+
+    @media (max-width: 968px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .order-summary {
+        position: static;
+      }
+    }
+
+    .loading {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading.active {
+      display: flex;
+    }
+
+    .loading-content {
+      text-align: center;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(56, 189, 248, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Procesando tu pago...</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <a href="/planes.html" class="back-link">
+      <i class="fa-solid fa-arrow-left"></i> Volver a planes
+    </a>
+
+    <div class="header">
+      <h1>Finalizar Compra</h1>
+      <p>Completa tus datos para procesar el pago</p>
+    </div>
+
+    <div class="checkout-grid">
+      <!-- Formulario -->
+      <div class="checkout-form">
+        <form id="checkoutForm">
+          <!-- Datos Personales -->
+          <div class="form-section">
+            <h2><i class="fa-solid fa-user"></i> Datos Personales</h2>
+            <div class="form-group">
+              <label>Nombre Completo *</label>
+              <input type="text" id="nombre" required placeholder="Juan Pérez">
+            </div>
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" id="email" required placeholder="juan@ejemplo.com">
+            </div>
+            <div class="form-group">
+              <label>Teléfono *</label>
+              <input type="tel" id="telefono" required placeholder="3001234567">
+            </div>
+            <div class="form-group">
+              <label>Contraseña *</label>
+              <input type="password" id="password" required placeholder="Mínimo 6 caracteres">
+            </div>
+          </div>
+
+          <!-- Datos de Facturación -->
+          <div class="form-section">
+            <h2><i class="fa-solid fa-file-invoice"></i> Dirección de Facturación</h2>
+            <div class="form-group">
+              <label>País *</label>
+              <input type="text" id="pais" required placeholder="Colombia" value="Colombia">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ciudad *</label>
+                <input type="text" id="ciudad" required placeholder="Bogotá">
+              </div>
+              <div class="form-group">
+                <label>Código Postal</label>
+                <input type="text" id="codigoPostal" placeholder="110111">
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Resumen del Pedido -->
+      <div class="order-summary">
+        <h2>Resumen del Pedido</h2>
+        
+        <div class="plan-selected" id="planInfo">
+          <h3 id="planNombre">Cargando...</h3>
+          <div class="price" id="planPrecio">$0</div>
+          <ul class="plan-features" id="planFeatures"></ul>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotal">$0</span>
+        </div>
+        <div class="summary-row">
+          <span>IVA (19%)</span>
+          <span id="iva">$0</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="total">$0</span>
+        </div>
+
+        <button class="btn-checkout" id="btnPagar">
+          <i class="fa-solid fa-lock"></i>
+          Procesar Pago Seguro
+        </button>
+
+        <div class="security-badge">
+          <i class="fa-solid fa-shield-halved"></i>
+          Pago 100% seguro con Mercado Pago
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const planes = {
+      estandar: {
+        nombre: 'Plan Estándar',
+        precio: 29000,
+        features: [
+          '5 tickets por mes',
+          'Respuesta en 24h',
+          'Escalamiento N1-N2',
+          'Soporte prioritario',
+          'Envío de archivos'
+        ]
+      },
+      premium: {
+        nombre: 'Plan Premium',
+        precio: 99000,
+        features: [
+          'Tickets ilimitados',
+          'Respuesta en 4h',
+          'Asesor dedicado',
+          'Soporte 24/7',
+          'Prioridad máxima',
+          'Videollamadas',
+          'Reportes personalizados'
+        ]
+      }
+    };
+
+    // Obtener plan de la URL
+    const params = new URLSearchParams(window.location.search);
+    const planId = params.get('plan') || 'estandar';
+    const plan = planes[planId];
+
+    if (!plan) {
+      alert('Plan no válido');
+      window.location.href = '/planes.html';
+    }
+
+    // Mostrar información del plan
+    document.getElementById('planNombre').textContent = plan.nombre;
+    document.getElementById('planPrecio').textContent = `$${plan.precio.toLocaleString('es-CO')}`;
+    
+    const featuresHTML = plan.features.map(f => 
+      `<li><i class="fa-solid fa-check"></i> ${f}</li>`
+    ).join('');
+    document.getElementById('planFeatures').innerHTML = featuresHTML;
+
+    // Calcular totales
+    const subtotal = plan.precio;
+    const iva = Math.round(subtotal * 0.19);
+    const total = subtotal + iva;
+
+    document.getElementById('subtotal').textContent = `$${subtotal.toLocaleString('es-CO')}`;
+    document.getElementById('iva').textContent = `$${iva.toLocaleString('es-CO')}`;
+    document.getElementById('total').textContent = `$${total.toLocaleString('es-CO')}`;
+
+    // Procesar pago
+    document.getElementById('btnPagar').addEventListener('click', async () => {
+      const form = document.getElementById('checkoutForm');
+      
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const nombre = document.getElementById('nombre').value;
+      const email = document.getElementById('email').value;
+      const telefono = document.getElementById('telefono').value;
+      const password = document.getElementById('password').value;
+
+      const btn = document.getElementById('btnPagar');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+
+      try {
+        // 1. Registrar usuario
+        const resRegistro = await fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, email, password, telefono })
+        });
+
+        const dataRegistro = await resRegistro.json();
+
+        if (dataRegistro.status !== 'ok') {
+          // Si el usuario ya existe, intentar login
+          const resLogin = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const dataLogin = await resLogin.json();
+          
+          if (dataLogin.status !== 'ok') {
+            alert('Error: El email ya está registrado con otra contraseña. Por favor inicia sesión o usa otro email.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-lock"></i> Procesar Pago Seguro';
+            return;
+          }
+
+          localStorage.setItem('usuario', JSON.stringify(dataLogin.user));
+        } else {
+          // Usuario creado exitosamente, hacer login automático
+          const resLogin = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const dataLogin = await resLogin.json();
+          if (dataLogin.status === 'ok') {
+            localStorage.setItem('usuario', JSON.stringify(dataLogin.user));
+          }
+        }
+
+        // 2. Crear pago
+        document.getElementById('loading').classList.add('active');
+
+        const resPago = await fetch('/pago/crear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            plan: planId
+          })
+        });
+
+        const dataPago = await resPago.json();
+
+        if (dataPago.status === 'ok' && (dataPago.init_point || dataPago.sandbox_init_point)) {
+          // Redirigir a Mercado Pago (usar sandbox en desarrollo)
+          window.location.href = dataPago.sandbox_init_point || dataPago.init_point;
+        } else {
+          throw new Error(dataPago.message || 'Error al crear el pago');
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al procesar el pago: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Procesar Pago Seguro';
+        document.getElementById('loading').classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>

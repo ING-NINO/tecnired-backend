@@ -823,19 +823,19 @@ function probarNotificacion() {
   console.log("✅ Notificación de prueba mostrada");
 }
 
+// ===== TUTORIAL DESACTIVADO TEMPORALMENTE =====
+// El tutorial ha sido desactivado hasta que se implemente correctamente
+
 // Iniciar tutorial cuando cargue la página
 document.addEventListener("DOMContentLoaded", () => {
-  // Esperar a que todo esté cargado
-  setTimeout(() => {
-    iniciarTutorial();
-  }, 1500);
+  // Tutorial desactivado
+  console.log("🔧 Tutorial desactivado temporalmente");
   
   // Agregar función de debug en la consola
-  console.log("🔧 Para reiniciar el tutorial, ejecuta: localStorage.removeItem('tutorialCompletado'); location.reload()");
-  window.probarNotificacion = probarNotificacion;
-  window.reiniciarTutorial = () => {
-    localStorage.removeItem('tutorialCompletado');
-    location.reload();
+  window.probarNotificacion = () => {
+    console.log("🧪 Probando notificación...");
+    mostrarNotificacionProfesional(1);
+    console.log("✅ Notificación de prueba mostrada");
   };
 });
 

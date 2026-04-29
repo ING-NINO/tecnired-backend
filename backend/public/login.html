@@ -309,12 +309,36 @@
       async function initFirebase() {
         try {
           const response = await fetch('/api/firebase-config');
-          const firebaseConfig = await response.json();
+          let firebaseConfig;
+          
+          if (!response.ok) {
+            console.warn('No se pudo cargar config desde servidor, usando fallback');
+            // Fallback a configuración hardcodeada (solo para desarrollo)
+            firebaseConfig = {
+              apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
+              authDomain: "tecnired-221e0.firebaseapp.com",
+              projectId: "tecnired-221e0",
+              storageBucket: "tecnired-221e0.appspot.com",
+              appId: "1:247442670329:web:8a3215d5aeed054bd69828"
+            };
+          } else {
+            firebaseConfig = await response.json();
+          }
+          
           auth = getAuth(initializeApp(firebaseConfig));
           googleProvider = new GoogleAuthProvider();
         } catch (error) {
           console.error('Error cargando Firebase:', error);
-          setMessage(loginMessage, 'Error de configuración. Contacta soporte.', 'error');
+          // Fallback a configuración hardcodeada
+          const firebaseConfig = {
+            apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
+            authDomain: "tecnired-221e0.firebaseapp.com",
+            projectId: "tecnired-221e0",
+            storageBucket: "tecnired-221e0.appspot.com",
+            appId: "1:247442670329:web:8a3215d5aeed054bd69828"
+          };
+          auth = getAuth(initializeApp(firebaseConfig));
+          googleProvider = new GoogleAuthProvider();
         }
       }
       

@@ -454,11 +454,29 @@
     async function loadFirebaseConfig() {
       try {
         const response = await fetch('/api/firebase-config');
+        if (!response.ok) {
+          console.warn('No se pudo cargar config desde servidor, usando fallback');
+          // Fallback a configuración hardcodeada (solo para desarrollo)
+          return {
+            apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
+            authDomain: "tecnired-221e0.firebaseapp.com",
+            projectId: "tecnired-221e0",
+            storageBucket: "tecnired-221e0.appspot.com",
+            appId: "1:247442670329:web:8a3215d5aeed054bd69828"
+          };
+        }
         firebaseConfig = await response.json();
         return firebaseConfig;
       } catch (error) {
         console.error('Error cargando configuración de Firebase:', error);
-        return null;
+        // Fallback a configuración hardcodeada
+        return {
+          apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
+          authDomain: "tecnired-221e0.firebaseapp.com",
+          projectId: "tecnired-221e0",
+          storageBucket: "tecnired-221e0.appspot.com",
+          appId: "1:247442670329:web:8a3215d5aeed054bd69828"
+        };
       }
     }
 

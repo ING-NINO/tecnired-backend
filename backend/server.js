@@ -209,6 +209,14 @@ app.get("/chat-interno", (req, res) => {
 // ===== ENDPOINT SEGURO PARA FIREBASE CONFIG =====
 // Solo devuelve las claves públicas necesarias para el cliente
 app.get("/api/firebase-config", generalLimiter, (req, res) => {
+  // Verificar que las variables estén cargadas
+  if (!process.env.FIREBASE_API_KEY) {
+    console.error("❌ Variables de Firebase no encontradas en .env");
+    return res.status(500).json({ 
+      error: "Firebase no configurado en el servidor" 
+    });
+  }
+
   res.json({
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,

@@ -1713,11 +1713,8 @@
         const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
         
         if (!usuario || !usuario.email) {
-          // Usuario NO logueado - redirigir a login con parámetro del plan
-          if (confirm("Necesitas iniciar sesión o crear una cuenta para comprar un plan. ¿Deseas continuar?")) {
-            localStorage.setItem("planPendiente", plan);
-            window.location.href = "/login.html?redirect=planes&plan=" + plan;
-          }
+          // Usuario NO logueado - redirigir directamente a checkout
+          window.location.href = `/checkout.html?plan=${plan}`;
           return;
         }
 
@@ -1735,11 +1732,11 @@
           });
           const data = await res.json();
 
-          if (data.status === "ok" && data.init_point) {
+          if (data.status === "ok" && (data.init_point || data.sandbox_init_point)) {
             // Guardar info del pago pendiente
             localStorage.setItem("pagoPendiente", JSON.stringify({ plan, email }));
-            // Redirigir a MercadoPago
-            window.location.href = data.init_point;
+            // Redirigir a MercadoPago (usar sandbox en desarrollo)
+            window.location.href = data.sandbox_init_point || data.init_point;
           } else {
             alert(data.message || "No se pudo iniciar el pago. Intenta de nuevo.");
             btn.innerHTML = textoOriginal;

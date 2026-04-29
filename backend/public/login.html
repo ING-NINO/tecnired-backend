@@ -302,15 +302,25 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-      const firebaseConfig = {
-        apiKey: "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0",
-        authDomain: "tecnired-221e0.firebaseapp.com",
-        projectId: "tecnired-221e0",
-        storageBucket: "tecnired-221e0.firebasestorage.app",
-        appId: "1:247442670329:web:8a3215d5aeed054bd69828",
-      };
-      const auth = getAuth(initializeApp(firebaseConfig));
-      const googleProvider = new GoogleAuthProvider();
+      
+      // Cargar configuración de Firebase desde el servidor (seguro)
+      let auth, googleProvider;
+      
+      async function initFirebase() {
+        try {
+          const response = await fetch('/api/firebase-config');
+          const firebaseConfig = await response.json();
+          auth = getAuth(initializeApp(firebaseConfig));
+          googleProvider = new GoogleAuthProvider();
+        } catch (error) {
+          console.error('Error cargando Firebase:', error);
+          setMessage(loginMessage, 'Error de configuración. Contacta soporte.', 'error');
+        }
+      }
+      
+      // Inicializar Firebase
+      initFirebase();
+      
       const loginForm = document.getElementById("loginForm");
       const registerForm = document.getElementById("registerForm");
       const loginMessage = document.getElementById("loginMessage");

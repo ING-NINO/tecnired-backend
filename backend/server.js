@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 const http = require("http");
 const crypto = require("crypto");
 const { Server } = require("socket.io");
+const rateLimit = require("express-rate-limit");
 
 // ===== APP + SERVER =====
 const app = express();
@@ -16,7 +17,34 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3000;
-const FIREBASE_API_KEY = "AIzaSyDkG2JyeF_mGwDx8dAL6BypVKLTzicSEe0";
+
+// ===== RATE LIMITING =====
+// Limitar intentos de login/registro
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10, // 10 intentos por IP
+  message: { status: "fail", message: "Demasiados intentos. Intenta de nuevo en 15 minutos." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Limitar creación de pagos
+const paymentLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora
+  max: 5, // 5 pagos por hora por IP
+  message: { status: "fail", message: "Demasiadas solicitudes de pago. Intenta más tarde." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Limitar solicitudes generales
+const generalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 100, // 100 requests por minuto
+  message: { status: "fail", message: "Demasiadas solicitudes. Intenta más tarde." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // ===== EMAIL =====
 const transporter = nodemailer.createTransport({
@@ -70,7 +98,7 @@ function verificarPassword(password, storedPassword) {
 
 async function verificarFirebaseToken(idToken) {
   const response = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`,
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.FIREBASE_API_KEY}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -178,8 +206,20 @@ app.get("/chat-interno", (req, res) => {
   );
 });
 
+// ===== ENDPOINT SEGURO PARA FIREBASE CONFIG =====
+// Solo devuelve las claves públicas necesarias para el cliente
+app.get("/api/firebase-config", generalLimiter, (req, res) => {
+  res.json({
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    appId: process.env.FIREBASE_APP_ID,
+  });
+});
+
 // ===== REGISTER =====
-app.post("/register", (req, res) => {
+app.post("/register", authLimiter, (req, res) => {
   const { nombre, email, password, telefono } = req.body;
 
   if (!nombre || !email || !password || !telefono) {
@@ -212,7 +252,7 @@ app.post("/register", (req, res) => {
 });
 
 // ===== LOGIN =====
-app.post("/login", (req, res) => {
+app.post("/login", authLimiter, (req, res) => {
   const { email, password } = req.body;
 
   db.query(
@@ -233,7 +273,7 @@ app.post("/login", (req, res) => {
 });
 
 // ===== GOOGLE AUTH =====
-app.post("/auth/google", async (req, res) => {
+app.post("/auth/google", authLimiter, async (req, res) => {
   let googleUser;
 
   try {
@@ -703,7 +743,7 @@ app.get("/planes", (req, res) => {
 });
 
 // Crear preferencia de pago
-app.post("/pago/crear", async (req, res) => {
+app.post("/pago/crear", paymentLimiter, async (req, res) => {
   const { plan, email } = req.body;
   const planInfo = PLANES[plan];
   

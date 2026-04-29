@@ -241,6 +241,60 @@
       gap: 12px;
     }
 
+    .google-btn {
+      width: 100%;
+      padding: 14px;
+      background: white !important;
+      color: #1f2937 !important;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .google-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .google-icon {
+      width: 20px;
+      height: 20px;
+      font-weight: 700;
+      color: #4285f4;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .divider::before {
+      margin-right: 15px;
+    }
+
+    .divider::after {
+      margin-left: 15px;
+    }
+
     @media (max-width: 968px) {
       .checkout-grid {
         grid-template-columns: 1fr;
@@ -306,6 +360,14 @@
     <div class="checkout-grid">
       <!-- Formulario -->
       <div class="checkout-form">
+        <!-- Botón de Google -->
+        <button class="google-btn" id="googleSignInBtn" type="button">
+          <span class="google-icon">G</span>
+          Continuar con Google (más rápido)
+        </button>
+
+        <div class="divider">o completa el formulario</div>
+
         <form id="checkoutForm">
           <!-- Datos Personales -->
           <div class="form-section">
@@ -385,61 +447,210 @@
     </div>
   </div>
 
-  <script>
-    const planes = {
-      estandar: {
-        nombre: 'Plan Estándar',
-        precio: 29000,
-        features: [
-          '5 tickets por mes',
-          'Respuesta en 24h',
-          'Escalamiento N1-N2',
-          'Soporte prioritario',
-          'Envío de archivos'
-        ]
-      },
-      premium: {
-        nombre: 'Plan Premium',
-        precio: 99000,
-        features: [
-          'Tickets ilimitados',
-          'Respuesta en 4h',
-          'Asesor dedicado',
-          'Soporte 24/7',
-          'Prioridad máxima',
-          'Videollamadas',
-          'Reportes personalizados'
-        ]
+  <script type="module">
+    // Cargar configuración de Firebase desde el servidor (seguro)
+    let firebaseConfig = null;
+    
+    async function loadFirebaseConfig() {
+      try {
+        const response = await fetch('/api/firebase-config');
+        firebaseConfig = await response.json();
+        return firebaseConfig;
+      } catch (error) {
+        console.error('Error cargando configuración de Firebase:', error);
+        return null;
       }
-    };
+    }
+
+    // Inicializar Firebase y Google Sign-In
+    async function initGoogleSignIn() {
+      const config = await loadFirebaseConfig();
+      if (!config) {
+        console.error('No se pudo cargar la configuración de Firebase');
+        document.getElementById('googleSignInBtn').disabled = true;
+        document.getElementById('googleSignInBtn').innerHTML = '<span class="google-icon">G</span> Google no disponible';
+        return;
+      }
+
+      // Firebase imports
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+      const { getAuth, GoogleAuthProvider, signInWithPopup } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+
+      const auth = getAuth(initializeApp(config));
+      const googleProvider = new GoogleAuthProvider();
+
+      // Google Sign-In
+      document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('googleSignInBtn');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando con Google...';
+
+        try {
+          const result = await signInWithPopup(auth, googleProvider);
+          const googleUser = result.user;
+          const idToken = await googleUser.getIdToken();
+
+          // Autenticar con el backend
+          const response = await fetch('/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken })
+          });
+
+          const data = await response.json();
+
+          if (data.status === 'ok') {
+            // Guardar usuario en localStorage
+            localStorage.setItem('usuario', JSON.stringify(data.user));
+
+            // Crear pago directamente
+            document.getElementById('loading').classList.add('active');
+
+            const resPago = await fetch('/pago/crear', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: data.user.email,
+                plan: window.planId
+              })
+            });
+
+            const dataPago = await resPago.json();
+
+            if (dataPago.status === 'ok' && (dataPago.init_point || dataPago.sandbox_init_point)) {
+              window.location.href = dataPago.sandbox_init_point || dataPago.init_point;
+            } else {
+              throw new Error(dataPago.message || 'Error al crear el pago');
+            }
+          } else {
+            throw new Error(data.message || 'Error al autenticar con Google');
+          }
+        } catch (error) {
+          console.error('Error con Google:', error);
+          if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+            alert('Por favor completa la ventana de Google para continuar.');
+          } else {
+            alert('Error al conectar con Google: ' + error.message);
+          }
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          document.getElementById('loading').classList.remove('active');
+        }
+      });
+    }
+
+    // Inicializar cuando el DOM esté listo
+    initGoogleSignIn();
+  </script>
+
+  <script>
+    let planes = {};
+    window.planId = ''; // Hacer planId global para el script de Google
+    let plan = null;
 
     // Obtener plan de la URL
     const params = new URLSearchParams(window.location.search);
-    const planId = params.get('plan') || 'estandar';
-    const plan = planes[planId];
+    window.planId = params.get('plan') || 'estandar';
 
-    if (!plan) {
-      alert('Plan no válido');
-      window.location.href = '/planes.html';
+    // Cargar planes desde el servidor
+    fetch('/planes')
+      .then(res => res.json())
+      .then(data => {
+        // Convertir array a objeto
+        planes = {};
+        data.forEach(p => {
+          planes[p.id] = {
+            nombre: p.nombre,
+            precio: p.precio,
+            descripcion: p.descripcion,
+            limites: p.limites
+          };
+        });
+
+        plan = planes[window.planId];
+
+        if (!plan) {
+          alert('Plan no válido');
+          window.location.href = '/planes.html';
+          return;
+        }
+
+        // Mostrar información del plan
+        document.getElementById('planNombre').textContent = plan.nombre;
+        document.getElementById('planPrecio').textContent = `$${plan.precio.toLocaleString('es-CO')}`;
+        
+        // Generar features basadas en los límites del plan
+        const features = generarFeatures(plan.limites);
+        const featuresHTML = features.map(f => 
+          `<li><i class="fa-solid fa-check"></i> ${f}</li>`
+        ).join('');
+        document.getElementById('planFeatures').innerHTML = featuresHTML;
+
+        // Calcular totales
+        const subtotal = plan.precio;
+        const total = subtotal;
+
+        document.getElementById('subtotal').textContent = `$${subtotal.toLocaleString('es-CO')}`;
+        document.getElementById('iva').textContent = `$0`;
+        document.getElementById('total').textContent = `$${total.toLocaleString('es-CO')}`;
+      })
+      .catch(err => {
+        console.error('Error cargando planes:', err);
+        alert('Error cargando información del plan');
+        window.location.href = '/planes.html';
+      });
+
+    // Función para generar features basadas en los límites
+    function generarFeatures(limites) {
+      const features = [];
+
+      // Tickets
+      if (limites.tickets_mes === -1) {
+        features.push('Tickets ilimitados');
+      } else {
+        features.push(`${limites.tickets_mes} ticket${limites.tickets_mes > 1 ? 's' : ''} por mes`);
+      }
+
+      // Tiempo de respuesta
+      features.push(`Respuesta en ${limites.tiempo_respuesta}`);
+
+      // Adjuntos
+      if (limites.adjuntos) {
+        features.push('Envío de archivos adjuntos');
+      }
+
+      // Escalamiento
+      if (limites.escalamiento && limites.escalamiento.length > 0) {
+        features.push(`Escalamiento N${limites.escalamiento.join('-N')}`);
+      }
+
+      // Soporte telefónico
+      if (limites.soporte_telefono) {
+        if (limites.soporte_telefono === '24/7') {
+          features.push('Soporte telefónico 24/7');
+        } else {
+          features.push('Soporte telefónico');
+        }
+      }
+
+      // Videollamada
+      if (limites.videollamada) {
+        features.push('Chat con videollamada');
+      }
+
+      // Asesor dedicado
+      if (limites.asesor_dedicado) {
+        features.push('Asesor dedicado personal');
+      }
+
+      // Reportes
+      if (limites.reportes) {
+        features.push('Reportes mensuales');
+      }
+
+      return features;
     }
-
-    // Mostrar información del plan
-    document.getElementById('planNombre').textContent = plan.nombre;
-    document.getElementById('planPrecio').textContent = `$${plan.precio.toLocaleString('es-CO')}`;
-    
-    const featuresHTML = plan.features.map(f => 
-      `<li><i class="fa-solid fa-check"></i> ${f}</li>`
-    ).join('');
-    document.getElementById('planFeatures').innerHTML = featuresHTML;
-
-    // Calcular totales
-    const subtotal = plan.precio;
-    const iva = Math.round(subtotal * 0.19);
-    const total = subtotal + iva;
-
-    document.getElementById('subtotal').textContent = `$${subtotal.toLocaleString('es-CO')}`;
-    document.getElementById('iva').textContent = `$${iva.toLocaleString('es-CO')}`;
-    document.getElementById('total').textContent = `$${total.toLocaleString('es-CO')}`;
 
     // Procesar pago
     document.getElementById('btnPagar').addEventListener('click', async () => {
@@ -509,7 +720,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email,
-            plan: planId
+            plan: window.planId
           })
         });
 

@@ -1566,16 +1566,63 @@
 
         </div>
 
-        <!-- Estadísticas de Soporte - Card Glassmorphism -->
+        <!-- Estadísticas de Soporte - Card Glassmorphism con Datos Reales -->
         <div class="reveal stats-card">
           <div style="text-align: center; margin-bottom: 50px;">
             <h3 style="font-size: 1.8rem; font-weight: 800; color: #f1f5f9; margin-bottom: 12px;">
               Resultados que <span style="background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">hablan por sí solos</span>
             </h3>
-            <p style="color: #94a3b8; font-size: 1rem;">Métricas reales de nuestro servicio de soporte técnico</p>
+            <p style="color: #94a3b8; font-size: 1rem;">Métricas reales y actualizadas de nuestro servicio de soporte técnico</p>
           </div>
           
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px;">
+          <div id="stats-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px;">
+            <!-- Loading state -->
+            <div class="stat-item" style="--stat-color-1: #38bdf8; --stat-color-2: #818cf8;">
+              <span class="stat-number">
+                <span style="display: inline-block; animation: pulse 1.5s ease-in-out infinite;">...</span>
+              </span>
+              <p class="stat-label">Cargando estadísticas...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Cargar estadísticas reales desde el servidor
+      async function cargarEstadisticas() {
+        try {
+          const response = await fetch('/stats/public');
+          const data = await response.json();
+          
+          if (data.status === 'ok') {
+            const stats = data.stats;
+            const container = document.getElementById('stats-container');
+            
+            container.innerHTML = `
+              <div class="stat-item" style="--stat-color-1: #38bdf8; --stat-color-2: #818cf8;">
+                <span class="stat-number">&lt;15min</span>
+                <p class="stat-label">Tiempo promedio de respuesta inicial</p>
+              </div>
+              <div class="stat-item" style="--stat-color-1: #22c55e; --stat-color-2: #16a34a;">
+                <span class="stat-number">${stats.porcentaje_resueltos}%</span>
+                <p class="stat-label">Casos resueltos exitosamente (${stats.resueltos} de ${stats.total_tickets})</p>
+              </div>
+              <div class="stat-item" style="--stat-color-1: #f59e0b; --stat-color-2: #fbbf24;">
+                <span class="stat-number">${stats.activos}</span>
+                <p class="stat-label">Casos activos en proceso</p>
+              </div>
+              <div class="stat-item" style="--stat-color-1: #8b5cf6; --stat-color-2: #6366f1;">
+                <span class="stat-number">${stats.clientes_activos}+</span>
+                <p class="stat-label">Clientes satisfechos y activos</p>
+              </div>
+            `;
+          }
+        } catch (error) {
+          console.error('Error cargando estadísticas:', error);
+          // Mostrar valores por defecto en caso de error
+          const container = document.getElementById('stats-container');
+          container.innerHTML = `
             <div class="stat-item" style="--stat-color-1: #38bdf8; --stat-color-2: #818cf8;">
               <span class="stat-number">&lt;15min</span>
               <p class="stat-label">Tiempo promedio de respuesta inicial</p>
@@ -1592,10 +1639,17 @@
               <span class="stat-number">500+</span>
               <p class="stat-label">Clientes satisfechos y activos</p>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          `;
+        }
+      }
+      
+      // Cargar estadísticas cuando la página esté lista
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', cargarEstadisticas);
+      } else {
+        cargarEstadisticas();
+      }
+    </script>
 
     <!-- TECNOLOGÍAS QUE SOPORTAMOS - SECCIÓN ULTRA MODERNA -->
     <section id="tecnologias" style="background: linear-gradient(180deg, #020617 0%, #0f172a 50%, #020617 100%); padding: 120px 60px; position: relative; overflow: hidden;">
@@ -1808,40 +1862,10 @@
             </div>
           </div>
 
-          <!-- Software Empresarial -->
-          <div class="reveal tech-category" style="--category-color: #f59e0b; animation-delay: 0.3s;">
-            <div class="tech-icon-wrapper">
-              📊
-            </div>
-            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Software Empresarial</h3>
-            
-            <div class="tech-item">
-              <div class="tech-item-icon">📧</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Microsoft 365 / Office</span>
-              <span class="tech-badge">Pro</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">☁️</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Google Workspace</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">💼</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">ERP y CRM</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">📈</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Software de Contabilidad</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">🗄️</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Bases de Datos</span>
-            </div>
-          </div>
-
           <!-- Seguridad y Antivirus -->
-          <div class="reveal tech-category" style="--category-color: #ef4444; animation-delay: 0.4s;">
+          <div class="reveal tech-category" style="--category-color: #ef4444; animation-delay: 0.3s;">
             <div class="tech-icon-wrapper">
-              🛡️
+              �️
             </div>
             <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Seguridad & Protección</h3>
             
@@ -1854,45 +1878,16 @@
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Gestión de Contraseñas</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">💾</div>
+              <div class="tech-item-icon">�</div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Backup y Recuperación</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🔍</div>
+              <div class="tech-item-icon">�</div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Análisis de Vulnerabilidades</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🚨</div>
+              <div class="tech-item-icon">�</div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Respuesta a Incidentes</span>
-            </div>
-          </div>
-
-          <!-- Cloud y Virtualización -->
-          <div class="reveal tech-category" style="--category-color: #06b6d4; animation-delay: 0.5s;">
-            <div class="tech-icon-wrapper">
-              ☁️
-            </div>
-            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Cloud & Virtualización</h3>
-            
-            <div class="tech-item">
-              <div class="tech-item-icon">☁️</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">AWS, Azure, Google Cloud</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">📦</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">VMware y Hyper-V</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">🐳</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Docker y Contenedores</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">🔄</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Migración a la Nube</span>
-            </div>
-            <div class="tech-item">
-              <div class="tech-item-icon">⚡</div>
-              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Optimización de Recursos</span>
             </div>
           </div>
 

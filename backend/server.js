@@ -1062,6 +1062,39 @@ app.get("/feedback/stats", (req, res) => {
   });
 });
 
+// Endpoint público para estadísticas de soporte (para index.html)
+app.get("/stats/public", (req, res) => {
+  db.query(`
+    SELECT 
+      COUNT(*) as total_tickets,
+      SUM(CASE WHEN estado = 'Resuelto' THEN 1 ELSE 0 END) as resueltos,
+      SUM(CASE WHEN estado IN ('Nuevo', 'En Proceso', 'Pendiente') THEN 1 ELSE 0 END) as activos,
+      COUNT(DISTINCT email) as clientes_activos
+    FROM tickets
+  `, (err, stats) => {
+    if (err) {
+      console.error("Error obteniendo estadísticas públicas:", err);
+      return res.status(500).json({ status: "fail" });
+    }
+    
+    const data = stats[0];
+    const porcentajeResueltos = data.total_tickets > 0 
+      ? Math.round((data.resueltos / data.total_tickets) * 100) 
+      : 0;
+    
+    res.json({
+      status: "ok",
+      stats: {
+        total_tickets: data.total_tickets,
+        resueltos: data.resueltos,
+        activos: data.activos,
+        clientes_activos: data.clientes_activos,
+        porcentaje_resueltos: porcentajeResueltos
+      }
+    });
+  });
+});
+
 // Endpoint para listar todo el feedback (admin)
 app.get("/feedback", (req, res) => {
   const { tipo, rating, limit } = req.query;

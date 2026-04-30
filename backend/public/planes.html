@@ -153,6 +153,22 @@
       color: #0f172a;
     }
 
+    /* Savings badge animation */
+    .savings-badge {
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     /* Plans Grid */
     .plans-container {
       position: relative;
@@ -518,9 +534,20 @@
   <section class="hero">
     <h1>Elige el Plan Perfecto para Ti</h1>
     <p>Soporte técnico profesional adaptado a tus necesidades. Sin contratos, cancela cuando quieras.</p>
-    <div class="billing-toggle">
-      <div class="billing-option active">Mensual</div>
-      <div class="billing-option">Anual <span style="color: #22c55e; font-size: 0.8rem; margin-left: 4px;">-20%</span></div>
+    
+    <!-- Toggle Mensual/Anual Mejorado -->
+    <div style="display: inline-flex; background: rgba(15, 23, 42, 0.9); border: 2px solid rgba(56, 189, 248, 0.3); border-radius: 20px; padding: 8px; gap: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+      <div class="billing-option active" onclick="toggleBilling('mensual')" style="padding: 14px 32px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; color: #94a3b8; position: relative;">
+        <div style="font-size: 0.95rem;">Mensual</div>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Pago mes a mes</div>
+      </div>
+      <div class="billing-option" onclick="toggleBilling('anual')" style="padding: 14px 32px; border-radius: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; color: #94a3b8; position: relative;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+          Anual
+          <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 0.5px;">AHORRA 20%</span>
+        </div>
+        <div style="font-size: 0.7rem; color: #22c55e; margin-top: 2px; font-weight: 600;">2 meses gratis 🎉</div>
+      </div>
     </div>
   </section>
 
@@ -584,10 +611,13 @@
       <div class="plan-header">
         <div class="plan-icon">🚀</div>
         <h3 class="plan-name">Plan Estándar</h3>
-        <div class="plan-price">
+        <div class="plan-price" data-monthly="60000" data-annual="576000">
           <span class="currency">$</span>
           <span class="amount">60,000</span>
           <span class="period">/mes</span>
+        </div>
+        <div class="savings-badge" style="display: none; font-size: 0.75rem; color: #22c55e; margin-top: 8px; font-weight: 700;">
+          💰 Ahorras $144,000 al año
         </div>
         <p class="plan-description">Para equipos pequeños</p>
       </div>
@@ -637,10 +667,13 @@
       <div class="plan-header">
         <div class="plan-icon">👑</div>
         <h3 class="plan-name">Plan Premium</h3>
-        <div class="plan-price">
+        <div class="plan-price" data-monthly="100000" data-annual="960000">
           <span class="currency">$</span>
           <span class="amount">100,000</span>
           <span class="period">/mes</span>
+        </div>
+        <div class="savings-badge" style="display: none; font-size: 0.75rem; color: #22c55e; margin-top: 8px; font-weight: 700;">
+          💰 Ahorras $240,000 al año
         </div>
         <p class="plan-description">Para empresas exigentes</p>
       </div>
@@ -817,29 +850,48 @@
     // Billing toggle
     document.querySelectorAll('.billing-option').forEach(option => {
       option.addEventListener('click', function() {
-        document.querySelectorAll('.billing-option').forEach(opt => opt.classList.remove('active'));
+        document.querySelectorAll('.billing-option').forEach(opt => {
+          opt.classList.remove('active');
+          opt.style.background = 'transparent';
+          opt.style.color = '#94a3b8';
+        });
         this.classList.add('active');
+        this.style.background = 'linear-gradient(135deg, #38bdf8, #818cf8)';
+        this.style.color = '#0f172a';
         
-        // Aquí podrías cambiar los precios si implementas facturación anual
-        if (this.textContent.includes('Anual')) {
-          // Aplicar descuento del 20%
-          document.querySelectorAll('.amount').forEach((amount, index) => {
-            if (index === 1) amount.textContent = '48,000'; // Estándar
-            if (index === 2) amount.textContent = '80,000'; // Premium
-          });
-          document.querySelectorAll('.period').forEach(period => {
+        const isAnual = this.textContent.includes('Anual');
+        const precios = document.querySelectorAll('.plan-price[data-monthly]');
+        const savingsBadges = document.querySelectorAll('.savings-badge');
+        
+        precios.forEach((precio, index) => {
+          const monthly = parseInt(precio.dataset.monthly);
+          const annual = parseInt(precio.dataset.annual);
+          const amount = precio.querySelector('.amount');
+          const period = precio.querySelector('.period');
+          const savingsBadge = savingsBadges[index];
+          
+          if (isAnual) {
+            // Mostrar precio anual total
+            amount.textContent = annual.toLocaleString('es-CO');
             period.textContent = '/año';
-          });
-        } else {
-          // Precios mensuales
-          document.querySelectorAll('.amount').forEach((amount, index) => {
-            if (index === 1) amount.textContent = '60,000'; // Estándar
-            if (index === 2) amount.textContent = '100,000'; // Premium
-          });
-          document.querySelectorAll('.period').forEach(period => {
+            
+            // Mostrar ahorro
+            if (savingsBadge) {
+              const savings = (monthly * 12) - annual;
+              savingsBadge.textContent = `💰 Ahorras $${savings.toLocaleString('es-CO')} al año`;
+              savingsBadge.style.display = 'block';
+            }
+          } else {
+            // Mostrar precio mensual
+            amount.textContent = monthly.toLocaleString('es-CO');
             period.textContent = '/mes';
-          });
-        }
+            
+            // Ocultar ahorro
+            if (savingsBadge) {
+              savingsBadge.style.display = 'none';
+            }
+          }
+        });
       });
     });
   </script>

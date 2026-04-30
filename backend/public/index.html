@@ -512,6 +512,12 @@
       }
       .btn-plan-fill:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(56,189,248,0.5); }
 
+      /* TOGGLE FACTURACIÓN */
+      .billing-option.active {
+        background: linear-gradient(135deg, #38bdf8, #818cf8) !important;
+        color: #0f172a !important;
+      }
+
       /* ===== TESTIMONIOS ===== */
       #testimonios { background: var(--dark); text-align: center; }
       .testimonios-container {
@@ -1175,6 +1181,19 @@
         <h2 class="section-title">Planes para cada necesidad</h2>
         <p class="section-sub">Desde hogares hasta empresas — elige el nivel de soporte que necesitas.</p>
       </div>
+      
+      <!-- Toggle Mensual/Anual -->
+      <div style="text-align: center; margin: 40px 0 20px;">
+        <div style="display: inline-flex; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 16px; padding: 6px; gap: 6px;">
+          <div class="billing-option active" onclick="toggleBilling('mensual')" style="padding: 12px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; color: #94a3b8;">
+            Mensual
+          </div>
+          <div class="billing-option" onclick="toggleBilling('anual')" style="padding: 12px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; color: #94a3b8;">
+            Anual <span style="color: #22c55e; font-size: 0.8rem; margin-left: 4px;">-20%</span>
+          </div>
+        </div>
+      </div>
+      
       <div class="planes-container">
 
         <!-- GRATIS -->
@@ -1199,7 +1218,9 @@
         <div class="plan-card destacado reveal">
           <div class="plan-badge">🔥 Más elegido</div>
           <h3>Estándar</h3>
-          <div class="plan-price">$60.000<span> / mes</span></div>
+          <div class="plan-price" data-monthly="60000" data-annual="48000">
+            $<span class="price-amount">60.000</span><span class="price-period"> / mes</span>
+          </div>
           <div class="plan-price" style="font-size:0.78rem;color:#f59e0b;margin-top:-8px;margin-bottom:8px;">⚡ Prueba por $2.000</div>
           <div class="plan-divider"></div>
           <ul class="plan-features">
@@ -1219,7 +1240,9 @@
         <div class="plan-card reveal">
           <div class="plan-badge" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">⭐ Premium</div>
           <h3>Premium</h3>
-          <div class="plan-price">$100.000<span> / mes</span></div>
+          <div class="plan-price" data-monthly="100000" data-annual="80000">
+            $<span class="price-amount">100.000</span><span class="price-period"> / mes</span>
+          </div>
           <div class="plan-divider"></div>
           <ul class="plan-features">
             <li><i class="fa-solid fa-check"></i> Tickets ilimitados</li>
@@ -1749,6 +1772,38 @@
         }
       }
       window.pagar = pagar;
+      
+      // TOGGLE FACTURACIÓN MENSUAL/ANUAL
+      function toggleBilling(tipo) {
+        const opciones = document.querySelectorAll('.billing-option');
+        opciones.forEach(opt => {
+          opt.classList.remove('active');
+          opt.style.background = 'transparent';
+          opt.style.color = '#94a3b8';
+        });
+        
+        event.target.classList.add('active');
+        event.target.style.background = 'linear-gradient(135deg, #38bdf8, #818cf8)';
+        event.target.style.color = '#0f172a';
+        
+        // Actualizar precios
+        const precios = document.querySelectorAll('.plan-price[data-monthly]');
+        precios.forEach(precio => {
+          const monthly = parseInt(precio.dataset.monthly);
+          const annual = parseInt(precio.dataset.annual);
+          const amount = precio.querySelector('.price-amount');
+          const period = precio.querySelector('.price-period');
+          
+          if (tipo === 'anual') {
+            amount.textContent = annual.toLocaleString('es-CO');
+            period.textContent = ' / año';
+          } else {
+            amount.textContent = monthly.toLocaleString('es-CO');
+            period.textContent = ' / mes';
+          }
+        });
+      }
+      window.toggleBilling = toggleBilling;
       
       // ===== CARGAR COMENTARIOS DE CLIENTES =====
       async function cargarComentarios() {

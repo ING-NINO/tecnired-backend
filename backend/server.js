@@ -769,6 +769,41 @@ app.post("/pago/crear", paymentLimiter, async (req, res) => {
     return res.status(400).json({ status: "fail", message: "El plan gratis no requiere pago" });
   }
 
+  // Verificar si el usuario ya tiene este plan activo
+  if (email) {
+    try {
+      const usuario = await new Promise((resolve, reject) => {
+        db.query(
+          "SELECT plan FROM usuarios WHERE email = ?",
+          [email],
+          (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows[0]);
+          }
+        );
+      });
+
+      if (usuario && usuario.plan === plan) {
+        return res.status(400).json({ 
+          status: "fail", 
+          message: `Ya tienes el plan ${planInfo.nombre} activo. No puedes comprarlo nuevamente hasta que expire.` 
+        });
+      }
+
+      // Si tiene un plan superior, no puede comprar uno inferior
+      const planesOrden = { gratis: 0, estandar: 1, premium: 2 };
+      if (usuario && planesOrden[usuario.plan] > planesOrden[plan]) {
+        return res.status(400).json({ 
+          status: "fail", 
+          message: `Ya tienes el plan ${usuario.plan.toUpperCase()} que es superior. No puedes comprar un plan inferior.` 
+        });
+      }
+    } catch (err) {
+      console.error("Error verificando plan del usuario:", err);
+      // Continuar con el pago si hay error en la verificación
+    }
+  }
+
   try {
     const preference = new Preference(mpClient);
     const response = await preference.create({

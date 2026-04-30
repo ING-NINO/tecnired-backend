@@ -83,6 +83,12 @@
   </div>
 
   <script>
+    // Deshabilitar botón hasta que se actualice el plan
+    const btnPanel = document.getElementById("btnPanel");
+    btnPanel.style.opacity = "0.5";
+    btnPanel.style.pointerEvents = "none";
+    btnPanel.textContent = "Actualizando...";
+
     // Actualizar el plan del usuario en localStorage
     async function actualizarPlan() {
       try {
@@ -93,6 +99,10 @@
           document.getElementById("mensaje").textContent = 
             "Por favor, inicia sesión para ver tus nuevos privilegios.";
           document.getElementById("loading").style.display = "none";
+          btnPanel.textContent = "Iniciar Sesión";
+          btnPanel.href = "/login.html";
+          btnPanel.style.opacity = "1";
+          btnPanel.style.pointerEvents = "auto";
           return;
         }
 
@@ -111,8 +121,15 @@
           document.getElementById("mensaje").textContent = 
             `¡Felicidades! Tu plan ${data.plan.toUpperCase()} está activo. Ya puedes disfrutar de todas las funcionalidades.`;
           document.getElementById("loading").style.display = "none";
+          
+          // Habilitar botón
+          btnPanel.textContent = "Ir al Panel";
+          btnPanel.style.opacity = "1";
+          btnPanel.style.pointerEvents = "auto";
         } else {
           // Si aún no se actualizó, esperar más tiempo
+          document.getElementById("loading").textContent = "Procesando pago, espera un momento más...";
+          
           setTimeout(async () => {
             const res2 = await fetch(`/usuario/plan/${usuario.email}`);
             const data2 = await res2.json();
@@ -120,15 +137,28 @@
             if (data2.plan && data2.plan !== "gratis") {
               usuario.plan = data2.plan;
               localStorage.setItem("usuario", JSON.stringify(usuario));
+              
+              document.getElementById("mensaje").textContent = 
+                `¡Felicidades! Tu plan ${data2.plan.toUpperCase()} está activo.`;
             }
             
             document.getElementById("loading").style.display = "none";
+            
+            // Habilitar botón de todas formas después de 6 segundos
+            btnPanel.textContent = "Ir al Panel";
+            btnPanel.style.opacity = "1";
+            btnPanel.style.pointerEvents = "auto";
           }, 3000);
         }
       } catch (err) {
         console.error("Error actualizando plan:", err);
         document.getElementById("loading").textContent = 
           "Hubo un problema al actualizar. Recarga la página en tu panel.";
+        
+        // Habilitar botón de todas formas
+        btnPanel.textContent = "Ir al Panel";
+        btnPanel.style.opacity = "1";
+        btnPanel.style.pointerEvents = "auto";
       }
     }
 

@@ -729,7 +729,7 @@
       @media (max-width: 560px) {
         .hero-stats { flex-wrap: wrap; gap: 20px; }
         .formulario { padding: 28px 20px; }
-        .cards, .planes-container, .testimonios-container { grid-template-columns: 1fr; }
+        .cards, .planes-container { grid-template-columns: 1fr; }
         
         /* Flip cards en móvil */
         .cards {
@@ -887,7 +887,7 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="#servicios">Servicios</a></li>
         <li><a href="#planes">Planes</a></li>
-        <li><a href="#testimonios">Testimonios</a></li>
+        <li><a href="#como-funciona">Cómo Funciona</a></li>
         <li><a href="Sobre_Nosotros.html">Nosotros</a></li>
       </ul>
       <a href="login.html" class="btn-login">Ingresar</a>
@@ -1289,37 +1289,91 @@
       </div>
     </section>
 
-    <!-- TESTIMONIOS -->
-    <section id="testimonios">
+    <!-- CÓMO FUNCIONA NUESTRO SOPORTE -->
+    <section id="como-funciona" style="background: linear-gradient(180deg, var(--dark) 0%, #060d1f 100%); padding: 100px 60px; text-align: center;">
       <div class="reveal">
-        <span class="section-label">Testimonios</span>
-        <h2 class="section-title">Clientes que confían en nosotros</h2>
-        <p class="section-sub">Más de 500 hogares y empresas ya resolvieron sus problemas con TECNIRED.</p>
+        <span class="section-label">Proceso Simple</span>
+        <h2 class="section-title">¿Cómo funciona nuestro soporte?</h2>
+        <p class="section-sub">En 3 pasos simples, resolvemos tu problema técnico de forma rápida y profesional.</p>
       </div>
-      <div class="testimonios-container">
-        <div class="testimonio reveal">
-          <div class="stars">★★★★★</div>
-          <p>"Desde que contraté TECNIRED, mi negocio dejó de tener problemas técnicos. Servicio rápido y muy profesional."</p>
-          <div class="testimonio-author">
-            <div class="author-avatar">E</div>
-            <div><div class="author-name">Empresario Local</div><div class="author-role">Dueño de PYME</div></div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-top: 60px; max-width: 1100px; margin-left: auto; margin-right: auto;">
+        
+        <!-- Paso 1 -->
+        <div class="reveal" style="position: relative;">
+          <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 50%; display: grid; place-items: center; font-size: 1.8rem; font-weight: 900; color: #06202c; box-shadow: 0 8px 24px rgba(56,189,248,0.4); z-index: 2;">
+            1
+          </div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 60px 32px 32px; backdrop-filter: blur(16px); text-align: center; transition: all 0.35s; height: 100%;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(56,189,248,0.1)); border: 1px solid rgba(56,189,248,0.3); border-radius: 20px; display: grid; place-items: center; font-size: 2.5rem;">
+              📝
+            </div>
+            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; color: var(--text);">Crea tu Ticket</h3>
+            <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.7;">
+              Describe tu problema en nuestro sistema. Es rápido, fácil y puedes adjuntar capturas de pantalla.
+            </p>
           </div>
         </div>
-        <div class="testimonio reveal">
-          <div class="stars">★★★★★</div>
-          <p>"El soporte remoto fue inmediato. En menos de 20 minutos mi problema estaba completamente solucionado."</p>
-          <div class="testimonio-author">
-            <div class="author-avatar">S</div>
-            <div><div class="author-name">Santiago M.</div><div class="author-role">Estudiante universitario</div></div>
+
+        <!-- Paso 2 -->
+        <div class="reveal" style="position: relative;">
+          <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: grid; place-items: center; font-size: 1.8rem; font-weight: 900; color: white; box-shadow: 0 8px 24px rgba(99,102,241,0.4); z-index: 2;">
+            2
+          </div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 60px 32px 32px; backdrop-filter: blur(16px); text-align: center; transition: all 0.35s; height: 100%;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.1)); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; display: grid; place-items: center; font-size: 2.5rem;">
+              💬
+            </div>
+            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; color: var(--text);">Asesor Asignado</h3>
+            <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.7;">
+              Un técnico especializado revisa tu caso y te contacta por chat en tiempo real para ayudarte.
+            </p>
           </div>
         </div>
-        <div class="testimonio reveal">
-          <div class="stars">★★★★★</div>
-          <p>"Excelente atención y precios muy accesibles. El sistema de tickets es muy fácil de usar. Totalmente recomendados."</p>
-          <div class="testimonio-author">
-            <div class="author-avatar">L</div>
-            <div><div class="author-name">Laura G.</div><div class="author-role">Hogar en Boyacá</div></div>
+
+        <!-- Paso 3 -->
+        <div class="reveal" style="position: relative;">
+          <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: grid; place-items: center; font-size: 1.8rem; font-weight: 900; color: white; box-shadow: 0 8px 24px rgba(34,197,94,0.4); z-index: 2;">
+            3
           </div>
+          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 60px 32px 32px; backdrop-filter: blur(16px); text-align: center; transition: all 0.35s; height: 100%;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 20px; display: grid; place-items: center; font-size: 2.5rem;">
+              ✅
+            </div>
+            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; color: var(--text);">Problema Resuelto</h3>
+            <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.7;">
+              Solucionamos tu problema de forma remota o presencial. Rápido, eficiente y con garantía.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Estadísticas de Soporte -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin-top: 80px; max-width: 900px; margin-left: auto; margin-right: auto;">
+        <div class="reveal" style="text-align: center;">
+          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
+            <15min
+          </div>
+          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Tiempo promedio de respuesta</p>
+        </div>
+        <div class="reveal" style="text-align: center;">
+          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #22c55e, #16a34a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
+            98%
+          </div>
+          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Problemas resueltos exitosamente</p>
+        </div>
+        <div class="reveal" style="text-align: center;">
+          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
+            24/7
+          </div>
+          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Disponibilidad en planes Premium</p>
+        </div>
+        <div class="reveal" style="text-align: center;">
+          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
+            500+
+          </div>
+          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Clientes satisfechos</p>
         </div>
       </div>
     </section>
@@ -1446,9 +1500,9 @@
             <i class="fa-brands fa-instagram"></i>
             <span>Instagram</span>
           </a>
-          <a href="https://twitter.com/tecnired" target="_blank" class="social-link">
-            <i class="fa-brands fa-twitter"></i>
-            <span>Twitter</span>
+          <a href="https://x.com/tecnired" target="_blank" class="social-link">
+            <i class="fa-brands fa-x-twitter"></i>
+            <span>X (Twitter)</span>
           </a>
           <a href="https://wa.me/573001234567" target="_blank" class="social-link">
             <i class="fa-brands fa-whatsapp"></i>

@@ -807,9 +807,12 @@ app.post("/pago/crear", paymentLimiter, async (req, res) => {
 
 // Webhook — MercadoPago notifica aquí cuando hay un pago
 app.post("/pago/webhook", async (req, res) => {
-  const { type, data } = req.query;
+  // Mercado Pago puede enviar los parámetros de diferentes formas
+  const type = req.query.type || req.query.topic || req.body.type;
+  const dataId = req.query.id || req.query['data.id'] || req.body.data?.id || req.body.id;
 
-  console.log(`📩 Webhook recibido: type=${type}, id=${data?.id}`);
+  console.log(`📩 Webhook recibido: type=${type}, id=${dataId}`);
+  console.log(`📋 Query params:`, req.query);
 
   // Verificar firma del webhook con la clave secreta
   const xSignature = req.headers["x-signature"];
@@ -819,12 +822,14 @@ app.post("/pago/webhook", async (req, res) => {
     const [tsPart, v1Part] = xSignature.split(",");
     const ts = tsPart?.split("=")[1];
     const v1 = v1Part?.split("=")[1];
-    const manifest = `id:${data?.id};request-id:${xRequestId};ts:${ts};`;
+    const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
     const hmac = crypto.createHmac("sha256", process.env.MP_WEBHOOK_SECRET)
       .update(manifest)
       .digest("hex");
     if (hmac !== v1) {
       console.warn("⚠️ Webhook con firma inválida rechazado");
+      console.warn(`   Esperado: ${hmac}`);
+      console.warn(`   Recibido: ${v1}`);
       return res.sendStatus(400);
     }
   }
@@ -835,9 +840,14 @@ app.post("/pago/webhook", async (req, res) => {
     return res.sendStatus(200);
   }
 
+  if (!dataId) {
+    console.error("❌ No se recibió ID del pago");
+    return res.sendStatus(400);
+  }
+
   try {
     const payment = new Payment(mpClient);
-    const pago = await payment.get({ id: data.id });
+    const pago = await payment.get({ id: dataId });
 
     console.log(`💳 Pago consultado: ID=${pago.id}, Status=${pago.status}`);
 

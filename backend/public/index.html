@@ -1289,91 +1289,630 @@
       </div>
     </section>
 
-    <!-- CÓMO FUNCIONA NUESTRO SOPORTE -->
-    <section id="como-funciona" style="background: linear-gradient(180deg, var(--dark) 0%, #060d1f 100%); padding: 100px 60px; text-align: center;">
-      <div class="reveal">
-        <span class="section-label">Proceso Simple</span>
-        <h2 class="section-title">¿Cómo funciona nuestro soporte?</h2>
-        <p class="section-sub">En 3 pasos simples, resolvemos tu problema técnico de forma rápida y profesional.</p>
-      </div>
+    <!-- CÓMO FUNCIONA NUESTRO SOPORTE - ULTRA MODERNO Y PROFESIONAL -->
+    <section id="como-funciona" style="background: linear-gradient(180deg, #020617 0%, #0a1628 50%, #020617 100%); padding: 120px 60px; position: relative; overflow: hidden;">
       
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-top: 60px; max-width: 1100px; margin-left: auto; margin-right: auto;">
-        
-        <!-- Paso 1 -->
-        <div class="reveal" style="position: relative;">
-          <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 50%; display: grid; place-items: center; font-size: 1.8rem; font-weight: 900; color: #06202c; box-shadow: 0 8px 24px rgba(56,189,248,0.4); z-index: 2;">
-            1
-          </div>
-          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 60px 32px 32px; backdrop-filter: blur(16px); text-align: center; transition: all 0.35s; height: 100%;">
-            <div style="width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(14,165,233,0.2), rgba(56,189,248,0.1)); border: 1px solid rgba(56,189,248,0.3); border-radius: 20px; display: grid; place-items: center; font-size: 2.5rem;">
+      <!-- Fondo animado con círculos flotantes -->
+      <div style="position: absolute; inset: 0; overflow: hidden; opacity: 0.5;">
+        <div style="position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%); border-radius: 50%; top: -300px; left: -150px; animation: float 25s ease-in-out infinite;"></div>
+        <div style="position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%); border-radius: 50%; bottom: -250px; right: -150px; animation: float 30s ease-in-out infinite reverse;"></div>
+        <div style="position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(34,197,94,0.1) 0%, transparent 70%); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: float 35s ease-in-out infinite;"></div>
+      </div>
+
+      <style>
+        @keyframes shimmer {
+          0% { background-position: -1000px 0; }
+          100% { background-position: 1000px 0; }
+        }
+        @keyframes pulse-icon {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        @keyframes border-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(56,189,248,0.3), 0 20px 60px rgba(0,0,0,0.3); }
+          50% { box-shadow: 0 0 30px rgba(56,189,248,0.5), 0 25px 70px rgba(0,0,0,0.4); }
+        }
+        .step-card {
+          position: relative;
+          background: rgba(15, 23, 42, 0.8);
+          backdrop-filter: blur(20px);
+          border-radius: 24px;
+          padding: 40px 32px 32px;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          height: 100%;
+          overflow: hidden;
+        }
+        .step-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, transparent, var(--step-color), transparent);
+          opacity: 0;
+          transition: opacity 0.4s;
+        }
+        .step-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 24px;
+          padding: 2px;
+          background: linear-gradient(135deg, var(--step-color), transparent, var(--step-color));
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          opacity: 0;
+          transition: opacity 0.4s;
+        }
+        .step-card:hover {
+          transform: translateY(-12px);
+          background: rgba(15, 23, 42, 0.95);
+        }
+        .step-card:hover::before,
+        .step-card:hover::after {
+          opacity: 1;
+        }
+        .step-card-1 { --step-color: #38bdf8; }
+        .step-card-2 { --step-color: #8b5cf6; }
+        .step-card-3 { --step-color: #22c55e; }
+        .step-icon-wrapper {
+          width: 90px;
+          height: 90px;
+          margin: 0 auto 28px;
+          border-radius: 20px;
+          display: grid;
+          place-items: center;
+          font-size: 3rem;
+          position: relative;
+          animation: pulse-icon 3s ease-in-out infinite;
+        }
+        .step-icon-wrapper::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          border-radius: 20px;
+          background: linear-gradient(135deg, var(--step-color), transparent);
+          opacity: 0.3;
+          z-index: -1;
+        }
+        .feature-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          margin-bottom: 12px;
+          padding: 10px;
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.02);
+          transition: all 0.3s;
+        }
+        .feature-item:hover {
+          background: rgba(255, 255, 255, 0.05);
+          transform: translateX(4px);
+        }
+        .feature-icon {
+          width: 24px;
+          height: 24px;
+          border-radius: 8px;
+          background: linear-gradient(135deg, var(--step-color), transparent);
+          display: grid;
+          place-items: center;
+          flex-shrink: 0;
+          font-size: 0.75rem;
+          animation: pulse-icon 2s ease-in-out infinite;
+        }
+        .stats-card {
+          background: rgba(15, 23, 42, 0.8);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(56, 189, 248, 0.15);
+          border-radius: 24px;
+          padding: 40px;
+          margin-top: 80px;
+          position: relative;
+          overflow: hidden;
+        }
+        .stats-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+          animation: shimmer 3s infinite;
+        }
+        .stat-item {
+          text-align: center;
+          position: relative;
+        }
+        .stat-number {
+          font-size: clamp(2.5rem, 5vw, 3.5rem);
+          font-weight: 900;
+          background: linear-gradient(135deg, var(--stat-color-1), var(--stat-color-2));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-bottom: 12px;
+          display: block;
+        }
+        .stat-label {
+          color: #94a3b8;
+          font-size: 0.95rem;
+          font-weight: 600;
+          line-height: 1.4;
+        }
+      </style>
+
+      <div style="position: relative; z-index: 1;">
+        <!-- Header -->
+        <div class="reveal" style="text-align: center; margin-bottom: 80px;">
+          <span class="section-label" style="background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 0.85rem; letter-spacing: 3px;">PROCESO SIMPLE Y RÁPIDO</span>
+          <h2 class="section-title" style="font-size: clamp(2.2rem, 5vw, 3.5rem); margin: 20px 0; font-weight: 900; line-height: 1.1;">
+            ¿Cómo funciona nuestro <span style="background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">soporte técnico</span>?
+          </h2>
+          <p class="section-sub" style="max-width: 750px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8; color: #94a3b8;">
+            Resolvemos tu problema técnico en 3 pasos simples. Tecnología de punta y expertos certificados para brindarte la mejor experiencia de soporte.
+          </p>
+        </div>
+      
+        <!-- Cards de Pasos -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto;">
+          
+          <!-- Paso 1: Crea tu Ticket -->
+          <div class="reveal step-card step-card-1">
+            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 50%; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: #06202c; box-shadow: 0 10px 30px rgba(56,189,248,0.5); z-index: 2; border: 4px solid #020617;">
+              1
+            </div>
+            
+            <div class="step-icon-wrapper" style="background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(14,165,233,0.05)); border: 2px solid rgba(56,189,248,0.3);">
               📝
             </div>
-            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; color: var(--text);">Crea tu Ticket</h3>
-            <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.7;">
-              Describe tu problema en nuestro sistema. Es rápido, fácil y puedes adjuntar capturas de pantalla.
+            
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px; color: #f1f5f9; text-align: center;">Crea tu Ticket</h3>
+            <p style="color: #94a3b8; font-size: 1rem; line-height: 1.7; text-align: center; margin-bottom: 24px;">
+              Describe tu problema en nuestro sistema intuitivo y fácil de usar.
             </p>
+            
+            <div style="margin-top: 24px;">
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Formulario simple y rápido</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Adjunta capturas de pantalla</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Prioridad según tu plan</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Confirmación instantánea</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Paso 2 -->
-        <div class="reveal" style="position: relative;">
-          <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: grid; place-items: center; font-size: 1.8rem; font-weight: 900; color: white; box-shadow: 0 8px 24px rgba(99,102,241,0.4); z-index: 2;">
-            2
-          </div>
-          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 60px 32px 32px; backdrop-filter: blur(16px); text-align: center; transition: all 0.35s; height: 100%;">
-            <div style="width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.1)); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; display: grid; place-items: center; font-size: 2.5rem;">
+          <!-- Paso 2: Asesor Asignado -->
+          <div class="reveal step-card step-card-2" style="animation-delay: 0.1s;">
+            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: white; box-shadow: 0 10px 30px rgba(139,92,246,0.5); z-index: 2; border: 4px solid #020617;">
+              2
+            </div>
+            
+            <div class="step-icon-wrapper" style="background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.05)); border: 2px solid rgba(139,92,246,0.3);">
               💬
             </div>
-            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; color: var(--text);">Asesor Asignado</h3>
-            <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.7;">
-              Un técnico especializado revisa tu caso y te contacta por chat en tiempo real para ayudarte.
+            
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px; color: #f1f5f9; text-align: center;">Asesor Asignado</h3>
+            <p style="color: #94a3b8; font-size: 1rem; line-height: 1.7; text-align: center; margin-bottom: 24px;">
+              Un técnico especializado revisa tu caso y te contacta en tiempo real.
             </p>
+            
+            <div style="margin-top: 24px;">
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Expertos certificados</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Chat en tiempo real</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Diagnóstico profesional</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Escalamiento a niveles superiores</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Paso 3 -->
-        <div class="reveal" style="position: relative;">
-          <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: grid; place-items: center; font-size: 1.8rem; font-weight: 900; color: white; box-shadow: 0 8px 24px rgba(34,197,94,0.4); z-index: 2;">
-            3
-          </div>
-          <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 60px 32px 32px; backdrop-filter: blur(16px); text-align: center; transition: all 0.35s; height: 100%;">
-            <div style="width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 20px; display: grid; place-items: center; font-size: 2.5rem;">
+          <!-- Paso 3: Problema Resuelto -->
+          <div class="reveal step-card step-card-3" style="animation-delay: 0.2s;">
+            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: white; box-shadow: 0 10px 30px rgba(34,197,94,0.5); z-index: 2; border: 4px solid #020617;">
+              3
+            </div>
+            
+            <div class="step-icon-wrapper" style="background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.05)); border: 2px solid rgba(34,197,94,0.3);">
               ✅
             </div>
-            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 14px; color: var(--text);">Problema Resuelto</h3>
-            <p style="color: var(--muted); font-size: 0.95rem; line-height: 1.7;">
-              Solucionamos tu problema de forma remota o presencial. Rápido, eficiente y con garantía.
+            
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px; color: #f1f5f9; text-align: center;">Problema Resuelto</h3>
+            <p style="color: #94a3b8; font-size: 1rem; line-height: 1.7; text-align: center; margin-bottom: 24px;">
+              Solucionamos tu problema de forma remota o presencial con garantía.
             </p>
+            
+            <div style="margin-top: 24px;">
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Solución remota o presencial</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Garantía de servicio</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Seguimiento post-solución</span>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Documentación del caso</span>
+              </div>
+            </div>
           </div>
+
         </div>
 
+        <!-- Estadísticas de Soporte - Card Glassmorphism -->
+        <div class="reveal stats-card">
+          <div style="text-align: center; margin-bottom: 50px;">
+            <h3 style="font-size: 1.8rem; font-weight: 800; color: #f1f5f9; margin-bottom: 12px;">
+              Resultados que <span style="background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">hablan por sí solos</span>
+            </h3>
+            <p style="color: #94a3b8; font-size: 1rem;">Métricas reales de nuestro servicio de soporte técnico</p>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px;">
+            <div class="stat-item" style="--stat-color-1: #38bdf8; --stat-color-2: #818cf8;">
+              <span class="stat-number">&lt;15min</span>
+              <p class="stat-label">Tiempo promedio de respuesta inicial</p>
+            </div>
+            <div class="stat-item" style="--stat-color-1: #22c55e; --stat-color-2: #16a34a;">
+              <span class="stat-number">98%</span>
+              <p class="stat-label">Problemas resueltos exitosamente</p>
+            </div>
+            <div class="stat-item" style="--stat-color-1: #f59e0b; --stat-color-2: #fbbf24;">
+              <span class="stat-number">24/7</span>
+              <p class="stat-label">Disponibilidad en planes Premium</p>
+            </div>
+            <div class="stat-item" style="--stat-color-1: #8b5cf6; --stat-color-2: #6366f1;">
+              <span class="stat-number">500+</span>
+              <p class="stat-label">Clientes satisfechos y activos</p>
+            </div>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <!-- Estadísticas de Soporte -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin-top: 80px; max-width: 900px; margin-left: auto; margin-right: auto;">
-        <div class="reveal" style="text-align: center;">
-          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
-            <15min
-          </div>
-          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Tiempo promedio de respuesta</p>
+    <!-- TECNOLOGÍAS QUE SOPORTAMOS - SECCIÓN ULTRA MODERNA -->
+    <section id="tecnologias" style="background: linear-gradient(180deg, #020617 0%, #0f172a 50%, #020617 100%); padding: 120px 60px; position: relative; overflow: hidden;">
+      
+      <!-- Fondo con grid animado -->
+      <div style="position: absolute; inset: 0; opacity: 0.08; background-image: linear-gradient(rgba(56,189,248,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.5) 1px, transparent 1px); background-size: 50px 50px; animation: grid-move 20s linear infinite;"></div>
+      
+      <style>
+        @keyframes grid-move {
+          0% { transform: translate(0, 0); }
+          100% { transform: translate(50px, 50px); }
+        }
+        @keyframes tech-float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(56,189,248,0.3), 0 10px 40px rgba(0,0,0,0.3); }
+          50% { box-shadow: 0 0 40px rgba(56,189,248,0.6), 0 15px 50px rgba(0,0,0,0.4); }
+        }
+        .tech-category {
+          background: rgba(15, 23, 42, 0.8);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(56, 189, 248, 0.15);
+          border-radius: 24px;
+          padding: 40px 32px;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+        }
+        .tech-category::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, var(--category-color), transparent);
+          opacity: 0;
+          transition: opacity 0.4s;
+        }
+        .tech-category:hover {
+          transform: translateY(-8px);
+          border-color: var(--category-color);
+          background: rgba(15, 23, 42, 0.95);
+        }
+        .tech-category:hover::before {
+          opacity: 1;
+        }
+        .tech-icon-wrapper {
+          width: 70px;
+          height: 70px;
+          margin: 0 auto 24px;
+          border-radius: 18px;
+          background: linear-gradient(135deg, var(--category-color), transparent);
+          display: grid;
+          place-items: center;
+          font-size: 2.5rem;
+          position: relative;
+          animation: tech-float 4s ease-in-out infinite;
+        }
+        .tech-icon-wrapper::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          border-radius: 18px;
+          background: linear-gradient(135deg, var(--category-color), transparent);
+          opacity: 0.2;
+          z-index: -1;
+          filter: blur(10px);
+        }
+        .tech-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          transition: all 0.3s;
+          margin-bottom: 10px;
+        }
+        .tech-item:hover {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: var(--category-color);
+          transform: translateX(6px);
+        }
+        .tech-item-icon {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: linear-gradient(135deg, var(--category-color), transparent);
+          display: grid;
+          place-items: center;
+          font-size: 1rem;
+          flex-shrink: 0;
+        }
+        .tech-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 8px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          background: linear-gradient(135deg, var(--category-color), transparent);
+          color: white;
+          margin-left: auto;
+        }
+      </style>
+
+      <div style="position: relative; z-index: 1;">
+        <!-- Header -->
+        <div class="reveal" style="text-align: center; margin-bottom: 80px;">
+          <span class="section-label" style="background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 0.85rem; letter-spacing: 3px;">EXPERIENCIA MULTIDISCIPLINARIA</span>
+          <h2 class="section-title" style="font-size: clamp(2.2rem, 5vw, 3.5rem); margin: 20px 0; font-weight: 900; line-height: 1.1;">
+            Tecnologías que <span style="background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">dominamos</span>
+          </h2>
+          <p class="section-sub" style="max-width: 800px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8; color: #94a3b8;">
+            Nuestro equipo de expertos certificados está capacitado en las tecnologías más utilizadas del mercado. Desde hardware hasta software empresarial.
+          </p>
         </div>
-        <div class="reveal" style="text-align: center;">
-          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #22c55e, #16a34a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
-            98%
+
+        <!-- Grid de Categorías -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-width: 1300px; margin: 0 auto;">
+          
+          <!-- Hardware y Equipos -->
+          <div class="reveal tech-category" style="--category-color: #38bdf8;">
+            <div class="tech-icon-wrapper">
+              💻
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Hardware & Equipos</h3>
+            
+            <div class="tech-item">
+              <div class="tech-item-icon">🖥️</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Computadores de Escritorio</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">💼</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Laptops y Portátiles</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🖨️</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Impresoras y Escáneres</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">📱</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Dispositivos Móviles</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">⚙️</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Componentes y Periféricos</span>
+            </div>
           </div>
-          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Problemas resueltos exitosamente</p>
+
+          <!-- Sistemas Operativos -->
+          <div class="reveal tech-category" style="--category-color: #8b5cf6; animation-delay: 0.1s;">
+            <div class="tech-icon-wrapper">
+              🖥️
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Sistemas Operativos</h3>
+            
+            <div class="tech-item">
+              <div class="tech-item-icon">🪟</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Windows (7, 10, 11)</span>
+              <span class="tech-badge">Popular</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🍎</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">macOS</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🐧</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Linux (Ubuntu, Debian, CentOS)</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🤖</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Android</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">📱</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">iOS</span>
+            </div>
+          </div>
+
+          <!-- Redes y Conectividad -->
+          <div class="reveal tech-category" style="--category-color: #22c55e; animation-delay: 0.2s;">
+            <div class="tech-icon-wrapper">
+              🌐
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Redes & Conectividad</h3>
+            
+            <div class="tech-item">
+              <div class="tech-item-icon">📡</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Routers y Access Points</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🔌</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Redes LAN y WAN</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">📶</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">WiFi y Conectividad Inalámbrica</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🔒</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">VPN y Seguridad de Red</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🛡️</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Firewalls</span>
+            </div>
+          </div>
+
+          <!-- Software Empresarial -->
+          <div class="reveal tech-category" style="--category-color: #f59e0b; animation-delay: 0.3s;">
+            <div class="tech-icon-wrapper">
+              📊
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Software Empresarial</h3>
+            
+            <div class="tech-item">
+              <div class="tech-item-icon">📧</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Microsoft 365 / Office</span>
+              <span class="tech-badge">Pro</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">☁️</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Google Workspace</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">💼</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">ERP y CRM</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">📈</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Software de Contabilidad</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🗄️</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Bases de Datos</span>
+            </div>
+          </div>
+
+          <!-- Seguridad y Antivirus -->
+          <div class="reveal tech-category" style="--category-color: #ef4444; animation-delay: 0.4s;">
+            <div class="tech-icon-wrapper">
+              🛡️
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Seguridad & Protección</h3>
+            
+            <div class="tech-item">
+              <div class="tech-item-icon">🦠</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Antivirus y Antimalware</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🔐</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Gestión de Contraseñas</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">💾</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Backup y Recuperación</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🔍</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Análisis de Vulnerabilidades</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🚨</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Respuesta a Incidentes</span>
+            </div>
+          </div>
+
+          <!-- Cloud y Virtualización -->
+          <div class="reveal tech-category" style="--category-color: #06b6d4; animation-delay: 0.5s;">
+            <div class="tech-icon-wrapper">
+              ☁️
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Cloud & Virtualización</h3>
+            
+            <div class="tech-item">
+              <div class="tech-item-icon">☁️</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">AWS, Azure, Google Cloud</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">📦</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">VMware y Hyper-V</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🐳</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Docker y Contenedores</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">🔄</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Migración a la Nube</span>
+            </div>
+            <div class="tech-item">
+              <div class="tech-item-icon">⚡</div>
+              <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Optimización de Recursos</span>
+            </div>
+          </div>
+
         </div>
-        <div class="reveal" style="text-align: center;">
-          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
-            24/7
+
+        <!-- CTA de Tecnologías -->
+        <div class="reveal" style="text-align: center; margin-top: 80px; padding: 50px 40px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(56, 189, 248, 0.15); border-radius: 24px; max-width: 900px; margin-left: auto; margin-right: auto; position: relative; overflow: hidden;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(56,189,248,0.05), rgba(139,92,246,0.05)); opacity: 0.5;"></div>
+          <div style="position: relative; z-index: 1;">
+            <h3 style="font-size: 1.8rem; font-weight: 800; color: #f1f5f9; margin-bottom: 16px;">
+              ¿No encuentras tu tecnología?
+            </h3>
+            <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.7; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto;">
+              Trabajamos con cientos de tecnologías adicionales. Contáctanos y te ayudaremos con cualquier problema técnico que tengas.
+            </p>
+            <a href="login.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; font-size: 1rem;">
+              <i class="fa-solid fa-comments"></i>
+              Consultar mi caso
+            </a>
           </div>
-          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Disponibilidad en planes Premium</p>
-        </div>
-        <div class="reveal" style="text-align: center;">
-          <div style="font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
-            500+
-          </div>
-          <p style="color: var(--muted); font-size: 0.9rem; font-weight: 600;">Clientes satisfechos</p>
         </div>
       </div>
     </section>

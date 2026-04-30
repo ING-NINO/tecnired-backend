@@ -11,6 +11,10 @@ const rateLimit = require("express-rate-limit");
 
 // ===== APP + SERVER =====
 const app = express();
+
+// Confiar en proxies (necesario para Render, Heroku, etc.)
+app.set('trust proxy', 1);
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "*" },

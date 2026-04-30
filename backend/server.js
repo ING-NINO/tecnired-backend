@@ -1078,17 +1078,21 @@ app.get("/stats/public", (req, res) => {
     }
     
     const data = stats[0];
-    const porcentajeResueltos = data.total_tickets > 0 
-      ? Math.round((data.resueltos / data.total_tickets) * 100) 
+    const totalTickets = parseInt(data.total_tickets) || 0;
+    const resueltos = parseInt(data.resueltos) || 0;
+    const activos = parseInt(data.activos) || 0;
+    const clientesActivos = parseInt(data.clientes_activos) || 0;
+    const porcentajeResueltos = totalTickets > 0 
+      ? Math.round((resueltos / totalTickets) * 100) 
       : 0;
     
     res.json({
       status: "ok",
       stats: {
-        total_tickets: data.total_tickets,
-        resueltos: data.resueltos,
-        activos: data.activos,
-        clientes_activos: data.clientes_activos,
+        total_tickets: totalTickets,
+        resueltos: resueltos,
+        activos: activos,
+        clientes_activos: clientesActivos,
         porcentaje_resueltos: porcentajeResueltos
       }
     });

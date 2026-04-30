@@ -1210,7 +1210,7 @@
               Anual
               <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 0.5px;">AHORRA 20%</span>
             </div>
-            <div style="font-size: 0.7rem; color: #22c55e; margin-top: 2px; font-weight: 600;">2 meses gratis 🎉</div>
+            <div style="font-size: 0.7rem; color: #22c55e; margin-top: 2px; font-weight: 600;">2 meses gratis <i class="fa-solid fa-gift"></i></div>
           </div>
         </div>
       </div>
@@ -1237,15 +1237,15 @@
 
         <!-- ESTÁNDAR -->
         <div class="plan-card destacado reveal">
-          <div class="plan-badge">🔥 Más elegido</div>
+          <div class="plan-badge"><i class="fa-solid fa-fire"></i> Más elegido</div>
           <h3>Estándar</h3>
           <div class="plan-price" data-monthly="60000" data-annual="576000">
             $<span class="price-amount">60.000</span><span class="price-period"> / mes</span>
           </div>
           <div class="savings-badge" style="display: none; font-size: 0.75rem; color: #22c55e; margin-top: 4px; font-weight: 700; text-align: center;">
-            💰 Ahorras $144.000 al año
+            <i class="fa-solid fa-piggy-bank"></i> Ahorras $144.000 al año
           </div>
-          <div class="plan-price" style="font-size:0.78rem;color:#f59e0b;margin-top:-8px;margin-bottom:8px;">⚡ Prueba por $2.000</div>
+          <div class="plan-price" style="font-size:0.78rem;color:#f59e0b;margin-top:-8px;margin-bottom:8px;"><i class="fa-solid fa-bolt"></i> Prueba por $2.000</div>
           <div class="plan-divider"></div>
           <ul class="plan-features">
             <li><i class="fa-solid fa-check"></i> Hasta 5 tickets simultáneos</li>
@@ -1262,13 +1262,13 @@
 
         <!-- PREMIUM -->
         <div class="plan-card reveal">
-          <div class="plan-badge" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">⭐ Premium</div>
+          <div class="plan-badge" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)"><i class="fa-solid fa-crown"></i> Premium</div>
           <h3>Premium</h3>
           <div class="plan-price" data-monthly="100000" data-annual="960000">
             $<span class="price-amount">100.000</span><span class="price-period"> / mes</span>
           </div>
           <div class="savings-badge" style="display: none; font-size: 0.75rem; color: #22c55e; margin-top: 4px; font-weight: 700; text-align: center;">
-            💰 Ahorras $240.000 al año
+            <i class="fa-solid fa-piggy-bank"></i> Ahorras $240.000 al año
           </div>
           <div class="plan-divider"></div>
           <ul class="plan-features">
@@ -1368,6 +1368,9 @@
           position: relative;
           animation: pulse-icon 3s ease-in-out infinite;
         }
+        .step-icon-wrapper i {
+          font-size: 3rem;
+        }
         .step-icon-wrapper::before {
           content: '';
           position: absolute;
@@ -1401,6 +1404,10 @@
           flex-shrink: 0;
           font-size: 0.75rem;
           animation: pulse-icon 2s ease-in-out infinite;
+        }
+        .feature-icon i {
+          font-size: 0.75rem;
+          color: white;
         }
         .stats-card {
           background: rgba(15, 23, 42, 0.8);
@@ -1461,12 +1468,12 @@
           
           <!-- Paso 1: Crea tu Ticket -->
           <div class="reveal step-card step-card-1">
-            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 50%; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: #06202c; box-shadow: 0 10px 30px rgba(56,189,248,0.5); z-index: 2; border: 4px solid #020617;">
+            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 50%; display: grid; place-items: center; font-size: 2.5rem; font-weight: 900; color: white; box-shadow: 0 10px 30px rgba(56,189,248,0.5); z-index: 2; border: 4px solid #020617;">
               1
             </div>
             
             <div class="step-icon-wrapper" style="background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(14,165,233,0.05)); border: 2px solid rgba(56,189,248,0.3);">
-              📝
+              <i class="fa-solid fa-ticket" style="color: #38bdf8;"></i>
             </div>
             
             <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px; color: #f1f5f9; text-align: center;">Crea tu Ticket</h3>
@@ -1476,19 +1483,19 @@
             
             <div style="margin-top: 24px;">
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Formulario simple y rápido</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Adjunta capturas de pantalla</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Prioridad según tu plan</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Confirmación instantánea</span>
               </div>
             </div>
@@ -1496,12 +1503,12 @@
 
           <!-- Paso 2: Asesor Asignado -->
           <div class="reveal step-card step-card-2" style="animation-delay: 0.1s;">
-            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: white; box-shadow: 0 10px 30px rgba(139,92,246,0.5); z-index: 2; border: 4px solid #020617;">
+            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #8b5cf6, #6366f1); border-radius: 50%; display: grid; place-items: center; font-size: 2.5rem; font-weight: 900; color: white; box-shadow: 0 10px 30px rgba(139,92,246,0.5); z-index: 2; border: 4px solid #020617;">
               2
             </div>
             
             <div class="step-icon-wrapper" style="background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.05)); border: 2px solid rgba(139,92,246,0.3);">
-              💬
+              <i class="fa-solid fa-headset" style="color: #8b5cf6;"></i>
             </div>
             
             <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px; color: #f1f5f9; text-align: center;">Asesor Asignado</h3>
@@ -1511,19 +1518,19 @@
             
             <div style="margin-top: 24px;">
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Expertos certificados</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Chat en tiempo real</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Diagnóstico profesional</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Escalamiento a niveles superiores</span>
               </div>
             </div>
@@ -1531,12 +1538,12 @@
 
           <!-- Paso 3: Problema Resuelto -->
           <div class="reveal step-card step-card-3" style="animation-delay: 0.2s;">
-            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: grid; place-items: center; font-size: 2rem; font-weight: 900; color: white; box-shadow: 0 10px 30px rgba(34,197,94,0.5); z-index: 2; border: 4px solid #020617;">
+            <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 70px; height: 70px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: grid; place-items: center; font-size: 2.5rem; font-weight: 900; color: white; box-shadow: 0 10px 30px rgba(34,197,94,0.5); z-index: 2; border: 4px solid #020617;">
               3
             </div>
             
             <div class="step-icon-wrapper" style="background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.05)); border: 2px solid rgba(34,197,94,0.3);">
-              ✅
+              <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>
             </div>
             
             <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px; color: #f1f5f9; text-align: center;">Problema Resuelto</h3>
@@ -1546,19 +1553,19 @@
             
             <div style="margin-top: 24px;">
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Solución remota o presencial</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Garantía de servicio</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Seguimiento post-solución</span>
               </div>
               <div class="feature-item">
-                <div class="feature-icon">✓</div>
+                <div class="feature-icon"><i class="fa-solid fa-check"></i></div>
                 <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">Documentación del caso</span>
               </div>
             </div>
@@ -1777,28 +1784,28 @@
           <!-- Hardware y Equipos -->
           <div class="reveal tech-category" style="--category-color: #38bdf8;">
             <div class="tech-icon-wrapper">
-              💻
+              <i class="fa-solid fa-desktop" style="color: #38bdf8;"></i>
             </div>
             <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Hardware & Equipos</h3>
             
             <div class="tech-item">
-              <div class="tech-item-icon">🖥️</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-computer" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Computadores de Escritorio</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">💼</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-laptop" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Laptops y Portátiles</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🖨️</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-print" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Impresoras y Escáneres</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">📱</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-mobile-screen-button" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Dispositivos Móviles</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">⚙️</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-microchip" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Componentes y Periféricos</span>
             </div>
           </div>
@@ -1806,29 +1813,29 @@
           <!-- Sistemas Operativos -->
           <div class="reveal tech-category" style="--category-color: #8b5cf6; animation-delay: 0.1s;">
             <div class="tech-icon-wrapper">
-              🖥️
+              <i class="fa-brands fa-windows" style="color: #8b5cf6;"></i>
             </div>
             <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Sistemas Operativos</h3>
             
             <div class="tech-item">
-              <div class="tech-item-icon">🪟</div>
+              <div class="tech-item-icon"><i class="fa-brands fa-windows" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Windows (7, 10, 11)</span>
               <span class="tech-badge">Popular</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🍎</div>
+              <div class="tech-item-icon"><i class="fa-brands fa-apple" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">macOS</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🐧</div>
+              <div class="tech-item-icon"><i class="fa-brands fa-linux" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Linux (Ubuntu, Debian, CentOS)</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🤖</div>
+              <div class="tech-item-icon"><i class="fa-brands fa-android" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Android</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">📱</div>
+              <div class="tech-item-icon"><i class="fa-brands fa-app-store-ios" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">iOS</span>
             </div>
           </div>
@@ -1836,28 +1843,28 @@
           <!-- Redes y Conectividad -->
           <div class="reveal tech-category" style="--category-color: #22c55e; animation-delay: 0.2s;">
             <div class="tech-icon-wrapper">
-              🌐
+              <i class="fa-solid fa-network-wired" style="color: #22c55e;"></i>
             </div>
             <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Redes & Conectividad</h3>
             
             <div class="tech-item">
-              <div class="tech-item-icon">📡</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-router" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Routers y Access Points</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🔌</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-ethernet" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Redes LAN y WAN</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">📶</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-wifi" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">WiFi y Conectividad Inalámbrica</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🔒</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-user-shield" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">VPN y Seguridad de Red</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🛡️</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-fire" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Firewalls</span>
             </div>
           </div>
@@ -1865,28 +1872,28 @@
           <!-- Seguridad y Antivirus -->
           <div class="reveal tech-category" style="--category-color: #ef4444; animation-delay: 0.3s;">
             <div class="tech-icon-wrapper">
-              �️
+              <i class="fa-solid fa-shield-halved" style="color: #ef4444;"></i>
             </div>
             <h3 style="font-size: 1.4rem; font-weight: 800; color: #f1f5f9; text-align: center; margin-bottom: 24px;">Seguridad & Protección</h3>
             
             <div class="tech-item">
-              <div class="tech-item-icon">🦠</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-virus-slash" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Antivirus y Antimalware</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">🔐</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-key" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Gestión de Contraseñas</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">�</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-database" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Backup y Recuperación</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">�</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-magnifying-glass-chart" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Análisis de Vulnerabilidades</span>
             </div>
             <div class="tech-item">
-              <div class="tech-item-icon">�</div>
+              <div class="tech-item-icon"><i class="fa-solid fa-bell-concierge" style="font-size: 0.85rem;"></i></div>
               <span style="color: #cbd5e1; font-size: 0.95rem; font-weight: 600;">Respuesta a Incidentes</span>
             </div>
           </div>
@@ -1992,11 +1999,11 @@
             </label>
             <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;">
               <div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;">
-                <span class="star-rating" data-rating="1">⭐</span>
-                <span class="star-rating" data-rating="2">⭐</span>
-                <span class="star-rating" data-rating="3">⭐</span>
-                <span class="star-rating" data-rating="4">⭐</span>
-                <span class="star-rating" data-rating="5">⭐</span>
+                <span class="star-rating" data-rating="1"><i class="fa-solid fa-star"></i></span>
+                <span class="star-rating" data-rating="2"><i class="fa-solid fa-star"></i></span>
+                <span class="star-rating" data-rating="3"><i class="fa-solid fa-star"></i></span>
+                <span class="star-rating" data-rating="4"><i class="fa-solid fa-star"></i></span>
+                <span class="star-rating" data-rating="5"><i class="fa-solid fa-star"></i></span>
               </div>
               <input type="hidden" id="feedbackRating" value="0" />
               <p id="ratingText" style="font-size:1rem;font-weight:600;color:var(--muted);margin-top:8px;">Selecciona tu calificación</p>
@@ -2208,25 +2215,25 @@
       const ratingText = document.getElementById("ratingText");
       
       const ratingLabels = {
-        1: "😞 Muy Insatisfecho",
-        2: "😕 Insatisfecho",
-        3: "😐 Neutral",
-        4: "😊 Satisfecho",
-        5: "🤩 Muy Satisfecho"
+        1: "Muy Insatisfecho",
+        2: "Insatisfecho",
+        3: "Neutral",
+        4: "Satisfecho",
+        5: "Muy Satisfecho"
       };
 
       stars.forEach(star => {
         star.style.cursor = "pointer";
         star.style.fontSize = "2rem";
         star.style.transition = "all 0.2s";
-        star.style.filter = "grayscale(100%)";
+        star.style.color = "#64748b";
         star.style.opacity = "0.4";
 
         star.addEventListener("mouseenter", function() {
           const rating = parseInt(this.dataset.rating);
           stars.forEach((s, i) => {
             if (i < rating) {
-              s.style.filter = "grayscale(0%)";
+              s.style.color = "#fbbf24";
               s.style.opacity = "1";
               s.style.transform = "scale(1.2)";
             }
@@ -2237,11 +2244,11 @@
           const currentRating = parseInt(ratingInput.value);
           stars.forEach((s, i) => {
             if (i < currentRating) {
-              s.style.filter = "grayscale(0%)";
+              s.style.color = "#fbbf24";
               s.style.opacity = "1";
               s.style.transform = "scale(1)";
             } else {
-              s.style.filter = "grayscale(100%)";
+              s.style.color = "#64748b";
               s.style.opacity = "0.4";
               s.style.transform = "scale(1)";
             }
@@ -2256,11 +2263,11 @@
           
           stars.forEach((s, i) => {
             if (i < rating) {
-              s.style.filter = "grayscale(0%)";
+              s.style.color = "#fbbf24";
               s.style.opacity = "1";
               s.style.transform = "scale(1)";
             } else {
-              s.style.filter = "grayscale(100%)";
+              s.style.color = "#64748b";
               s.style.opacity = "0.4";
               s.style.transform = "scale(1)";
             }
@@ -2420,7 +2427,7 @@
             // Mostrar ahorro
             if (savingsBadge) {
               const savings = (monthly * 12) - annual;
-              savingsBadge.textContent = `💰 Ahorras $${savings.toLocaleString('es-CO')} al año`;
+              savingsBadge.innerHTML = `<i class="fa-solid fa-piggy-bank"></i> Ahorras $${savings.toLocaleString('es-CO')} al año`;
               savingsBadge.style.display = 'block';
             }
           } else {

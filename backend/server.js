@@ -809,6 +809,8 @@ app.post("/pago/crear", paymentLimiter, async (req, res) => {
 app.post("/pago/webhook", async (req, res) => {
   const { type, data } = req.query;
 
+  console.log(`📩 Webhook recibido: type=${type}, id=${data?.id}`);
+
   // Verificar firma del webhook con la clave secreta
   const xSignature = req.headers["x-signature"];
   const xRequestId = req.headers["x-request-id"];
@@ -827,35 +829,50 @@ app.post("/pago/webhook", async (req, res) => {
     }
   }
 
-  if (type !== "payment") return res.sendStatus(200);
+  // Aceptar tanto 'payment' como 'merchant_order'
+  if (type !== "payment" && type !== "merchant_order") {
+    console.log(`ℹ️ Tipo de evento ignorado: ${type}`);
+    return res.sendStatus(200);
+  }
 
   try {
     const payment = new Payment(mpClient);
     const pago = await payment.get({ id: data.id });
 
+    console.log(`💳 Pago consultado: ID=${pago.id}, Status=${pago.status}`);
+
     if (pago.status === "approved") {
       const { plan, email } = pago.metadata || {};
+      console.log(`📦 Metadata: plan=${plan}, email=${email}`);
+      
       if (plan && email) {
         db.query(
           `INSERT INTO pagos (email, plan, monto, mp_payment_id, estado, fecha)
            VALUES (?, ?, ?, ?, 'aprobado', NOW())
            ON DUPLICATE KEY UPDATE estado='aprobado', fecha=NOW()`,
           [email, plan, pago.transaction_amount, String(pago.id)],
-          (err) => { if (err) console.error("Error guardando pago:", err.message); }
+          (err) => { 
+            if (err) console.error("❌ Error guardando pago:", err.message);
+            else console.log("✅ Pago guardado en BD");
+          }
         );
         db.query(
           "UPDATE usuarios SET plan=? WHERE email=?",
           [plan, email],
           (err) => {
-            if (err) console.error("Error actualizando plan:", err.message);
+            if (err) console.error("❌ Error actualizando plan:", err.message);
             else console.log(`✅ Plan ${plan} activado para ${email}`);
           }
         );
+      } else {
+        console.warn("⚠️ Metadata incompleta en el pago");
       }
+    } else {
+      console.log(`ℹ️ Pago no aprobado: status=${pago.status}`);
     }
     res.sendStatus(200);
   } catch (err) {
-    console.error("Webhook error:", err);
+    console.error("❌ Webhook error:", err);
     res.sendStatus(500);
   }
 });

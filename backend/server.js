@@ -819,8 +819,7 @@ app.post("/pago/webhook", async (req, res) => {
   const xSignature = req.headers["x-signature"];
   const xRequestId = req.headers["x-request-id"];
 
-  // TEMPORAL: Deshabilitar validación de firma para pruebas
-  if (false && xSignature && process.env.MP_WEBHOOK_SECRET) {
+  if (xSignature && process.env.MP_WEBHOOK_SECRET) {
     const [tsPart, v1Part] = xSignature.split(",");
     const ts = tsPart?.split("=")[1];
     const v1 = v1Part?.split("=")[1];

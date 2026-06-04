@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /planes.html
+Allow: /login.html
+Allow: /Sobre_Nosotros.html
+Allow: /sitemap.xml
+
+Disallow: /admin.html
+Disallow: /admin_usuarios.html
+Disallow: /admin_feedback.html
+Disallow: /asesor.html
+Disallow: /chat.html
+Disallow: /user_cliente.html
+Disallow: /checkout.html
+Disallow: /pago_exito.html
+Disallow: /pago_fallo.html
+Disallow: /pago_pendiente.html
+
+Sitemap: https://tecnired-backend.onrender.com/sitemap.xml
